@@ -184,6 +184,13 @@ let UsersService = class UsersService {
                     message: 'Account not found',
                     data: null,
                 };
+            if (response.nonce !== payLoad.nonce) {
+                return {
+                    statusCode: common_1.HttpStatus.UNAUTHORIZED,
+                    message: 'Invalid token',
+                    data: null,
+                };
+            }
             const data = new users_dto_1.UsersResponse(response);
             return {
                 statusCode: common_1.HttpStatus.OK,
@@ -299,19 +306,20 @@ let UsersService = class UsersService {
                 nonce: response.nonce,
             }, { expiresIn: '10m', secret: jwt_constant_1.jwtConstants.secret });
             const html = `
-        <!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html>
+<html lang="ar">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GoldenBrand Password Recovery</title>
+    <title>استعادة كلمة المرور - العربية</title>
     <style>
         body {
             font-family: 'Ubuntu', sans-serif;
-            background-color: var(--bg, #f5f6f7);
-            color: #333;
+            background-color: #f7f6f1;
+            color: #2f2f2f;
             margin: 0;
             padding: 20px;
+            direction: rtl;
         }
         .container {
             max-width: 600px;
@@ -327,18 +335,18 @@ let UsersService = class UsersService {
             border-bottom: 1px solid #ddd;
             font-size: 2rem;
             font-weight: bold;
-            color: var(--theme1, #fbbf24);
+            color: #d99814;
         }
         .content {
             padding: 20px 0;
         }
         .content p {
-            line-height: 1.6;
+            line-height: 1.8;
             margin-bottom: 20px;
         }
         .content a {
             display: inline-block;
-            background-color: var(--theme1, #fbbf24);
+            background-color: #d99814;
             color: #ffffff;
             padding: 10px 20px;
             border-radius: 4px;
@@ -347,7 +355,7 @@ let UsersService = class UsersService {
             transition: background-color 0.3s ease;
         }
         .content a:hover {
-            background-color: var(--theme2, #fcd34d);
+            background-color: #895f0c;
         }
         .footer {
             text-align: center;
@@ -360,15 +368,15 @@ let UsersService = class UsersService {
 </head>
 <body>
     <div class="container">
-        <div class="header">Golden<span style="color: #333;">Brand</span></div>
+        <div class="header">العربية</div>
         <div class="content">
-            <p>Hello,</p>
-            <p>We received a request to reset your GoldenBrand password. Click the button below to proceed:</p>
-            <a href="${process.env.API_URL}/users/recoverhtml?access_token=${access_token}" target="_blank">Reset Password</a>
-            <p>If you did not request this, please ignore this email.</p>
+            <p>مرحباً،</p>
+            <p>لقد تلقينا طلباً لاستعادة كلمة المرور الخاصة بك على موقع العربية. يمكنك إعادة تعيين كلمة المرور من خلال الرابط أدناه:</p>
+            <a href="${process.env.API_URL}/users/recoverhtml?access_token=${access_token}" target="_blank">إعادة تعيين كلمة المرور</a>
+            <p>إذا لم تطلب ذلك، يمكنك تجاهل هذا البريد الإلكتروني.</p>
         </div>
         <div class="footer">
-            <p>&copy; 2024 GoldenBrand. All rights reserved.</p>
+            <p>&copy; 2024 العربية. جميع الحقوق محفوظة.</p>
         </div>
     </div>
 </body>
@@ -420,122 +428,180 @@ let UsersService = class UsersService {
                 throw Error;
             }
             var html = `
-      <!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>GoldenBrand: Reset Password</title>
-    <style>
-      body {
-        font-family: "Ubuntu", sans-serif;
-        background-color: var(--bg, #f5f6f7);
-        color: #333;
-        margin: 0;
-        padding: 20px;
-      }
-      .container {
-        max-width: 400px;
-        margin: 0 auto;
-        background-color: #ffffff;
-        padding: 20px;
-        border-radius: 8px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-      }
-      .header {
-        font-size: 2rem;
-        font-weight: bold;
-        text-align: center;
-        color: var(--theme1, #fbbf24);
-        margin-bottom: 20px;
-        border-bottom: 1px solid #ddd;
-        padding-bottom: 20px;
-      }
-      .form-group {
-        margin-bottom: 20px;
-      }
-      .form-group label {
-        display: block;
-        margin-bottom: 8px;
-        font-weight: bold;
-      }
-      .form-group input {
-        width: calc(100% - 20px);
-        padding: 10px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-      }
-      .form-group button {
-        width: 100%;
-        padding: 10px;
-        background-color: var(--theme1, #fbbf24);
-        color: #ffffff;
-        border: none;
-        border-radius: 4px;
-        font-weight: bold;
-        cursor: pointer;
-        transition: background-color 0.3s ease;
-      }
-      .form-group button:hover {
-        background-color: var(--theme2, #fcd34d);
-      }
-    </style>
-  </head>
-  <body>
-    <div class="container">
-      <div class="header">Golden<span style="color: #333">Brand</span></div>
-      <form id="resetForm">
-        <div class="form-group">
-          <label for="password">New Password</label>
-          <input type="password" id="password" name="password" required />
-        </div>
-        <div class="form-group">
-          <button type="button" id="change">Change Password</button>
-        </div>
-      </form>
-    </div>
-    <script>
-      document.querySelector("#change").addEventListener("click", async () => {
-        const password = document.querySelector("#password").value;
-        const access_token = new URLSearchParams(window.location.search).get(
-          "access_token"
-        );
-
-        if (password && access_token) {
-          const response = await fetch(
-            "${process.env.API_URL}/users/changepassfromrecover/" +
-              password +
-              "?access_token=" +
-              access_token,
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-            }
-          );
-
-          if (response.ok) {
-            alert("Password successfully changed!");
-            window.location = "${process.env.FRONT_URL}/";
-          } else {
-            alert("Unable to change password. Please try again.");
-          }
-        } else {
-          alert("Please enter a password.");
+  <!DOCTYPE html>
+  <html lang="ar">
+    <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>العربية: إعادة تعيين كلمة المرور</title>
+      <style>
+        body {
+          font-family: "Ubuntu", sans-serif;
+          background-color: #f7f6f1;
+          color: #2f2f2f;
+          margin: 0;
+          padding: 20px;
+          direction: rtl;
         }
-      });
-    </script>
-  </body>
-</html>
+        .container {
+          max-width: 400px;
+          margin: 0 auto;
+          background-color: #ffffff;
+          padding: 20px;
+          border-radius: 8px;
+          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+          font-size: 2rem;
+          font-weight: bold;
+          text-align: center;
+          color: #d99814;
+          margin-bottom: 20px;
+          border-bottom: 1px solid #ddd;
+          padding-bottom: 20px;
+        }
+        .form-group {
+          margin-bottom: 20px;
+        }
+        .form-group label {
+          display: block;
+          margin-bottom: 8px;
+          font-weight: bold;
+        }
+        .form-group input {
+          width: calc(100% - 20px);
+          padding: 10px;
+          border: 1px solid #ddd;
+          border-radius: 4px;
+        }
+        .form-group button {
+          width: 100%;
+          padding: 10px;
+          background-color: #d99814;
+          color: #ffffff;
+          border: none;
+          border-radius: 4px;
+          font-weight: bold;
+          cursor: pointer;
+          transition: background-color 0.3s ease;
+        }
+        .form-group button:hover {
+          background-color: #895f0c;
+        }
+        .toast {
+          position: fixed;
+          bottom: 20px;
+          right: 20px;
+          background-color: #d99814;
+          color: #fff;
+          padding: 10px 20px;
+          border-radius: 4px;
+          display: none;
+          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+          z-index: 1000;
+          font-size: 14px;
+        }
+        .toast.error {
+          background-color: #e3342f;
+        }
+        .toast.success {
+          background-color: #38c172;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header">العربية</div>
+        <form id="resetForm">
+          <div class="form-group">
+            <label for="password">كلمة المرور الجديدة</label>
+            <input type="password" id="password" name="password" required />
+          </div>
+          <div class="form-group">
+            <label for="confirmPassword">تأكيد كلمة المرور</label>
+            <input type="password" id="confirmPassword" name="confirmPassword" required />
+          </div>
+          <div class="form-group">
+            <button type="button" id="change">تغيير كلمة المرور</button>
+          </div>
+        </form>
+      </div>
+      <div id="toast" class="toast"></div>
+      <script>
+        const showToast = (message, type = "success") => {
+          const toast = document.getElementById("toast");
+          toast.textContent = message;
+          toast.className = \`toast \${type}\`;
+          toast.style.display = "block";
+          setTimeout(() => {
+            toast.style.display = "none";
+          }, 3000);
+        };
+  
+        document.querySelector("#change").addEventListener("click", async () => {
+          const password = document.querySelector("#password").value;
+          const confirmPassword = document.querySelector("#confirmPassword").value;
+          const access_token = new URLSearchParams(window.location.search).get("access_token");
 
-`;
+          if (!password || !confirmPassword) {
+            showToast("يرجى ملء جميع الحقول.", "error");
+            return;
+          }
+
+          if (password !== confirmPassword) {
+            showToast("كلمتا المرور غير متطابقتين.", "error");
+            return;
+          }
+
+          if (password.length < 8) {
+            showToast("يجب أن تكون كلمة المرور 8 أحرف على الأقل.", "error");
+            return;
+          }
+
+          if (access_token) {
+            try {
+              const response = await fetch(
+                \`${process.env.API_URL}/users/changepassfromrecover/\${password}?access_token=\${access_token}\`,
+                {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                  },
+                }
+              );
+
+              const result = await response.json();
+
+              if (response.ok) {
+                if(result.message === 'Password changed successfully'){
+                showToast("تم تغيير كلمة المرور بنجاح!", "success");
+                setTimeout(() => {
+                  window.location = \`${process.env.FRONT_URL}/\`;
+                }, 2000);}
+                else{
+                  showToast("تعذر تغيير كلمة المرور. الرجاء المحاولة مرة أخرى.", "error");
+              }
+              } else {
+                showToast("تعذر تغيير كلمة المرور. الرجاء المحاولة مرة أخرى.", "error");
+              }
+            } catch (error) {
+              console.error(error);
+              showToast("حدث خطأ. الرجاء المحاولة مرة أخرى.", "error");
+            }
+          } else {
+            showToast("رمز التحقق غير صالح.", "error");
+          }
+        });
+
+      </script>
+    </body>
+  </html>
+  `;
             return html;
         }
         catch (error) {
-            console.log(error);
-            var html = `Errore`;
-            return html;
+            console.error(error);
+            return `<h1>حدث خطأ أثناء معالجة طلبك</h1>`;
         }
     }
     async changePasswordFromRecover(access_token, newPassword) {
@@ -550,39 +616,40 @@ let UsersService = class UsersService {
                     data: null,
                 };
             }
-            const response = await this.usersRepository.findOne({
+            const user = await this.usersRepository.findOne({
                 where: { email: payLoad.email },
             });
-            if (!response) {
+            if (!user) {
                 return {
                     statusCode: common_1.HttpStatus.NOT_FOUND,
                     message: 'User not found',
                     data: null,
                 };
             }
-            if (response && response.nonce === payLoad.nonce) {
-                const newNonce = (0, crypto_1.randomBytes)(16).toString('hex');
-                response.nonce = newNonce;
-                response.password = encrypt(newPassword);
-                await this.usersRepository.update({ email: payLoad.email }, response);
-                const response2 = await this.usersRepository.findOne({
-                    where: { email: payLoad.email },
-                });
-                const data = new users_dto_1.UsersResponse(response2);
+            const currentPassword = decrypt(user.password);
+            if (newPassword === currentPassword) {
                 return {
-                    statusCode: common_1.HttpStatus.OK,
-                    message: 'Password changed successfully',
-                    data,
+                    statusCode: common_1.HttpStatus.BAD_REQUEST,
+                    message: 'New password cannot be the same as the current password',
+                    data: null,
                 };
             }
+            const newNonce = (0, crypto_1.randomBytes)(16).toString('hex');
+            user.nonce = newNonce;
+            user.password = encrypt(newPassword);
+            await this.usersRepository.update({ email: payLoad.email }, user);
+            const updatedUser = await this.usersRepository.findOne({
+                where: { email: payLoad.email },
+            });
+            const data = new users_dto_1.UsersResponse(updatedUser);
             return {
-                statusCode: common_1.HttpStatus.BAD_REQUEST,
-                message: 'Invalid token',
-                data: null,
+                statusCode: common_1.HttpStatus.OK,
+                message: 'Password changed successfully',
+                data,
             };
         }
         catch (error) {
-            console.log(error);
+            console.error(error);
             return {
                 statusCode: common_1.HttpStatus.INTERNAL_SERVER_ERROR,
                 message: 'Failed to change password',
