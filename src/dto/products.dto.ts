@@ -54,9 +54,9 @@ export class ProductCreate {
   @IsBoolean()
   in_Stock: boolean;
 
-  @ValidateNested({ each: true })
+  @ValidateNested()
   @Type(() => CategoryDTO)
-  category: CategoryDTO[];
+  category: CategoryDTO;
 
   @ValidateNested()
   @Type(() => BrandDTO)
@@ -69,7 +69,7 @@ export class ProductUpdate {
   name?: string;
 
   @IsOptional()
-  @IsArray({each: true})
+  @IsArray({ each: true })
   img?: string[];
 
   @IsOptional()
@@ -105,9 +105,9 @@ export class ProductUpdate {
   in_Stock?: boolean;
 
   @IsOptional()
-  @ValidateNested({ each: true })
+  @ValidateNested()
   @Type(() => CategoryDTO)
-  category?: CategoryDTO[];
+  category?: CategoryDTO;
 
   @IsOptional()
   @ValidateNested()
@@ -128,7 +128,7 @@ export class ProductResponse {
   normalMultiPrice: number;
   soldMultiPrice: number;
   in_Stock: boolean;
-  category: Category[];
+  category: Category;
   brand: Brand;
 
   constructor(product: Product) {

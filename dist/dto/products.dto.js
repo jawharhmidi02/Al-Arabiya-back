@@ -68,9 +68,9 @@ __decorate([
     __metadata("design:type", Boolean)
 ], ProductCreate.prototype, "in_Stock", void 0);
 __decorate([
-    (0, class_validator_1.ValidateNested)({ each: true }),
+    (0, class_validator_1.ValidateNested)(),
     (0, class_transformer_1.Type)(() => CategoryDTO),
-    __metadata("design:type", Array)
+    __metadata("design:type", CategoryDTO)
 ], ProductCreate.prototype, "category", void 0);
 __decorate([
     (0, class_validator_1.ValidateNested)(),
@@ -132,9 +132,9 @@ __decorate([
 ], ProductUpdate.prototype, "in_Stock", void 0);
 __decorate([
     (0, class_validator_1.IsOptional)(),
-    (0, class_validator_1.ValidateNested)({ each: true }),
+    (0, class_validator_1.ValidateNested)(),
     (0, class_transformer_1.Type)(() => CategoryDTO),
-    __metadata("design:type", Array)
+    __metadata("design:type", CategoryDTO)
 ], ProductUpdate.prototype, "category", void 0);
 __decorate([
     (0, class_validator_1.IsOptional)(),

@@ -13,6 +13,6 @@ export declare class Product {
     soldMultiPrice: number;
     in_Stock: boolean;
     created_At: Date;
-    category: Category[];
+    category: Category;
     brand: Brand;
 }

@@ -65,11 +65,11 @@ __decorate([
     __metadata("design:type", Date)
 ], Product.prototype, "created_At", void 0);
 __decorate([
-    (0, typeorm_1.ManyToMany)(() => categories_entity_1.Category, (category) => category.products, {
-        onDelete: 'CASCADE',
+    (0, typeorm_1.ManyToOne)(() => categories_entity_1.Category, (category) => category.products, {
+        onDelete: 'SET NULL',
     }),
-    (0, typeorm_1.JoinTable)(),
-    __metadata("design:type", Array)
+    (0, typeorm_1.JoinColumn)(),
+    __metadata("design:type", categories_entity_1.Category)
 ], Product.prototype, "category", void 0);
 __decorate([
     (0, typeorm_1.ManyToOne)(() => brands_entity_1.Brand, (brand) => brand.products, {

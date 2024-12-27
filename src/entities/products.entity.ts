@@ -48,11 +48,11 @@ export class Product {
   @Column({ default: new Date() })
   created_At: Date;
 
-  @ManyToMany(() => Category, (category) => category.products, {
-    onDelete: 'CASCADE',
+  @ManyToOne(() => Category, (category) => category.products, {
+    onDelete: 'SET NULL',
   })
-  @JoinTable()
-  category: Category[];
+  @JoinColumn()
+  category: Category;
 
   @ManyToOne(() => Brand, (brand) => brand.products, {
     onDelete: 'SET NULL',

@@ -18,7 +18,7 @@
     "normalMultiPrice": 120.0,
     "soldMultiPrice": 102.0,
     "in_Stock": true,
-    "category": [{ "id": "50ba1907-7f3e-47c8-b16f-e44b16af2d81" }],
+    "category": { "id": "50ba1907-7f3e-47c8-b16f-e44b16af2d81" },
     "brand": { "id": "a1dafbee-24e7-4bf6-b371-e83ab9267b5a" }
   },
   {
@@ -40,7 +40,7 @@
     "normalMultiPrice": 200.0,
     "soldMultiPrice": 200.0,
     "in_Stock": true,
-    "category": [{ "id": "7516baf0-ac2d-4704-8ac4-e9c6583c99bb" }],
+    "category": { "id": "7516baf0-ac2d-4704-8ac4-e9c6583c99bb" },
     "brand": { "id": "64e756d1-91b6-4be9-a2cf-d643e37f5031" }
   },
   {
@@ -62,7 +62,7 @@
     "normalMultiPrice": 400.0,
     "soldMultiPrice": 360.0,
     "in_Stock": true,
-    "category": [{ "id": "e20eb96f-765b-48ab-bf11-841d4615e967" }],
+    "category": { "id": "e20eb96f-765b-48ab-bf11-841d4615e967" },
     "brand": { "id": "42121eb5-dc07-4f80-bc5d-01952b832a2b" }
   },
   {
@@ -84,7 +84,7 @@
     "normalMultiPrice": 600.0,
     "soldMultiPrice": 600.0,
     "in_Stock": true,
-    "category": [{ "id": "06f3e877-c310-48f3-b1c8-fbd7969c850d" }],
+    "category": { "id": "06f3e877-c310-48f3-b1c8-fbd7969c850d" },
     "brand": { "id": "44f5cd0a-7cb4-4fea-8767-ab4e8636af0b" }
   },
   {
@@ -106,7 +106,7 @@
     "normalMultiPrice": 500.0,
     "soldMultiPrice": 400.0,
     "in_Stock": true,
-    "category": [{ "id": "dfe88fba-62df-46bd-ac83-940185240dcf" }],
+    "category": { "id": "dfe88fba-62df-46bd-ac83-940185240dcf" },
     "brand": { "id": "42121eb5-dc07-4f80-bc5d-01952b832a2b" }
   },
   {
@@ -128,7 +128,7 @@
     "normalMultiPrice": 250.0,
     "soldMultiPrice": 250.0,
     "in_Stock": true,
-    "category": [{ "id": "58413403-50fe-4ff8-b0a3-4beb2e8d6efe" }],
+    "category": { "id": "58413403-50fe-4ff8-b0a3-4beb2e8d6efe" },
     "brand": { "id": "1af2ff8d-9f8e-4942-9c19-aa87a0d8e0af" }
   },
   {
@@ -150,7 +150,7 @@
     "normalMultiPrice": 60.0,
     "soldMultiPrice": 57.0,
     "in_Stock": true,
-    "category": [{ "id": "58413403-50fe-4ff8-b0a3-4beb2e8d6efe" }],
+    "category": { "id": "58413403-50fe-4ff8-b0a3-4beb2e8d6efe" },
     "brand": { "id": "a497fb4f-dd78-4084-96a7-dec9a15231e5" }
   },
   {
@@ -172,7 +172,7 @@
     "normalMultiPrice": 220.0,
     "soldMultiPrice": 220.0,
     "in_Stock": true,
-    "category": [{ "id": "dfe88fba-62df-46bd-ac83-940185240dcf" }],
+    "category": { "id": "dfe88fba-62df-46bd-ac83-940185240dcf" },
     "brand": { "id": "e6878869-0fcb-4410-8bd8-63d2afc62bbc" }
   },
   {
@@ -194,10 +194,7 @@
     "normalMultiPrice": 550,
     "soldMultiPrice": 550,
     "in_Stock": true,
-    "category": [
-      { "id": "50ba1907-7f3e-47c8-b16f-e44b16af2d81" },
-      { "id": "58413403-50fe-4ff8-b0a3-4beb2e8d6efe" }
-    ],
+    "category": { "id": "50ba1907-7f3e-47c8-b16f-e44b16af2d81" },
     "brand": { "id": "a1dafbee-24e7-4bf6-b371-e83ab9267b5a" }
   },
   {
@@ -219,7 +216,7 @@
     "normalMultiPrice": 200,
     "soldMultiPrice": 160,
     "in_Stock": true,
-    "category": [{ "id": "7516baf0-ac2d-4704-8ac4-e9c6583c99bb" }],
+    "category": { "id": "7516baf0-ac2d-4704-8ac4-e9c6583c99bb" },
     "brand": { "id": "64e756d1-91b6-4be9-a2cf-d643e37f5031" }
   },
   {
@@ -241,7 +238,7 @@
     "normalMultiPrice": 950,
     "soldMultiPrice": 950,
     "in_Stock": true,
-    "category": [{ "id": "06f3e877-c310-48f3-b1c8-fbd7969c850d" }],
+    "category": { "id": "06f3e877-c310-48f3-b1c8-fbd7969c850d" },
     "brand": { "id": "44f5cd0a-7cb4-4fea-8767-ab4e8636af0b" }
   },
   {
@@ -263,10 +260,7 @@
     "normalMultiPrice": 300,
     "soldMultiPrice": 270,
     "in_Stock": true,
-    "category": [
-      { "id": "dfe88fba-62df-46bd-ac83-940185240dcf" },
-      { "id": "e20eb96f-765b-48ab-bf11-841d4615e967" }
-    ],
+    "category": { "id": "e20eb96f-765b-48ab-bf11-841d4615e967" },
     "brand": { "id": "42121eb5-dc07-4f80-bc5d-01952b832a2b" }
   },
   {
@@ -288,7 +282,7 @@
     "normalMultiPrice": 65,
     "soldMultiPrice": 65,
     "in_Stock": true,
-    "category": [{ "id": "e20eb96f-765b-48ab-bf11-841d4615e967" }],
+    "category": { "id": "e20eb96f-765b-48ab-bf11-841d4615e967" },
     "brand": { "id": "e6878869-0fcb-4410-8bd8-63d2afc62bbc" }
   },
   {
@@ -310,10 +304,7 @@
     "normalMultiPrice": 700,
     "soldMultiPrice": 525,
     "in_Stock": true,
-    "category": [
-      { "id": "50ba1907-7f3e-47c8-b16f-e44b16af2d81" },
-      { "id": "58413403-50fe-4ff8-b0a3-4beb2e8d6efe" }
-    ],
+    "category": { "id": "50ba1907-7f3e-47c8-b16f-e44b16af2d81" },
     "brand": { "id": "1af2ff8d-9f8e-4942-9c19-aa87a0d8e0af" }
   }
 ]

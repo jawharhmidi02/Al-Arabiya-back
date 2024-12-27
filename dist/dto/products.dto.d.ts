@@ -18,7 +18,7 @@ export declare class ProductCreate {
     normalMultiPrice: number;
     soldMultiPrice: number;
     in_Stock: boolean;
-    category: CategoryDTO[];
+    category: CategoryDTO;
     brand: BrandDTO;
 }
 export declare class ProductUpdate {
@@ -32,7 +32,7 @@ export declare class ProductUpdate {
     normalMultiPrice?: number;
     soldMultiPrice?: number;
     in_Stock?: boolean;
-    category?: CategoryDTO[];
+    category?: CategoryDTO;
     brand?: BrandDTO;
 }
 export declare class ProductResponse {
@@ -48,7 +48,7 @@ export declare class ProductResponse {
     normalMultiPrice: number;
     soldMultiPrice: number;
     in_Stock: boolean;
-    category: Category[];
+    category: Category;
     brand: Brand;
     constructor(product: Product);
 }
