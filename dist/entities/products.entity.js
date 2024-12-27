@@ -29,9 +29,17 @@ __decorate([
     __metadata("design:type", String)
 ], Product.prototype, "description", void 0);
 __decorate([
-    (0, typeorm_1.Column)(),
-    __metadata("design:type", String)
+    (0, typeorm_1.Column)({ type: 'text', array: true, default: [] }),
+    __metadata("design:type", Array)
 ], Product.prototype, "img", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ default: false, nullable: true }),
+    __metadata("design:type", Boolean)
+], Product.prototype, "onSold", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ default: 0, nullable: true }),
+    __metadata("design:type", Number)
+], Product.prototype, "soldPercentage", void 0);
 __decorate([
     (0, typeorm_1.Column)({ type: 'float' }),
     __metadata("design:type", Number)
@@ -57,15 +65,17 @@ __decorate([
     __metadata("design:type", Date)
 ], Product.prototype, "created_At", void 0);
 __decorate([
-    (0, typeorm_1.ManyToMany)(() => categories_entity_1.Category, (category) => category.id, {
+    (0, typeorm_1.ManyToMany)(() => categories_entity_1.Category, (category) => category.products, {
         onDelete: 'CASCADE',
     }),
+    (0, typeorm_1.JoinTable)(),
     __metadata("design:type", Array)
 ], Product.prototype, "category", void 0);
 __decorate([
-    (0, typeorm_1.ManyToOne)(() => brands_entity_1.Brand, (brand) => brand.id, {
+    (0, typeorm_1.ManyToOne)(() => brands_entity_1.Brand, (brand) => brand.products, {
         onDelete: 'SET NULL',
     }),
+    (0, typeorm_1.JoinColumn)(),
     __metadata("design:type", brands_entity_1.Brand)
 ], Product.prototype, "brand", void 0);
 exports.Product = Product = __decorate([

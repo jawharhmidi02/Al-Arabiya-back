@@ -28,8 +28,8 @@ __decorate([
     __metadata("design:type", String)
 ], Brand.prototype, "img", void 0);
 __decorate([
-    (0, typeorm_1.OneToMany)(() => products_entity_1.Product, (product) => product.category, { lazy: true }),
-    __metadata("design:type", Promise)
+    (0, typeorm_1.OneToMany)(() => products_entity_1.Product, (product) => product.brand),
+    __metadata("design:type", Array)
 ], Brand.prototype, "products", void 0);
 exports.Brand = Brand = __decorate([
     (0, typeorm_1.Entity)()

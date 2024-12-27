@@ -5,10 +5,10 @@ import { BrandCreate, BrandResponse, BrandUpdate } from 'src/dto/brands.dto';
 import { ApiResponse } from 'src/common/interfaces/response.interface';
 import { Users } from 'src/entities/users.entity';
 export declare class BrandService {
-    private categoryRepository;
+    private brandRepository;
     private jwtService;
     private usersRepository;
-    constructor(categoryRepository: Repository<Brand>, jwtService: JwtService, usersRepository: Repository<Users>);
+    constructor(brandRepository: Repository<Brand>, jwtService: JwtService, usersRepository: Repository<Users>);
     create(category: BrandCreate, access_token?: string): Promise<ApiResponse<BrandResponse>>;
     findAll(page?: number, limit?: number): Promise<ApiResponse<{
         data: BrandResponse[];

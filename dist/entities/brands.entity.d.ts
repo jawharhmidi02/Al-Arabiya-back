@@ -3,5 +3,5 @@ export declare class Brand {
     id: string;
     name: string;
     img: string;
-    products: Promise<Product[]>;
+    products: Product[];
 }

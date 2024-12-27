@@ -75,15 +75,15 @@ export class CategoryService {
         {
           skip: (page - 1) * limit,
           take: limit,
-          relations: ['products'],
+          relations: ['products', 'products.brand'],
         },
       );
 
       const data = [];
       for (let i = 0; i < response.length; i++) {
         const category = new CategoryResponse(response[i]);
-        const products = await response[i].products;
-        category.products = products;
+        // const products = await response[i].products;
+        // category.products = products;
         data.push(category);
       }
 
@@ -113,7 +113,7 @@ export class CategoryService {
     try {
       const response = await this.categoryRepository.findOne({
         where: { id },
-        relations: ['products'],
+        relations: ['products', 'products.brand'],
       });
 
       if (!response)
@@ -124,8 +124,8 @@ export class CategoryService {
         };
 
       const data = new CategoryResponse(response);
-      const products = await response.products;
-      data.products = products;
+      // const products = await response.products;
+      // data.products = products;
 
       return {
         statusCode: HttpStatus.OK,
@@ -149,14 +149,14 @@ export class CategoryService {
     try {
       const response = await this.categoryRepository.find({
         where: { name: Like(`%${name}%`) },
-        relations: ['products'],
+        relations: ['products', 'products.brand'],
       });
 
       const data = [];
       for (let i = 0; i < response.length; i++) {
         const category = new CategoryResponse(response[i]);
-        const products = await response[i].products;
-        category.products = products;
+        // const products = await response[i].products;
+        // category.products = products;
         data.push(category);
       }
 
@@ -205,7 +205,7 @@ export class CategoryService {
 
       const response = await this.categoryRepository.findOne({
         where: { id },
-        relations: ['products'],
+        relations: ['products', 'products.brand'],
       });
 
       if (!response)
@@ -216,8 +216,8 @@ export class CategoryService {
         };
 
       const data = new CategoryResponse(response);
-      const products = await response.products;
-      data.products = products;
+      // const products = await response.products;
+      // data.products = products;
 
       return {
         statusCode: HttpStatus.OK,
@@ -261,7 +261,7 @@ export class CategoryService {
 
       const response = await this.categoryRepository.findOne({
         where: { id },
-        relations: ['products'],
+        relations: ['products', 'products.brand'],
       });
 
       if (!response)
@@ -274,8 +274,8 @@ export class CategoryService {
       await this.categoryRepository.delete(id);
 
       const data = new CategoryResponse(response);
-      const products = await response.products;
-      data.products = products;
+      // const products = await response.products;
+      // data.products = products;
 
       return {
         statusCode: HttpStatus.OK,

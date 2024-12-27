@@ -10,11 +10,7 @@ import {
   Query,
 } from '@nestjs/common';
 import { ApiResponse } from 'src/common/interfaces/response.interface';
-import {
-  BrandCreate,
-  BrandResponse,
-  BrandUpdate,
-} from 'src/dto/brands.dto';
+import { BrandCreate, BrandResponse, BrandUpdate } from 'src/dto/brands.dto';
 import { BrandService } from 'src/services/brands.service';
 
 @Controller('brand')

@@ -18,10 +18,6 @@ __decorate([
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], CategoryCreate.prototype, "name", void 0);
-__decorate([
-    (0, class_validator_1.IsString)(),
-    __metadata("design:type", String)
-], CategoryCreate.prototype, "img", void 0);
 class CategoryUpdate {
 }
 exports.CategoryUpdate = CategoryUpdate;
@@ -29,15 +25,11 @@ __decorate([
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], CategoryUpdate.prototype, "name", void 0);
-__decorate([
-    (0, class_validator_1.IsString)(),
-    __metadata("design:type", String)
-], CategoryUpdate.prototype, "img", void 0);
 class CategoryResponse {
     constructor(category) {
         this.id = category.id;
         this.name = category.name;
-        this.img = category.img;
+        this.products = category.products;
     }
 }
 exports.CategoryResponse = CategoryResponse;

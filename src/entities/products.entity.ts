@@ -1,6 +1,8 @@
 import {
   Column,
   Entity,
+  JoinColumn,
+  JoinTable,
   ManyToMany,
   ManyToOne,
   PrimaryGeneratedColumn,
@@ -19,8 +21,14 @@ export class Product {
   @Column()
   description: string;
 
-  @Column()
-  img: string;
+  @Column({ type: 'text', array: true, default: [] })
+  img: string[];
+
+  @Column({ default: false, nullable: true })
+  onSold: boolean;
+
+  @Column({ default: 0, nullable: true })
+  soldPercentage: number;
 
   @Column({ type: 'float' })
   normalSinglePrice: number;
@@ -40,13 +48,15 @@ export class Product {
   @Column({ default: new Date() })
   created_At: Date;
 
-  @ManyToMany(() => Category, (category) => category.id, {
+  @ManyToMany(() => Category, (category) => category.products, {
     onDelete: 'CASCADE',
   })
+  @JoinTable()
   category: Category[];
 
-  @ManyToOne(() => Brand, (brand) => brand.id, {
+  @ManyToOne(() => Brand, (brand) => brand.products, {
     onDelete: 'SET NULL',
   })
+  @JoinColumn()
   brand: Brand;
 }

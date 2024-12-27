@@ -7,7 +7,6 @@ const common_1 = require("@nestjs/common");
 async function bootstrap() {
     const app = await core_1.NestFactory.create(app_module_1.AppModule);
     const port = process.env.PORT || 5000;
-    console.log(`Server is running on port ${port}`);
     app.useGlobalPipes(new common_1.ValidationPipe({
         whitelist: true,
         forbidNonWhitelisted: true,
@@ -16,6 +15,7 @@ async function bootstrap() {
     app.enableCors();
     app.useGlobalFilters(new http_exception_filter_1.HttpExceptionFilter());
     await app.listen(5000);
+    console.log(`Server is running on port ${port}`);
 }
 bootstrap();
 //# sourceMappingURL=main.js.map

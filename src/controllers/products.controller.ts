@@ -26,7 +26,19 @@ export class ProductController {
     @Body() productDto: ProductCreate,
     @Headers('access_token') access_token?: string,
   ): Promise<ApiResponse<ProductResponse>> {
+    console.log(productDto);
+
     return await this.productService.create(productDto, access_token);
+  }
+
+  @Post('/list')
+  async createByList(
+    @Body() productDto: any,
+    @Headers('access_token') access_token?: string,
+  ): Promise<ApiResponse<ProductResponse[]>> {
+    console.log(productDto);
+
+    return await this.productService.createByList(productDto, access_token);
   }
 
   @Get()
@@ -64,6 +76,7 @@ export class ProductController {
     @Query('sortOrder') sortOrder: 'asc' | 'desc' = 'desc',
     @Query('name') name?: string,
     @Query('categories') categories?: string,
+    @Query('brand') brand?: string,
     @Query('min_price') min_price?: number,
     @Query('max_price') max_price?: number,
   ): Promise<
@@ -77,6 +90,7 @@ export class ProductController {
     return this.productService.search(page, limit, sortBy, sortOrder, {
       name,
       categories,
+      brand,
       min_price,
       max_price,
     });

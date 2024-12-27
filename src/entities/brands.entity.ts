@@ -12,6 +12,6 @@ export class Brand {
   @Column()
   img: string;
 
-  @OneToMany(() => Product, (product) => product.category, { lazy: true })
-  products: Promise<Product[]>;
+  @OneToMany(() => Product, (product) => product.brand)
+  products: Product[];
 }

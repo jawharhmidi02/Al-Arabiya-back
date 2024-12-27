@@ -21,7 +21,12 @@ let ProductController = class ProductController {
         this.productService = productService;
     }
     async create(productDto, access_token) {
+        console.log(productDto);
         return await this.productService.create(productDto, access_token);
+    }
+    async createByList(productDto, access_token) {
+        console.log(productDto);
+        return await this.productService.createByList(productDto, access_token);
     }
     findAll(page, limit) {
         return this.productService.findAll(page, limit);
@@ -32,10 +37,11 @@ let ProductController = class ProductController {
     findByName(name) {
         return this.productService.findByName(name);
     }
-    async search(page = 1, limit = 10, sortBy = 'date', sortOrder = 'desc', name, categories, min_price, max_price) {
+    async search(page = 1, limit = 10, sortBy = 'date', sortOrder = 'desc', name, categories, brand, min_price, max_price) {
         return this.productService.search(page, limit, sortBy, sortOrder, {
             name,
             categories,
+            brand,
             min_price,
             max_price,
         });
@@ -56,6 +62,14 @@ __decorate([
     __metadata("design:paramtypes", [products_dto_1.ProductCreate, String]),
     __metadata("design:returntype", Promise)
 ], ProductController.prototype, "create", null);
+__decorate([
+    (0, common_1.Post)('/list'),
+    __param(0, (0, common_1.Body)()),
+    __param(1, (0, common_1.Headers)('access_token')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String]),
+    __metadata("design:returntype", Promise)
+], ProductController.prototype, "createByList", null);
 __decorate([
     (0, common_1.Get)(),
     __param(0, (0, common_1.Query)('page')),
@@ -86,10 +100,11 @@ __decorate([
     __param(3, (0, common_1.Query)('sortOrder')),
     __param(4, (0, common_1.Query)('name')),
     __param(5, (0, common_1.Query)('categories')),
-    __param(6, (0, common_1.Query)('min_price')),
-    __param(7, (0, common_1.Query)('max_price')),
+    __param(6, (0, common_1.Query)('brand')),
+    __param(7, (0, common_1.Query)('min_price')),
+    __param(8, (0, common_1.Query)('max_price')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number, Number, String, String, String, String, Number, Number]),
+    __metadata("design:paramtypes", [Number, Number, String, String, String, String, String, Number, Number]),
     __metadata("design:returntype", Promise)
 ], ProductController.prototype, "search", null);
 __decorate([

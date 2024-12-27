@@ -9,11 +9,6 @@ export class Category {
   @Column()
   name: string;
 
-  @Column()
-  img: string;
-
-  @ManyToMany(() => Product, (product) => product.category, {
-    lazy: true,
-  })
-  products: Promise<Product[]>;
+  @ManyToMany(() => Product, (product) => product.category)
+  products: Product[];
 }

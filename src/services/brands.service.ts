@@ -11,7 +11,7 @@ import { Users } from 'src/entities/users.entity';
 export class BrandService {
   constructor(
     @InjectRepository(Brand)
-    private categoryRepository: Repository<Brand>,
+    private brandRepository: Repository<Brand>,
     private jwtService: JwtService,
     @InjectRepository(Users)
     private usersRepository: Repository<Users>,
@@ -40,7 +40,7 @@ export class BrandService {
         };
       }
 
-      const savedBrand = await this.categoryRepository.save(category);
+      const savedBrand = await this.brandRepository.save(category);
       return {
         statusCode: HttpStatus.CREATED,
         message: 'Brand created successfully',
@@ -67,19 +67,17 @@ export class BrandService {
     }>
   > {
     try {
-      const [response, totalItems] = await this.categoryRepository.findAndCount(
-        {
-          skip: (page - 1) * limit,
-          take: limit,
-          relations: ['products'],
-        },
-      );
+      const [response, totalItems] = await this.brandRepository.findAndCount({
+        skip: (page - 1) * limit,
+        take: limit,
+        relations: ['products', 'products.category'],
+      });
 
       const data = [];
       for (let i = 0; i < response.length; i++) {
         const category = new BrandResponse(response[i]);
-        const products = await response[i].products;
-        category.products = products;
+        // const products = await response[i].products;
+        // category.products = products;
         data.push(category);
       }
 
@@ -107,9 +105,9 @@ export class BrandService {
 
   async findById(id: string): Promise<ApiResponse<BrandResponse>> {
     try {
-      const response = await this.categoryRepository.findOne({
+      const response = await this.brandRepository.findOne({
         where: { id },
-        relations: ['products'],
+        relations: ['products', 'products.category'],
       });
 
       if (!response)
@@ -120,8 +118,8 @@ export class BrandService {
         };
 
       const data = new BrandResponse(response);
-      const products = await response.products;
-      data.products = products;
+      // const products = await response.products;
+      // data.products = products;
 
       return {
         statusCode: HttpStatus.OK,
@@ -143,16 +141,16 @@ export class BrandService {
 
   async findByName(name: string): Promise<ApiResponse<BrandResponse[]>> {
     try {
-      const response = await this.categoryRepository.find({
+      const response = await this.brandRepository.find({
         where: { name: Like(`%${name}%`) },
-        relations: ['products'],
+        relations: ['products', 'products.category'],
       });
 
       const data = [];
       for (let i = 0; i < response.length; i++) {
         const category = new BrandResponse(response[i]);
-        const products = await response[i].products;
-        category.products = products;
+        // const products = await response[i].products;
+        // category.products = products;
         data.push(category);
       }
 
@@ -197,11 +195,11 @@ export class BrandService {
         };
       }
 
-      await this.categoryRepository.update({ id }, category);
+      await this.brandRepository.update({ id }, category);
 
-      const response = await this.categoryRepository.findOne({
+      const response = await this.brandRepository.findOne({
         where: { id },
-        relations: ['products'],
+        relations: ['products', 'products.category'],
       });
 
       if (!response)
@@ -212,8 +210,8 @@ export class BrandService {
         };
 
       const data = new BrandResponse(response);
-      const products = await response.products;
-      data.products = products;
+      // const products = await response.products;
+      // data.products = products;
 
       return {
         statusCode: HttpStatus.OK,
@@ -255,9 +253,9 @@ export class BrandService {
         };
       }
 
-      const response = await this.categoryRepository.findOne({
+      const response = await this.brandRepository.findOne({
         where: { id },
-        relations: ['products'],
+        relations: ['products', 'products.category'],
       });
 
       if (!response)
@@ -267,11 +265,11 @@ export class BrandService {
           data: null,
         };
 
-      await this.categoryRepository.delete(id);
+      await this.brandRepository.delete(id);
 
       const data = new BrandResponse(response);
-      const products = await response.products;
-      data.products = products;
+      // const products = await response.products;
+      // data.products = products;
 
       return {
         statusCode: HttpStatus.OK,

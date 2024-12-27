@@ -4,7 +4,9 @@ export declare class Product {
     id: string;
     name: string;
     description: string;
-    img: string;
+    img: string[];
+    onSold: boolean;
+    soldPercentage: number;
     normalSinglePrice: number;
     soldSinglePrice: number;
     normalMultiPrice: number;

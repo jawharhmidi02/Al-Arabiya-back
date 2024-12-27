@@ -53,6 +53,37 @@ let ProductService = class ProductService {
             throw new common_1.HttpException(error.message || 'Failed to create product', common_1.HttpStatus.BAD_REQUEST);
         }
     }
+    async createByList(product, access_token) {
+        try {
+            const payLoad = await this.jwtService.verifyAsync(access_token);
+            const account = await this.usersRepository.findOne({
+                where: { id: payLoad.id },
+            });
+            if (!account ||
+                account.nonce !== payLoad.nonce ||
+                account.role !== 'admin') {
+                return {
+                    statusCode: common_1.HttpStatus.FORBIDDEN,
+                    message: 'Unauthorized access',
+                    data: null,
+                };
+            }
+            const savedProduct = [];
+            for (let i = 0; i < product.length; i++) {
+                const element = await this.productRepository.save(product[i]);
+                savedProduct.push(new products_dto_1.ProductResponse(element));
+            }
+            return {
+                statusCode: common_1.HttpStatus.CREATED,
+                message: 'Product created successfully',
+                data: savedProduct,
+            };
+        }
+        catch (error) {
+            console.error(error);
+            throw new common_1.HttpException(error.message || 'Failed to create product', common_1.HttpStatus.BAD_REQUEST);
+        }
+    }
     async findAll(page = 1, limit = 10) {
         try {
             const [response, totalItems] = await this.productRepository.findAndCount({
@@ -135,8 +166,29 @@ let ProductService = class ProductService {
             queryBuilder.leftJoinAndSelect('product.brand', 'brand');
             queryBuilder.skip((page - 1) * limit).take(limit);
             if (filters.name) {
-                queryBuilder.andWhere('product.name LIKE :name', {
-                    name: `%${filters.name}%`,
+                queryBuilder.andWhere('LOWER(product.name) LIKE :name', {
+                    name: `%${filters.name.toLowerCase()}%`,
+                });
+            }
+            if (filters.brand) {
+                queryBuilder.andWhere('LOWER(brand.name) LIKE :brand', {
+                    brand: `%${filters.brand.toLowerCase()}%`,
+                });
+            }
+            if (filters.categories) {
+                const categoryList = decodeURIComponent(filters.categories).split(',');
+                queryBuilder.andWhere('category.name IN (:...categories)', {
+                    categories: categoryList,
+                });
+            }
+            if (filters.min_price !== undefined) {
+                queryBuilder.andWhere('product.normalSinglePrice >= :min_price', {
+                    min_price: filters.min_price,
+                });
+            }
+            if (filters.max_price !== undefined) {
+                queryBuilder.andWhere('product.normalSinglePrice <= :max_price', {
+                    max_price: filters.max_price,
                 });
             }
             const order = sortOrder === 'asc' ? 'ASC' : 'DESC';
@@ -147,7 +199,7 @@ let ProductService = class ProductService {
                 queryBuilder.orderBy('product.name', order);
             }
             else if (sortBy === 'price') {
-                queryBuilder.orderBy('product.price', order);
+                queryBuilder.orderBy('product.normalSinglePrice', order);
             }
             const [products, totalItems] = await queryBuilder.getManyAndCount();
             const data = products.map((product) => new products_dto_1.ProductResponse(product));

@@ -38,6 +38,7 @@ class BrandResponse {
         this.id = brand.id;
         this.name = brand.name;
         this.img = brand.img;
+        this.products = brand.products;
     }
 }
 exports.BrandResponse = BrandResponse;

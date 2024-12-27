@@ -60,6 +60,50 @@ export class ProductService {
     }
   }
 
+  async createByList(
+    product: any,
+    access_token?: string,
+  ): Promise<ApiResponse<ProductResponse[]>> {
+    try {
+      const payLoad = await this.jwtService.verifyAsync(access_token);
+
+      const account = await this.usersRepository.findOne({
+        where: { id: payLoad.id },
+      });
+
+      if (
+        !account ||
+        account.nonce !== payLoad.nonce ||
+        account.role !== 'admin'
+      ) {
+        return {
+          statusCode: HttpStatus.FORBIDDEN,
+          message: 'Unauthorized access',
+          data: null,
+        };
+      }
+
+      const savedProduct = [];
+      for (let i = 0; i < product.length; i++) {
+        const element = await this.productRepository.save(product[i]);
+        savedProduct.push(new ProductResponse(element));
+      }
+
+      return {
+        statusCode: HttpStatus.CREATED,
+        message: 'Product created successfully',
+
+        data: savedProduct,
+      };
+    } catch (error) {
+      console.error(error);
+      throw new HttpException(
+        error.message || 'Failed to create product',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+  }
+
   async findAll(
     page: number = 1,
     limit: number = 10,
@@ -171,6 +215,7 @@ export class ProductService {
     filters: {
       name?: string;
       categories?: string;
+      brand?: string;
       min_price?: number;
       max_price?: number;
     },
@@ -188,48 +233,48 @@ export class ProductService {
       queryBuilder.leftJoinAndSelect('product.brand', 'brand');
       queryBuilder.skip((page - 1) * limit).take(limit);
 
-      // Filter by product name
       if (filters.name) {
-        queryBuilder.andWhere('product.name LIKE :name', {
-          name: `%${filters.name}%`,
+        queryBuilder.andWhere('LOWER(product.name) LIKE :name', {
+          name: `%${filters.name.toLowerCase()}%`,
         });
       }
 
-      // Filter by multiple categories
-      // if (filters.categories) {
-      //   const categoryList = decodeURIComponent(filters.categories).split(',');
-      //   queryBuilder.andWhere('category.name IN (:...categories)', {
-      //     categories: categoryList,
-      //   });
-      // }
+      if (filters.brand) {
+        queryBuilder.andWhere('LOWER(brand.name) LIKE :brand', {
+          brand: `%${filters.brand.toLowerCase()}%`,
+        });
+      }
 
-      // // Filter by price range
-      // if (filters.min_price !== undefined) {
-      //   queryBuilder.andWhere('product.price >= :min_price', {
-      //     min_price: filters.min_price,
-      //   });
-      // }
+      if (filters.categories) {
+        const categoryList = decodeURIComponent(filters.categories).split(',');
+        queryBuilder.andWhere('category.name IN (:...categories)', {
+          categories: categoryList,
+        });
+      }
 
-      // if (filters.max_price !== undefined) {
-      //   queryBuilder.andWhere('product.price <= :max_price', {
-      //     max_price: filters.max_price,
-      //   });
-      // }
+      if (filters.min_price !== undefined) {
+        queryBuilder.andWhere('product.normalSinglePrice >= :min_price', {
+          min_price: filters.min_price,
+        });
+      }
 
-      // Sort products
+      if (filters.max_price !== undefined) {
+        queryBuilder.andWhere('product.normalSinglePrice <= :max_price', {
+          max_price: filters.max_price,
+        });
+      }
+
       const order: 'ASC' | 'DESC' = sortOrder === 'asc' ? 'ASC' : 'DESC';
       if (sortBy === 'date') {
         queryBuilder.orderBy('product.created_At', order);
       } else if (sortBy === 'alpha') {
         queryBuilder.orderBy('product.name', order);
       } else if (sortBy === 'price') {
-        queryBuilder.orderBy('product.price', order);
+        queryBuilder.orderBy('product.normalSinglePrice', order);
       }
 
-      // Execute query and fetch results
       const [products, totalItems] = await queryBuilder.getManyAndCount();
 
-      // Transform products into ProductResponse
       const data = products.map((product) => new ProductResponse(product));
 
       const totalPages = Math.ceil(totalItems / limit);

@@ -10,6 +10,7 @@ export declare class ProductService {
     private usersRepository;
     constructor(productRepository: Repository<Product>, jwtService: JwtService, usersRepository: Repository<Users>);
     create(product: ProductCreate, access_token?: string): Promise<ApiResponse<ProductResponse>>;
+    createByList(product: any, access_token?: string): Promise<ApiResponse<ProductResponse[]>>;
     findAll(page?: number, limit?: number): Promise<ApiResponse<{
         data: ProductResponse[];
         totalPages: number;
@@ -21,6 +22,7 @@ export declare class ProductService {
     search(page: number, limit: number, sortBy: 'date' | 'alpha' | 'price', sortOrder: 'asc' | 'desc', filters: {
         name?: string;
         categories?: string;
+        brand?: string;
         min_price?: number;
         max_price?: number;
     }): Promise<ApiResponse<{

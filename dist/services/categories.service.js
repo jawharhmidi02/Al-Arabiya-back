@@ -58,13 +58,11 @@ let CategoryService = class CategoryService {
             const [response, totalItems] = await this.categoryRepository.findAndCount({
                 skip: (page - 1) * limit,
                 take: limit,
-                relations: ['products'],
+                relations: ['products', 'products.brand'],
             });
             const data = [];
             for (let i = 0; i < response.length; i++) {
                 const category = new categories_dto_1.CategoryResponse(response[i]);
-                const products = await response[i].products;
-                category.products = products;
                 data.push(category);
             }
             return {
@@ -90,7 +88,7 @@ let CategoryService = class CategoryService {
         try {
             const response = await this.categoryRepository.findOne({
                 where: { id },
-                relations: ['products'],
+                relations: ['products', 'products.brand'],
             });
             if (!response)
                 return {
@@ -99,8 +97,6 @@ let CategoryService = class CategoryService {
                     data: null,
                 };
             const data = new categories_dto_1.CategoryResponse(response);
-            const products = await response.products;
-            data.products = products;
             return {
                 statusCode: common_1.HttpStatus.OK,
                 message: 'Category retrieved successfully',
@@ -119,13 +115,11 @@ let CategoryService = class CategoryService {
         try {
             const response = await this.categoryRepository.find({
                 where: { name: (0, typeorm_2.Like)(`%${name}%`) },
-                relations: ['products'],
+                relations: ['products', 'products.brand'],
             });
             const data = [];
             for (let i = 0; i < response.length; i++) {
                 const category = new categories_dto_1.CategoryResponse(response[i]);
-                const products = await response[i].products;
-                category.products = products;
                 data.push(category);
             }
             return {
@@ -160,7 +154,7 @@ let CategoryService = class CategoryService {
             await this.categoryRepository.update({ id }, category);
             const response = await this.categoryRepository.findOne({
                 where: { id },
-                relations: ['products'],
+                relations: ['products', 'products.brand'],
             });
             if (!response)
                 return {
@@ -169,8 +163,6 @@ let CategoryService = class CategoryService {
                     data: null,
                 };
             const data = new categories_dto_1.CategoryResponse(response);
-            const products = await response.products;
-            data.products = products;
             return {
                 statusCode: common_1.HttpStatus.OK,
                 message: 'Category updated successfully',
@@ -202,7 +194,7 @@ let CategoryService = class CategoryService {
             }
             const response = await this.categoryRepository.findOne({
                 where: { id },
-                relations: ['products'],
+                relations: ['products', 'products.brand'],
             });
             if (!response)
                 return {
@@ -212,8 +204,6 @@ let CategoryService = class CategoryService {
                 };
             await this.categoryRepository.delete(id);
             const data = new categories_dto_1.CategoryResponse(response);
-            const products = await response.products;
-            data.products = products;
             return {
                 statusCode: common_1.HttpStatus.OK,
                 message: 'Category deleted successfully',

@@ -32,13 +32,21 @@ __decorate([
     __metadata("design:type", String)
 ], ProductCreate.prototype, "name", void 0);
 __decorate([
-    (0, class_validator_1.IsString)(),
-    __metadata("design:type", String)
+    (0, class_validator_1.IsArray)({ each: true }),
+    __metadata("design:type", Array)
 ], ProductCreate.prototype, "img", void 0);
 __decorate([
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], ProductCreate.prototype, "description", void 0);
+__decorate([
+    (0, class_validator_1.IsBoolean)(),
+    __metadata("design:type", Boolean)
+], ProductCreate.prototype, "onSold", void 0);
+__decorate([
+    (0, class_validator_1.IsNumber)(),
+    __metadata("design:type", Number)
+], ProductCreate.prototype, "soldPercentage", void 0);
 __decorate([
     (0, class_validator_1.IsNumber)(),
     __metadata("design:type", Number)
@@ -79,14 +87,24 @@ __decorate([
 ], ProductUpdate.prototype, "name", void 0);
 __decorate([
     (0, class_validator_1.IsOptional)(),
-    (0, class_validator_1.IsString)(),
-    __metadata("design:type", String)
+    (0, class_validator_1.IsArray)({ each: true }),
+    __metadata("design:type", Array)
 ], ProductUpdate.prototype, "img", void 0);
 __decorate([
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], ProductUpdate.prototype, "description", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsBoolean)(),
+    __metadata("design:type", Boolean)
+], ProductUpdate.prototype, "onSold", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsNumber)(),
+    __metadata("design:type", Number)
+], ProductUpdate.prototype, "soldPercentage", void 0);
 __decorate([
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsNumber)(),
@@ -130,6 +148,8 @@ class ProductResponse {
         this.name = product.name;
         this.img = product.img;
         this.description = product.description;
+        this.onSold = product.onSold;
+        this.soldPercentage = product.soldPercentage;
         this.created_At = product.created_At;
         this.normalSinglePrice = product.normalSinglePrice;
         this.soldSinglePrice = product.soldSinglePrice;

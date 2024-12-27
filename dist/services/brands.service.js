@@ -21,8 +21,8 @@ const typeorm_2 = require("typeorm");
 const brands_dto_1 = require("../dto/brands.dto");
 const users_entity_1 = require("../entities/users.entity");
 let BrandService = class BrandService {
-    constructor(categoryRepository, jwtService, usersRepository) {
-        this.categoryRepository = categoryRepository;
+    constructor(brandRepository, jwtService, usersRepository) {
+        this.brandRepository = brandRepository;
         this.jwtService = jwtService;
         this.usersRepository = usersRepository;
     }
@@ -41,7 +41,7 @@ let BrandService = class BrandService {
                     data: null,
                 };
             }
-            const savedBrand = await this.categoryRepository.save(category);
+            const savedBrand = await this.brandRepository.save(category);
             return {
                 statusCode: common_1.HttpStatus.CREATED,
                 message: 'Brand created successfully',
@@ -55,16 +55,14 @@ let BrandService = class BrandService {
     }
     async findAll(page = 1, limit = 10) {
         try {
-            const [response, totalItems] = await this.categoryRepository.findAndCount({
+            const [response, totalItems] = await this.brandRepository.findAndCount({
                 skip: (page - 1) * limit,
                 take: limit,
-                relations: ['products'],
+                relations: ['products', 'products.category'],
             });
             const data = [];
             for (let i = 0; i < response.length; i++) {
                 const category = new brands_dto_1.BrandResponse(response[i]);
-                const products = await response[i].products;
-                category.products = products;
                 data.push(category);
             }
             return {
@@ -88,9 +86,9 @@ let BrandService = class BrandService {
     }
     async findById(id) {
         try {
-            const response = await this.categoryRepository.findOne({
+            const response = await this.brandRepository.findOne({
                 where: { id },
-                relations: ['products'],
+                relations: ['products', 'products.category'],
             });
             if (!response)
                 return {
@@ -99,8 +97,6 @@ let BrandService = class BrandService {
                     data: null,
                 };
             const data = new brands_dto_1.BrandResponse(response);
-            const products = await response.products;
-            data.products = products;
             return {
                 statusCode: common_1.HttpStatus.OK,
                 message: 'Brand retrieved successfully',
@@ -117,15 +113,13 @@ let BrandService = class BrandService {
     }
     async findByName(name) {
         try {
-            const response = await this.categoryRepository.find({
+            const response = await this.brandRepository.find({
                 where: { name: (0, typeorm_2.Like)(`%${name}%`) },
-                relations: ['products'],
+                relations: ['products', 'products.category'],
             });
             const data = [];
             for (let i = 0; i < response.length; i++) {
                 const category = new brands_dto_1.BrandResponse(response[i]);
-                const products = await response[i].products;
-                category.products = products;
                 data.push(category);
             }
             return {
@@ -157,10 +151,10 @@ let BrandService = class BrandService {
                     data: null,
                 };
             }
-            await this.categoryRepository.update({ id }, category);
-            const response = await this.categoryRepository.findOne({
+            await this.brandRepository.update({ id }, category);
+            const response = await this.brandRepository.findOne({
                 where: { id },
-                relations: ['products'],
+                relations: ['products', 'products.category'],
             });
             if (!response)
                 return {
@@ -169,8 +163,6 @@ let BrandService = class BrandService {
                     data: null,
                 };
             const data = new brands_dto_1.BrandResponse(response);
-            const products = await response.products;
-            data.products = products;
             return {
                 statusCode: common_1.HttpStatus.OK,
                 message: 'Brand updated successfully',
@@ -200,9 +192,9 @@ let BrandService = class BrandService {
                     data: null,
                 };
             }
-            const response = await this.categoryRepository.findOne({
+            const response = await this.brandRepository.findOne({
                 where: { id },
-                relations: ['products'],
+                relations: ['products', 'products.category'],
             });
             if (!response)
                 return {
@@ -210,10 +202,8 @@ let BrandService = class BrandService {
                     message: 'Brand not found',
                     data: null,
                 };
-            await this.categoryRepository.delete(id);
+            await this.brandRepository.delete(id);
             const data = new brands_dto_1.BrandResponse(response);
-            const products = await response.products;
-            data.products = products;
             return {
                 statusCode: common_1.HttpStatus.OK,
                 message: 'Brand deleted successfully',

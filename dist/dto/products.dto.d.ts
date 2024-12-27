@@ -9,8 +9,10 @@ declare class BrandDTO {
 }
 export declare class ProductCreate {
     name: string;
-    img: string;
+    img: string[];
     description: string;
+    onSold: boolean;
+    soldPercentage: number;
     normalSinglePrice: number;
     soldSinglePrice: number;
     normalMultiPrice: number;
@@ -21,8 +23,10 @@ export declare class ProductCreate {
 }
 export declare class ProductUpdate {
     name?: string;
-    img?: string;
+    img?: string[];
     description?: string;
+    onSold?: boolean;
+    soldPercentage?: number;
     normalSinglePrice?: number;
     soldSinglePrice?: number;
     normalMultiPrice?: number;
@@ -34,8 +38,10 @@ export declare class ProductUpdate {
 export declare class ProductResponse {
     id: string;
     name: string;
-    img: string;
+    img: string[];
     description: string;
+    onSold: boolean;
+    soldPercentage: number;
     created_At: Date;
     normalSinglePrice: number;
     soldSinglePrice: number;

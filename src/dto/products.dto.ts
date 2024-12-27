@@ -27,11 +27,17 @@ export class ProductCreate {
   @IsString()
   name: string;
 
-  @IsString()
-  img: string;
+  @IsArray({ each: true })
+  img: string[];
 
   @IsString()
   description: string;
+
+  @IsBoolean()
+  onSold: boolean;
+
+  @IsNumber()
+  soldPercentage: number;
 
   @IsNumber()
   normalSinglePrice: number;
@@ -63,12 +69,20 @@ export class ProductUpdate {
   name?: string;
 
   @IsOptional()
-  @IsString()
-  img?: string;
+  @IsArray({each: true})
+  img?: string[];
 
   @IsOptional()
   @IsString()
   description?: string;
+
+  @IsOptional()
+  @IsBoolean()
+  onSold?: boolean;
+
+  @IsOptional()
+  @IsNumber()
+  soldPercentage?: number;
 
   @IsOptional()
   @IsNumber()
@@ -104,8 +118,10 @@ export class ProductUpdate {
 export class ProductResponse {
   id: string;
   name: string;
-  img: string;
+  img: string[];
   description: string;
+  onSold: boolean;
+  soldPercentage: number;
   created_At: Date;
   normalSinglePrice: number;
   soldSinglePrice: number;
@@ -120,6 +136,8 @@ export class ProductResponse {
     this.name = product.name;
     this.img = product.img;
     this.description = product.description;
+    this.onSold = product.onSold;
+    this.soldPercentage = product.soldPercentage;
     this.created_At = product.created_At;
     this.normalSinglePrice = product.normalSinglePrice;
     this.soldSinglePrice = product.soldSinglePrice;
