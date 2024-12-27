@@ -26,8 +26,6 @@ export class ProductController {
     @Body() productDto: ProductCreate,
     @Headers('access_token') access_token?: string,
   ): Promise<ApiResponse<ProductResponse>> {
-    console.log(productDto);
-
     return await this.productService.create(productDto, access_token);
   }
 
@@ -36,8 +34,6 @@ export class ProductController {
     @Body() productDto: any,
     @Headers('access_token') access_token?: string,
   ): Promise<ApiResponse<ProductResponse[]>> {
-    console.log(productDto);
-
     return await this.productService.createByList(productDto, access_token);
   }
 

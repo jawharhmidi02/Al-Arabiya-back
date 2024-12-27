@@ -21,11 +21,9 @@ let ProductController = class ProductController {
         this.productService = productService;
     }
     async create(productDto, access_token) {
-        console.log(productDto);
         return await this.productService.create(productDto, access_token);
     }
     async createByList(productDto, access_token) {
-        console.log(productDto);
         return await this.productService.createByList(productDto, access_token);
     }
     findAll(page, limit) {
