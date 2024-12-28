@@ -6,11 +6,13 @@ import { BrandModule } from './modules/brands.module';
 import { ProductModule } from './modules/products.module';
 import { PingModule } from './modules/ping_database.module';
 import { OrderModule } from './modules/orders.module';
+import { AdminModule } from './modules/admins.module';
 
 @Module({
   imports: [
     ConnectModule,
     UserModule,
+    AdminModule,
     CategoryModule,
     BrandModule,
     ProductModule,

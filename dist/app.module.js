@@ -15,6 +15,7 @@ const brands_module_1 = require("./modules/brands.module");
 const products_module_1 = require("./modules/products.module");
 const ping_database_module_1 = require("./modules/ping_database.module");
 const orders_module_1 = require("./modules/orders.module");
+const admins_module_1 = require("./modules/admins.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -23,6 +24,7 @@ exports.AppModule = AppModule = __decorate([
         imports: [
             connect_module_1.ConnectModule,
             users_module_1.UserModule,
+            admins_module_1.AdminModule,
             categories_module_1.CategoryModule,
             brands_module_1.BrandModule,
             products_module_1.ProductModule,
