@@ -13,7 +13,7 @@ import { ApiResponse } from 'src/common/interfaces/response.interface';
 import { OrderCreate, OrderResponse, OrderUpdate } from 'src/dto/orders.dto';
 import { OrderService } from 'src/services/orders.service';
 
-@Controller('order')
+@Controller('orders')
 export class OrderController {
   constructor(private readonly orderService: OrderService) {}
 

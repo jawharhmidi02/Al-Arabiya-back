@@ -20,7 +20,7 @@ __decorate([
     __metadata("design:type", String)
 ], Order.prototype, "id", void 0);
 __decorate([
-    (0, typeorm_1.Column)(),
+    (0, typeorm_1.Column)({ default: 'Waiting to get Accepted...' }),
     __metadata("design:type", String)
 ], Order.prototype, "state", void 0);
 __decorate([
@@ -30,21 +30,29 @@ __decorate([
 __decorate([
     (0, typeorm_1.Column)(),
     __metadata("design:type", String)
-], Order.prototype, "client_Name", void 0);
+], Order.prototype, "first_name", void 0);
 __decorate([
     (0, typeorm_1.Column)(),
     __metadata("design:type", String)
-], Order.prototype, "client_Phone", void 0);
+], Order.prototype, "last_name", void 0);
 __decorate([
     (0, typeorm_1.Column)(),
     __metadata("design:type", String)
-], Order.prototype, "client_Email", void 0);
+], Order.prototype, "phone", void 0);
 __decorate([
     (0, typeorm_1.Column)(),
     __metadata("design:type", String)
-], Order.prototype, "client_Address", void 0);
+], Order.prototype, "email", void 0);
 __decorate([
     (0, typeorm_1.Column)(),
+    __metadata("design:type", String)
+], Order.prototype, "city", void 0);
+__decorate([
+    (0, typeorm_1.Column)(),
+    __metadata("design:type", String)
+], Order.prototype, "address", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ default: 'delivery' }),
     __metadata("design:type", String)
 ], Order.prototype, "type", void 0);
 __decorate([

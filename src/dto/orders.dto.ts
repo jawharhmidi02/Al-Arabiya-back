@@ -17,29 +17,29 @@ class OrderProductDTO {
 
 export class OrderCreate {
   @IsString()
-  state: string;
+  last_name: string;
 
   @IsString()
-  client_Name: string;
+  first_name: string;
 
   @IsString()
-  client_Phone: string;
+  phone: string;
 
   @IsString()
-  client_Email: string;
+  email: string;
 
   @IsString()
-  client_Address: string;
+  city: string;
 
   @IsString()
-  type: string;
+  address: string;
 
   @IsObject()
   @Validate((obj: any) => {
     if (typeof obj !== 'object' || Array.isArray(obj)) return false;
     return Object.values(obj).every((value) => typeof value === 'number');
   })
-  items: Record<string, number>;
+  cart: Record<string, number>;
 }
 
 export class OrderUpdate {
@@ -49,19 +49,27 @@ export class OrderUpdate {
 
   @IsOptional()
   @IsString()
-  client_Name?: string;
+  first_name?: string;
 
   @IsOptional()
   @IsString()
-  client_Phone?: string;
+  last_name?: string;
 
   @IsOptional()
   @IsString()
-  client_Email?: string;
+  phone?: string;
 
   @IsOptional()
   @IsString()
-  client_Address?: string;
+  email?: string;
+
+  @IsOptional()
+  @IsString()
+  city?: string;
+
+  @IsOptional()
+  @IsString()
+  address?: string;
 
   @IsOptional()
   @IsString()
@@ -76,20 +84,24 @@ export class OrderUpdate {
 export class OrderResponse {
   id: string;
   state: string;
-  client_Name: string;
-  client_Phone: string;
-  client_Email: string;
-  client_Address: string;
+  first_name: string;
+  last_name: string;
+  phone: string;
+  email: string;
+  city: string;
+  address: string;
   type: string;
   order_Products: OrderProduct[];
 
   constructor(order: Order) {
     this.id = order.id;
     this.state = order.state;
-    this.client_Name = order.client_Name;
-    this.client_Phone = order.client_Phone;
-    this.client_Email = order.client_Email;
-    this.client_Address = order.client_Address;
+    this.first_name = order.first_name;
+    this.last_name = order.last_name;
+    this.phone = order.phone;
+    this.email = order.email;
+    this.city = order.city;
+    this.address = order.address;
     this.type = order.type;
     this.order_Products = order.order_Products;
   }

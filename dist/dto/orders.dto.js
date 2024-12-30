@@ -24,27 +24,27 @@ exports.OrderCreate = OrderCreate;
 __decorate([
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
-], OrderCreate.prototype, "state", void 0);
+], OrderCreate.prototype, "last_name", void 0);
 __decorate([
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
-], OrderCreate.prototype, "client_Name", void 0);
+], OrderCreate.prototype, "first_name", void 0);
 __decorate([
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
-], OrderCreate.prototype, "client_Phone", void 0);
+], OrderCreate.prototype, "phone", void 0);
 __decorate([
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
-], OrderCreate.prototype, "client_Email", void 0);
+], OrderCreate.prototype, "email", void 0);
 __decorate([
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
-], OrderCreate.prototype, "client_Address", void 0);
+], OrderCreate.prototype, "city", void 0);
 __decorate([
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
-], OrderCreate.prototype, "type", void 0);
+], OrderCreate.prototype, "address", void 0);
 __decorate([
     (0, class_validator_1.IsObject)(),
     (0, class_validator_1.Validate)((obj) => {
@@ -53,7 +53,7 @@ __decorate([
         return Object.values(obj).every((value) => typeof value === 'number');
     }),
     __metadata("design:type", Object)
-], OrderCreate.prototype, "items", void 0);
+], OrderCreate.prototype, "cart", void 0);
 class OrderUpdate {
 }
 exports.OrderUpdate = OrderUpdate;
@@ -66,22 +66,32 @@ __decorate([
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
-], OrderUpdate.prototype, "client_Name", void 0);
+], OrderUpdate.prototype, "first_name", void 0);
 __decorate([
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
-], OrderUpdate.prototype, "client_Phone", void 0);
+], OrderUpdate.prototype, "last_name", void 0);
 __decorate([
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
-], OrderUpdate.prototype, "client_Email", void 0);
+], OrderUpdate.prototype, "phone", void 0);
 __decorate([
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
-], OrderUpdate.prototype, "client_Address", void 0);
+], OrderUpdate.prototype, "email", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], OrderUpdate.prototype, "city", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], OrderUpdate.prototype, "address", void 0);
 __decorate([
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)(),
@@ -97,10 +107,12 @@ class OrderResponse {
     constructor(order) {
         this.id = order.id;
         this.state = order.state;
-        this.client_Name = order.client_Name;
-        this.client_Phone = order.client_Phone;
-        this.client_Email = order.client_Email;
-        this.client_Address = order.client_Address;
+        this.first_name = order.first_name;
+        this.last_name = order.last_name;
+        this.phone = order.phone;
+        this.email = order.email;
+        this.city = order.city;
+        this.address = order.address;
         this.type = order.type;
         this.order_Products = order.order_Products;
     }

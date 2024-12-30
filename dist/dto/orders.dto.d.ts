@@ -4,30 +4,34 @@ declare class OrderProductDTO {
     id: string;
 }
 export declare class OrderCreate {
-    state: string;
-    client_Name: string;
-    client_Phone: string;
-    client_Email: string;
-    client_Address: string;
-    type: string;
-    items: Record<string, number>;
+    last_name: string;
+    first_name: string;
+    phone: string;
+    email: string;
+    city: string;
+    address: string;
+    cart: Record<string, number>;
 }
 export declare class OrderUpdate {
     state?: string;
-    client_Name?: string;
-    client_Phone?: string;
-    client_Email?: string;
-    client_Address?: string;
+    first_name?: string;
+    last_name?: string;
+    phone?: string;
+    email?: string;
+    city?: string;
+    address?: string;
     type?: string;
     order_Products?: OrderProductDTO[];
 }
 export declare class OrderResponse {
     id: string;
     state: string;
-    client_Name: string;
-    client_Phone: string;
-    client_Email: string;
-    client_Address: string;
+    first_name: string;
+    last_name: string;
+    phone: string;
+    email: string;
+    city: string;
+    address: string;
     type: string;
     order_Products: OrderProduct[];
     constructor(order: Order);

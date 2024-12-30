@@ -36,17 +36,21 @@ let OrderService = class OrderService {
             const account = await this.usersRepository.findOne({
                 where: { id: payLoad.id },
             });
-            if (!account ||
-                account.nonce !== payLoad.nonce ||
-                account.role !== 'admin') {
+            if (!account || account.nonce !== payLoad.nonce) {
                 return {
                     statusCode: common_1.HttpStatus.FORBIDDEN,
                     message: 'Unauthorized access',
                     data: null,
                 };
             }
-            const orderItems = order.items;
-            const orderResponse = await this.orderRepository.save(order);
+            const orderItems = order.cart;
+            const { id } = await this.orderRepository.save(order);
+            console.log('orderResponse.id');
+            console.log(id);
+            const orderResponse = await this.orderRepository.findOne({
+                where: { id },
+                relations: ['order_Products'],
+            });
             const newOrderItems = [];
             for (const id in orderItems) {
                 const orderItem = new orderProduct_entity_1.OrderProduct();
@@ -71,7 +75,11 @@ let OrderService = class OrderService {
                 const savedOrderItem = await this.orderProductRepository.save(orderItem);
                 orderResponse.order_Products.push(savedOrderItem);
             }
-            const data = await this.orderRepository.save(orderResponse);
+            const { id: orderId } = await this.orderRepository.save(orderResponse);
+            const data = await this.orderRepository.findOne({
+                where: { id: orderId },
+                relations: ['order_Products'],
+            });
             return {
                 statusCode: common_1.HttpStatus.CREATED,
                 message: 'Order created successfully',

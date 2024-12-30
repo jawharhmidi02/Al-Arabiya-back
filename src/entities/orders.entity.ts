@@ -6,25 +6,31 @@ export class Order {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column()
+  @Column({ default: 'Waiting to get Accepted...' })
   state: string;
 
   @Column({ default: new Date() })
   created_At: Date;
 
   @Column()
-  client_Name: string;
+  first_name: string;
 
   @Column()
-  client_Phone: string;
+  last_name: string;
 
   @Column()
-  client_Email: string;
+  phone: string;
 
   @Column()
-  client_Address: string;
+  email: string;
 
   @Column()
+  city: string;
+
+  @Column()
+  address: string;
+
+  @Column({ default: 'delivery' })
   type: string;
 
   @OneToMany(() => OrderProduct, (orderProduct) => orderProduct.order, {
