@@ -45,8 +45,6 @@ let OrderService = class OrderService {
             }
             const orderItems = order.cart;
             const { id } = await this.orderRepository.save(order);
-            console.log('orderResponse.id');
-            console.log(id);
             const orderResponse = await this.orderRepository.findOne({
                 where: { id },
                 relations: ['order_Products'],
@@ -138,7 +136,7 @@ let OrderService = class OrderService {
             };
         }
         catch (error) {
-            console.log(error);
+            console.error(error);
             throw new common_1.HttpException({
                 statusCode: common_1.HttpStatus.INTERNAL_SERVER_ERROR,
                 message: error.message || 'Failed to retrieve Order',
@@ -179,7 +177,7 @@ let OrderService = class OrderService {
             };
         }
         catch (error) {
-            console.log(error);
+            console.error(error);
             throw new common_1.HttpException({
                 statusCode: common_1.HttpStatus.INTERNAL_SERVER_ERROR,
                 message: error.message || 'Failed to Update Order',
@@ -220,7 +218,7 @@ let OrderService = class OrderService {
             };
         }
         catch (error) {
-            console.log(error);
+            console.error(error);
             throw new common_1.HttpException({
                 statusCode: common_1.HttpStatus.INTERNAL_SERVER_ERROR,
                 message: error.message || 'Failed to Delete Order',

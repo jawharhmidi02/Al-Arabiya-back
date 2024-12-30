@@ -131,7 +131,7 @@ let ProductService = class ProductService {
             };
         }
         catch (error) {
-            console.log(error);
+            console.error(error);
             throw new common_1.HttpException({
                 statusCode: common_1.HttpStatus.INTERNAL_SERVER_ERROR,
                 message: error.message || 'Failed to retrieve Product',
@@ -152,7 +152,7 @@ let ProductService = class ProductService {
             };
         }
         catch (error) {
-            console.log(error);
+            console.error(error);
             throw new common_1.HttpException({
                 statusCode: common_1.HttpStatus.INTERNAL_SERVER_ERROR,
                 message: error.message || 'Failed to retrieve Products',
@@ -257,7 +257,7 @@ let ProductService = class ProductService {
             };
         }
         catch (error) {
-            console.log(error);
+            console.error(error);
             throw new common_1.HttpException({
                 statusCode: common_1.HttpStatus.INTERNAL_SERVER_ERROR,
                 message: error.message || 'Failed to Update Product',
@@ -298,7 +298,7 @@ let ProductService = class ProductService {
             };
         }
         catch (error) {
-            console.log(error);
+            console.error(error);
             throw new common_1.HttpException({
                 statusCode: common_1.HttpStatus.INTERNAL_SERVER_ERROR,
                 message: error.message || 'Failed to Delete Product',

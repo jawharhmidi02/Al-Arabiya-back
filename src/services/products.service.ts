@@ -168,7 +168,7 @@ export class ProductService {
         data,
       };
     } catch (error) {
-      console.log(error);
+      console.error(error);
 
       throw new HttpException(
         {
@@ -195,7 +195,7 @@ export class ProductService {
         data,
       };
     } catch (error) {
-      console.log(error);
+      console.error(error);
 
       throw new HttpException(
         {
@@ -346,7 +346,7 @@ export class ProductService {
         data,
       };
     } catch (error) {
-      console.log(error);
+      console.error(error);
 
       throw new HttpException(
         {
@@ -402,7 +402,7 @@ export class ProductService {
         data,
       };
     } catch (error) {
-      console.log(error);
+      console.error(error);
       throw new HttpException(
         {
           statusCode: HttpStatus.INTERNAL_SERVER_ERROR,

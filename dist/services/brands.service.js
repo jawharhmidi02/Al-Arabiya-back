@@ -104,7 +104,7 @@ let BrandService = class BrandService {
             };
         }
         catch (error) {
-            console.log(error);
+            console.error(error);
             throw new common_1.HttpException({
                 statusCode: common_1.HttpStatus.INTERNAL_SERVER_ERROR,
                 message: error.message || 'Failed to retrieve Brand',
@@ -129,7 +129,7 @@ let BrandService = class BrandService {
             };
         }
         catch (error) {
-            console.log(error);
+            console.error(error);
             throw new common_1.HttpException({
                 statusCode: common_1.HttpStatus.INTERNAL_SERVER_ERROR,
                 message: error.message || 'Failed to retrieve Brands',
@@ -170,7 +170,7 @@ let BrandService = class BrandService {
             };
         }
         catch (error) {
-            console.log(error);
+            console.error(error);
             throw new common_1.HttpException({
                 statusCode: common_1.HttpStatus.INTERNAL_SERVER_ERROR,
                 message: error.message || 'Failed to Update Brand',
@@ -211,7 +211,7 @@ let BrandService = class BrandService {
             };
         }
         catch (error) {
-            console.log(error);
+            console.error(error);
             throw new common_1.HttpException({
                 statusCode: common_1.HttpStatus.INTERNAL_SERVER_ERROR,
                 message: error.message || 'Failed to Delete Brand',

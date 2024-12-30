@@ -44,8 +44,6 @@ export class OrderService {
 
       const orderItems: Record<string, number> = order.cart;
       const { id } = await this.orderRepository.save(order);
-      console.log('orderResponse.id');
-      console.log(id);
 
       const orderResponse = await this.orderRepository.findOne({
         where: { id },
@@ -165,7 +163,7 @@ export class OrderService {
         data,
       };
     } catch (error) {
-      console.log(error);
+      console.error(error);
 
       throw new HttpException(
         {
@@ -222,7 +220,7 @@ export class OrderService {
         data,
       };
     } catch (error) {
-      console.log(error);
+      console.error(error);
 
       throw new HttpException(
         {
@@ -278,7 +276,7 @@ export class OrderService {
         data,
       };
     } catch (error) {
-      console.log(error);
+      console.error(error);
       throw new HttpException(
         {
           statusCode: HttpStatus.INTERNAL_SERVER_ERROR,

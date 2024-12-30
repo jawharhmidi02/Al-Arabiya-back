@@ -477,7 +477,7 @@ export class UsersService {
         };
       }
     } catch (error) {
-      console.log(error);
+      console.error(error);
 
       return {
         statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
