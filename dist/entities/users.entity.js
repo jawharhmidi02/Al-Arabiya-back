@@ -44,7 +44,7 @@ __decorate([
     __metadata("design:type", Object)
 ], Users.prototype, "cart", void 0);
 __decorate([
-    (0, typeorm_1.OneToMany)(() => orders_entity_1.Order, (order) => order.id, {
+    (0, typeorm_1.OneToMany)(() => orders_entity_1.Order, (order) => order.user, {
         cascade: true,
     }),
     __metadata("design:type", Array)

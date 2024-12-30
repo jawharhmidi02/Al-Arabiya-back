@@ -32,24 +32,12 @@ let OrderService = class OrderService {
     }
     async create(order, access_token) {
         try {
-            const payLoad = await this.jwtService.verifyAsync(access_token);
-            const account = await this.usersRepository.findOne({
-                where: { id: payLoad.id },
-            });
-            if (!account || account.nonce !== payLoad.nonce) {
-                return {
-                    statusCode: common_1.HttpStatus.FORBIDDEN,
-                    message: 'Unauthorized access',
-                    data: null,
-                };
-            }
             const orderItems = order.cart;
             const { id } = await this.orderRepository.save(order);
             const orderResponse = await this.orderRepository.findOne({
                 where: { id },
                 relations: ['order_Products'],
             });
-            const newOrderItems = [];
             for (const id in orderItems) {
                 const orderItem = new orderProduct_entity_1.OrderProduct();
                 const product = await this.productRepository.findOne({
@@ -72,6 +60,24 @@ let OrderService = class OrderService {
                 }
                 const savedOrderItem = await this.orderProductRepository.save(orderItem);
                 orderResponse.order_Products.push(savedOrderItem);
+            }
+            if (access_token) {
+                const payLoad = await this.jwtService.verifyAsync(access_token);
+                const account = await this.usersRepository.findOne({
+                    where: { id: payLoad.id },
+                    relations: ['orders'],
+                });
+                console.log('account');
+                console.log(account);
+                if (!account || account.nonce !== payLoad.nonce) {
+                    return {
+                        statusCode: common_1.HttpStatus.FORBIDDEN,
+                        message: 'Unauthorized access',
+                        data: null,
+                    };
+                }
+                account.orders.push(orderResponse);
+                await this.usersRepository.save(account);
             }
             const { id: orderId } = await this.orderRepository.save(orderResponse);
             const data = await this.orderRepository.findOne({

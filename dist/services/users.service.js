@@ -177,6 +177,7 @@ let UsersService = class UsersService {
             const payLoad = await this.jwtService.verifyAsync(token);
             const response = await this.usersRepository.findOne({
                 where: { id: payLoad.id },
+                relations: ['orders', 'orders.order_Products'],
             });
             if (!response)
                 return {
@@ -228,6 +229,8 @@ let UsersService = class UsersService {
             }
             if (user.password) {
                 user.password = encrypt(user.password);
+                const newNonce = (0, crypto_1.randomBytes)(16).toString('hex');
+                user.nonce = newNonce;
             }
             await this.usersRepository.update(id, user);
             const response = await this.usersRepository.findOne({ where: { id } });

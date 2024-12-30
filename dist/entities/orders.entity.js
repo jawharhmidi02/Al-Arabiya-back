@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Order = void 0;
 const typeorm_1 = require("typeorm");
 const orderProduct_entity_1 = require("./orderProduct.entity");
+const users_entity_1 = require("./users.entity");
 let Order = class Order {
 };
 exports.Order = Order;
@@ -61,6 +62,10 @@ __decorate([
     }),
     __metadata("design:type", Array)
 ], Order.prototype, "order_Products", void 0);
+__decorate([
+    (0, typeorm_1.ManyToOne)(() => users_entity_1.Users, (user) => user.orders, { nullable: true }),
+    __metadata("design:type", users_entity_1.Users)
+], Order.prototype, "user", void 0);
 exports.Order = Order = __decorate([
     (0, typeorm_1.Entity)()
 ], Order);

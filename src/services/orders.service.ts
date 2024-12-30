@@ -28,20 +28,6 @@ export class OrderService {
     access_token?: string,
   ): Promise<ApiResponse<OrderResponse>> {
     try {
-      const payLoad = await this.jwtService.verifyAsync(access_token);
-
-      const account = await this.usersRepository.findOne({
-        where: { id: payLoad.id },
-      });
-
-      if (!account || account.nonce !== payLoad.nonce) {
-        return {
-          statusCode: HttpStatus.FORBIDDEN,
-          message: 'Unauthorized access',
-          data: null,
-        };
-      }
-
       const orderItems: Record<string, number> = order.cart;
       const { id } = await this.orderRepository.save(order);
 
@@ -49,7 +35,7 @@ export class OrderService {
         where: { id },
         relations: ['order_Products'],
       });
-      const newOrderItems = [];
+
       for (const id in orderItems) {
         const orderItem = new OrderProduct();
 
@@ -77,6 +63,27 @@ export class OrderService {
           await this.orderProductRepository.save(orderItem);
 
         orderResponse.order_Products.push(savedOrderItem);
+      }
+
+      if (access_token) {
+        const payLoad = await this.jwtService.verifyAsync(access_token);
+
+        const account = await this.usersRepository.findOne({
+          where: { id: payLoad.id },
+          relations: ['orders'],
+        });
+        console.log('account');
+        console.log(account);
+
+        if (!account || account.nonce !== payLoad.nonce) {
+          return {
+            statusCode: HttpStatus.FORBIDDEN,
+            message: 'Unauthorized access',
+            data: null,
+          };
+        }
+        account.orders.push(orderResponse);
+        await this.usersRepository.save(account);
       }
 
       const { id: orderId } = await this.orderRepository.save(orderResponse);

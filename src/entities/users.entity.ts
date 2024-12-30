@@ -24,7 +24,7 @@ export class Users {
   @Column({ type: 'json', default: {} })
   cart: Record<string, number>;
 
-  @OneToMany(() => Order, (order) => order.id, {
+  @OneToMany(() => Order, (order) => order.user, {
     cascade: true,
   })
   orders: Order[];

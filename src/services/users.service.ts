@@ -208,6 +208,7 @@ export class UsersService {
 
       const response = await this.usersRepository.findOne({
         where: { id: payLoad.id },
+        relations: ['orders', 'orders.order_Products'],
       });
 
       if (!response)
@@ -274,6 +275,8 @@ export class UsersService {
 
       if (user.password) {
         user.password = encrypt(user.password);
+        const newNonce = randomBytes(16).toString('hex');
+        user.nonce = newNonce;
       }
 
       await this.usersRepository.update(id, user);

@@ -1,4 +1,5 @@
 import { OrderProduct } from './orderProduct.entity';
+import { Users } from './users.entity';
 export declare class Order {
     id: string;
     state: string;
@@ -11,4 +12,5 @@ export declare class Order {
     address: string;
     type: string;
     order_Products: OrderProduct[];
+    user: Users;
 }
