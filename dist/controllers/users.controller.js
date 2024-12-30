@@ -42,7 +42,7 @@ let UserController = class UserController {
         return this.userService.remove(id, access_token);
     }
     sendRecoverPass(email) {
-        return this.userService.sendRecoverPassViaEmail(email);
+        return this.userService.sendRecoverPassViaEmail(email.toLowerCase());
     }
     changePasswordFromRecover(access_token, password) {
         return this.userService.changePasswordFromRecover(access_token, password);

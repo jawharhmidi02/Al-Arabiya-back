@@ -71,7 +71,7 @@ export class UserController {
 
   @Post('/recoverpass/:email')
   sendRecoverPass(@Param('email') email: string): Promise<ApiResponse<any>> {
-    return this.userService.sendRecoverPassViaEmail(email);
+    return this.userService.sendRecoverPassViaEmail(email.toLowerCase());
   }
 
   @Post('/changepassfromrecover/:password')

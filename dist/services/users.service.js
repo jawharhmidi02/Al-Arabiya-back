@@ -54,6 +54,7 @@ let UsersService = class UsersService {
     }
     async signup(user) {
         try {
+            user.email = user.email.toLowerCase();
             user.password = encrypt(user.password);
             const response = await this.usersRepository.save(user);
             const data = new users_dto_1.UsersResponse(response);
@@ -77,7 +78,9 @@ let UsersService = class UsersService {
     }
     async signin(email, password) {
         try {
-            const response = await this.usersRepository.findOne({ where: { email } });
+            const response = await this.usersRepository.findOne({
+                where: { email: email.toLowerCase() },
+            });
             if (!response || decrypt(response.password) !== password) {
                 return {
                     statusCode: common_1.HttpStatus.UNAUTHORIZED,
@@ -297,7 +300,7 @@ let UsersService = class UsersService {
     async sendRecoverPassViaEmail(email) {
         try {
             const response = await this.usersRepository.findOne({
-                where: { email },
+                where: { email: email.toLowerCase() },
             });
             if (!response) {
                 return {
@@ -308,7 +311,7 @@ let UsersService = class UsersService {
             }
             const access_token = await this.jwtService.signAsync({
                 id: response.id,
-                email: email,
+                email: email.toLowerCase(),
                 nonce: response.nonce,
             }, { expiresIn: '10m', secret: jwt_constant_1.jwtConstants.secret });
             const html = `
@@ -390,7 +393,7 @@ let UsersService = class UsersService {
 `;
             const mailOptions = {
                 from: process.env.GMAIL_USER,
-                to: email,
+                to: email.toLowerCase(),
                 subject: 'Recover Account',
                 html,
             };
@@ -428,7 +431,7 @@ let UsersService = class UsersService {
                 throw new Error();
             }
             const response = await this.usersRepository.findOne({
-                where: { email: payLoad.email },
+                where: { email: payLoad.email.toLowerCase() },
             });
             if (!response || response.nonce != payLoad.nonce) {
                 throw Error;
@@ -623,7 +626,7 @@ let UsersService = class UsersService {
                 };
             }
             const user = await this.usersRepository.findOne({
-                where: { email: payLoad.email },
+                where: { email: payLoad.email.toLowerCase() },
             });
             if (!user) {
                 return {
@@ -643,9 +646,9 @@ let UsersService = class UsersService {
             const newNonce = (0, crypto_1.randomBytes)(16).toString('hex');
             user.nonce = newNonce;
             user.password = encrypt(newPassword);
-            await this.usersRepository.update({ email: payLoad.email }, user);
+            await this.usersRepository.update({ email: payLoad.email.toLowerCase() }, user);
             const updatedUser = await this.usersRepository.findOne({
-                where: { email: payLoad.email },
+                where: { email: payLoad.email.toLowerCase() },
             });
             const data = new users_dto_1.UsersResponse(updatedUser);
             return {

@@ -50,6 +50,7 @@ export class AdminService {
 
   async signup(user: UsersCreate): Promise<ApiResponse<UsersResponse>> {
     try {
+      user.email = user.email.toLowerCase();
       user.password = encrypt(user.password);
       const response = await this.usersRepository.save(user);
       const data = new UsersResponse(response);
@@ -80,7 +81,9 @@ export class AdminService {
     password: string,
   ): Promise<ApiResponse<{ access_token: string }>> {
     try {
-      const response = await this.usersRepository.findOne({ where: { email } });
+      const response = await this.usersRepository.findOne({
+        where: { email: email.toLowerCase() },
+      });
       if (!response || decrypt(response.password) !== password) {
         return {
           statusCode: HttpStatus.UNAUTHORIZED,
@@ -374,7 +377,7 @@ export class AdminService {
   async sendRecoverPassViaEmail(email: string): Promise<ApiResponse<any>> {
     try {
       const response = await this.usersRepository.findOne({
-        where: { email },
+        where: { email: email.toLowerCase() },
       });
       if (!response) {
         return {
@@ -395,7 +398,7 @@ export class AdminService {
       const access_token = await this.jwtService.signAsync(
         {
           id: response.id,
-          email: email,
+          email: email.toLowerCase(),
           nonce: response.nonce,
         },
         { expiresIn: '10m', secret: jwtConstants.secret },
@@ -481,7 +484,7 @@ export class AdminService {
 
       const mailOptions = {
         from: process.env.GMAIL_USER,
-        to: email,
+        to: email.toLowerCase(),
         subject: 'Recover Account',
         html,
       };
@@ -523,7 +526,7 @@ export class AdminService {
       }
 
       const response = await this.usersRepository.findOne({
-        where: { email: payLoad.email },
+        where: { email: payLoad.email.toLowerCase() },
       });
 
       if (!response || response.nonce != payLoad.nonce) {
@@ -730,7 +733,7 @@ export class AdminService {
       }
 
       const user = await this.usersRepository.findOne({
-        where: { email: payLoad.email },
+        where: { email: payLoad.email.toLowerCase() },
       });
 
       if (!user) {
@@ -762,10 +765,13 @@ export class AdminService {
       user.nonce = newNonce;
       user.password = encrypt(newPassword);
 
-      await this.usersRepository.update({ email: payLoad.email }, user);
+      await this.usersRepository.update(
+        { email: payLoad.email.toLowerCase() },
+        user,
+      );
 
       const updatedUser = await this.usersRepository.findOne({
-        where: { email: payLoad.email },
+        where: { email: payLoad.email.toLowerCase() },
       });
 
       const data = new UsersResponse(updatedUser);
