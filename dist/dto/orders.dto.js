@@ -32,6 +32,10 @@ __decorate([
 __decorate([
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
+], OrderCreate.prototype, "created_At", void 0);
+__decorate([
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
 ], OrderCreate.prototype, "phone", void 0);
 __decorate([
     (0, class_validator_1.IsString)(),
@@ -107,6 +111,7 @@ class OrderResponse {
     constructor(order) {
         this.id = order.id;
         this.state = order.state;
+        this.created_At = order.created_At;
         this.first_name = order.first_name;
         this.last_name = order.last_name;
         this.phone = order.phone;

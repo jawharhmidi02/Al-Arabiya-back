@@ -426,7 +426,7 @@ let AdminService = class AdminService {
             }
         }
         catch (error) {
-            console.log(error);
+            console.error(error);
             return {
                 statusCode: common_1.HttpStatus.INTERNAL_SERVER_ERROR,
                 message: 'Failed to send email',

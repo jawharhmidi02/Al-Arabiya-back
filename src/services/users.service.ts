@@ -211,6 +211,13 @@ export class UsersService {
         relations: ['orders', 'orders.order_Products'],
       });
 
+      if (response) {
+        response.orders.sort(
+          (a, b) =>
+            new Date(b.created_At).getTime() - new Date(a.created_At).getTime(),
+        );
+      }
+
       if (!response)
         return {
           statusCode: HttpStatus.NOT_FOUND,

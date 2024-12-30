@@ -1,4 +1,5 @@
 import {
+  IsDate,
   IsObject,
   IsOptional,
   IsString,
@@ -21,6 +22,9 @@ export class OrderCreate {
 
   @IsString()
   first_name: string;
+
+  @IsString()
+  created_At: string;
 
   @IsString()
   phone: string;
@@ -83,6 +87,7 @@ export class OrderUpdate {
 
 export class OrderResponse {
   id: string;
+  created_At: Date;
   state: string;
   first_name: string;
   last_name: string;
@@ -96,6 +101,7 @@ export class OrderResponse {
   constructor(order: Order) {
     this.id = order.id;
     this.state = order.state;
+    this.created_At = order.created_At;
     this.first_name = order.first_name;
     this.last_name = order.last_name;
     this.phone = order.phone;

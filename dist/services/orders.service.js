@@ -61,14 +61,12 @@ let OrderService = class OrderService {
                 const savedOrderItem = await this.orderProductRepository.save(orderItem);
                 orderResponse.order_Products.push(savedOrderItem);
             }
-            if (access_token) {
+            if (access_token !== null && access_token != 'null') {
                 const payLoad = await this.jwtService.verifyAsync(access_token);
                 const account = await this.usersRepository.findOne({
                     where: { id: payLoad.id },
                     relations: ['orders'],
                 });
-                console.log('account');
-                console.log(account);
                 if (!account || account.nonce !== payLoad.nonce) {
                     return {
                         statusCode: common_1.HttpStatus.FORBIDDEN,

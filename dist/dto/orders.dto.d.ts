@@ -6,6 +6,7 @@ declare class OrderProductDTO {
 export declare class OrderCreate {
     last_name: string;
     first_name: string;
+    created_At: string;
     phone: string;
     email: string;
     city: string;
@@ -25,6 +26,7 @@ export declare class OrderUpdate {
 }
 export declare class OrderResponse {
     id: string;
+    created_At: Date;
     state: string;
     first_name: string;
     last_name: string;
