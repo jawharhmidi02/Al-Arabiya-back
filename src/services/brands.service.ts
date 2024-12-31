@@ -56,52 +56,6 @@ export class BrandService {
     }
   }
 
-  // async findAll(
-  //   page: number = 1,
-  //   limit: number = 10,
-  // ): Promise<
-  //   ApiResponse<{
-  //     data: BrandResponse[];
-  //     totalPages: number;
-  //     currentPage: number;
-  //     totalItems: number;
-  //   }>
-  // > {
-  //   try {
-  //     const [response, totalItems] = await this.brandRepository.findAndCount({
-  //       skip: (page - 1) * limit,
-  //       take: limit,
-  //       relations: ['products', 'products.category'],
-  //     });
-
-  //     const data = [];
-  //     for (let i = 0; i < response.length; i++) {
-  //       const category = new BrandResponse(response[i]);
-  //       data.push(category);
-  //     }
-
-  //     return {
-  //       statusCode: HttpStatus.OK,
-  //       message: 'Brands retrieved successfully',
-  //       data: {
-  //         data: data,
-  //         totalPages: Math.ceil(totalItems / limit),
-  //         currentPage: page,
-  //         totalItems,
-  //       },
-  //     };
-  //   } catch (error) {
-  //     console.error(error);
-  //     throw new HttpException(
-  //       {
-  //         statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-  //         message: error.message || 'Failed to retrieve Brands',
-  //       },
-  //       HttpStatus.INTERNAL_SERVER_ERROR,
-  //     );
-  //   }
-  // }
-
   async findAll(
     page: number = 1,
     limit: number = 10,

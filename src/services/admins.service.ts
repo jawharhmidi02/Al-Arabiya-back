@@ -1,13 +1,36 @@
 import { Injectable, HttpStatus, HttpException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 import { Users } from '../entities/users.entity';
-import { UsersCreate, UsersResponse, UsersUpdate } from 'src/dto/users.dto';
+import { UsersResponse, UsersUpdate } from 'src/dto/users.dto';
 import { JwtService } from '@nestjs/jwt';
 import { createCipheriv, randomBytes, createDecipheriv } from 'crypto';
 import { ApiResponse } from 'src/common/interfaces/response.interface';
 import { jwtConstants } from 'src/constants/jwt.constant';
 import * as nodemailer from 'nodemailer';
+import { Category } from 'src/entities/categories.entity';
+import {
+  CategoryCreate,
+  CategoryResponse,
+  CategoryUpdate,
+} from 'src/dto/categories.dto';
+import { Brand } from 'src/entities/brands.entity';
+import { OrderProduct } from 'src/entities/orderProduct.entity';
+import { Order } from 'src/entities/orders.entity';
+import { Product } from 'src/entities/products.entity';
+import { BrandCreate, BrandResponse, BrandUpdate } from 'src/dto/brands.dto';
+import {
+  ProductCreate,
+  ProductResponse,
+  ProductUpdate,
+} from 'src/dto/products.dto';
+import { OrderCreate, OrderResponse, OrderUpdate } from 'src/dto/orders.dto';
+import {
+  SpecialOfferCreate,
+  SpecialOfferResponse,
+  SpecialOfferUpdate,
+} from 'src/dto/specialOffers.dto';
+import { SpecialOffer } from 'src/entities/specialOffers.entity';
 
 const algorithm = 'aes-256-cbc';
 const key = Buffer.from(process.env.CRYPTO_SECRET_KEY, 'hex');
@@ -37,6 +60,18 @@ export class AdminService {
   constructor(
     @InjectRepository(Users)
     private usersRepository: Repository<Users>,
+    @InjectRepository(Category)
+    private categoryRepository: Repository<Category>,
+    @InjectRepository(Brand)
+    private brandRepository: Repository<Brand>,
+    @InjectRepository(Order)
+    private orderRepository: Repository<Order>,
+    @InjectRepository(OrderProduct)
+    private orderProductRepository: Repository<OrderProduct>,
+    @InjectRepository(Product)
+    private productRepository: Repository<Product>,
+    @InjectRepository(SpecialOffer)
+    private specialOfferRepository: Repository<SpecialOffer>,
     private jwtService: JwtService,
   ) {
     this.transporter = nodemailer.createTransport({
@@ -48,33 +83,7 @@ export class AdminService {
     });
   }
 
-  async signup(user: UsersCreate): Promise<ApiResponse<UsersResponse>> {
-    try {
-      user.email = user.email.toLowerCase();
-      user.password = encrypt(user.password);
-      const response = await this.usersRepository.save(user);
-      const data = new UsersResponse(response);
-
-      return {
-        statusCode: HttpStatus.CREATED,
-        message: 'User signed up successfully',
-        data,
-      };
-    } catch (error) {
-      console.error(error);
-      var message: String = error.message || 'Signup Failed';
-      if (message.includes('duplicate key value violates unique constraint')) {
-        message = 'Email already exists';
-      }
-      throw new HttpException(
-        {
-          statusCode: HttpStatus.BAD_REQUEST,
-          message,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-  }
+  /* ADMIN PROFILE */
 
   async signin(
     email: string,
@@ -117,96 +126,6 @@ export class AdminService {
         {
           statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
           message: error.message || 'Signin failed',
-        },
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
-  }
-
-  async findAll(access_token: string): Promise<ApiResponse<UsersResponse[]>> {
-    try {
-      const payLoad = await this.jwtService.verifyAsync(access_token);
-      const account = await this.usersRepository.findOne({
-        where: { id: payLoad.id },
-      });
-
-      if (
-        !account ||
-        account.nonce !== payLoad.nonce ||
-        account.role !== 'admin'
-      ) {
-        return {
-          statusCode: HttpStatus.FORBIDDEN,
-          message: 'Unauthorized access',
-          data: null,
-        };
-      }
-
-      const response = await this.usersRepository.find();
-      const data = response.map((user) => new UsersResponse(user));
-
-      return {
-        statusCode: HttpStatus.OK,
-        message: 'Users retrieved successfully',
-        data,
-      };
-    } catch (error) {
-      console.error(error.response);
-      throw new HttpException(
-        {
-          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-          message: error.message || 'Failed to retrieve users',
-        },
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
-  }
-
-  async findById(
-    id: string,
-    access_token: string,
-  ): Promise<ApiResponse<UsersResponse>> {
-    try {
-      const payLoad = await this.jwtService.verifyAsync(access_token);
-
-      const account = await this.usersRepository.findOne({
-        where: { id: payLoad.id },
-      });
-
-      if (
-        !account ||
-        account.nonce !== payLoad.nonce ||
-        account.role !== 'admin'
-      ) {
-        return {
-          statusCode: HttpStatus.FORBIDDEN,
-          message: 'Unauthorized access',
-          data: null,
-        };
-      }
-
-      const response = await this.usersRepository.findOne({ where: { id } });
-
-      if (!response)
-        return {
-          statusCode: HttpStatus.NOT_FOUND,
-          message: 'User not found',
-          data: null,
-        };
-
-      const data = new UsersResponse(response);
-
-      return {
-        statusCode: HttpStatus.OK,
-        message: 'User retrieved successfully',
-        data,
-      };
-    } catch (error) {
-      console.error(error);
-      throw new HttpException(
-        {
-          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-          message: error.message || 'Failed to retrieve user',
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
@@ -257,117 +176,6 @@ export class AdminService {
         {
           statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
           message: error.message || 'Failed to retrieve account',
-        },
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
-  }
-
-  async update(
-    id: string,
-    user: UsersUpdate,
-    access_token: string,
-  ): Promise<ApiResponse<UsersResponse>> {
-    try {
-      const payLoad = await this.jwtService.verifyAsync(access_token);
-
-      const account = await this.usersRepository.findOne({
-        where: { id: payLoad.id },
-      });
-
-      if (payLoad.id !== id && (!account || account.role !== 'admin')) {
-        return {
-          statusCode: HttpStatus.FORBIDDEN,
-          message: 'Unauthorized access',
-          data: null,
-        };
-      }
-
-      if (account.nonce !== payLoad.nonce) {
-        return {
-          statusCode: HttpStatus.FORBIDDEN,
-          message: 'Invalid nonce',
-          data: null,
-        };
-      }
-
-      if (user.password) {
-        user.password = encrypt(user.password);
-      }
-
-      await this.usersRepository.update(id, user);
-
-      const response = await this.usersRepository.findOne({ where: { id } });
-
-      if (!response)
-        return {
-          statusCode: HttpStatus.NOT_FOUND,
-          message: 'User not found',
-          data: null,
-        };
-
-      const data = new UsersResponse(response);
-
-      return {
-        statusCode: HttpStatus.OK,
-        message: 'User updated successfully',
-        data,
-      };
-    } catch (error) {
-      console.error(error);
-      throw new HttpException(
-        {
-          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-          message: error.message || 'Failed to update user',
-        },
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
-  }
-
-  async remove(
-    id: string,
-    access_token: string,
-  ): Promise<ApiResponse<UsersResponse>> {
-    try {
-      const payLoad = await this.jwtService.verifyAsync(access_token);
-
-      const account = await this.usersRepository.findOne({
-        where: { id: payLoad.id },
-      });
-
-      if (payLoad.id !== id && (!account || account.role !== 'admin')) {
-        return {
-          statusCode: HttpStatus.FORBIDDEN,
-          message: 'Unauthorized access',
-          data: null,
-        };
-      }
-
-      const response = await this.usersRepository.findOne({ where: { id } });
-
-      if (!response)
-        return {
-          statusCode: HttpStatus.NOT_FOUND,
-          message: 'User not found',
-          data: null,
-        };
-
-      await this.usersRepository.delete(id);
-
-      const data = new UsersResponse(response);
-
-      return {
-        statusCode: HttpStatus.OK,
-        message: 'User deleted successfully',
-        data,
-      };
-    } catch (error) {
-      console.error(error);
-      throw new HttpException(
-        {
-          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-          message: error.message || 'Failed to delete user',
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
@@ -788,6 +596,2005 @@ export class AdminService {
         message: 'Failed to change password',
         data: null,
       };
+    }
+  }
+
+  /* USER ENDPOINTS */
+
+  async findAllUser(
+    access_token: string,
+  ): Promise<ApiResponse<UsersResponse[]>> {
+    try {
+      const payLoad = await this.jwtService.verifyAsync(access_token);
+      const account = await this.usersRepository.findOne({
+        where: { id: payLoad.id },
+      });
+
+      if (
+        !account ||
+        account.nonce !== payLoad.nonce ||
+        account.role !== 'admin'
+      ) {
+        return {
+          statusCode: HttpStatus.FORBIDDEN,
+          message: 'Unauthorized access',
+          data: null,
+        };
+      }
+
+      const response = await this.usersRepository.find();
+      const data = response.map((user) => new UsersResponse(user));
+
+      return {
+        statusCode: HttpStatus.OK,
+        message: 'Users retrieved successfully',
+        data,
+      };
+    } catch (error) {
+      console.error(error.response);
+      throw new HttpException(
+        {
+          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+          message: error.message || 'Failed to retrieve users',
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  async findByIdUser(
+    id: string,
+    access_token: string,
+  ): Promise<ApiResponse<UsersResponse>> {
+    try {
+      const payLoad = await this.jwtService.verifyAsync(access_token);
+
+      const account = await this.usersRepository.findOne({
+        where: { id: payLoad.id },
+      });
+
+      if (
+        !account ||
+        account.nonce !== payLoad.nonce ||
+        account.role !== 'admin'
+      ) {
+        return {
+          statusCode: HttpStatus.FORBIDDEN,
+          message: 'Unauthorized access',
+          data: null,
+        };
+      }
+
+      const response = await this.usersRepository.findOne({ where: { id } });
+
+      if (!response)
+        return {
+          statusCode: HttpStatus.NOT_FOUND,
+          message: 'User not found',
+          data: null,
+        };
+
+      const data = new UsersResponse(response);
+
+      return {
+        statusCode: HttpStatus.OK,
+        message: 'User retrieved successfully',
+        data,
+      };
+    } catch (error) {
+      console.error(error);
+      throw new HttpException(
+        {
+          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+          message: error.message || 'Failed to retrieve user',
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  async updateUser(
+    id: string,
+    user: UsersUpdate,
+    access_token: string,
+  ): Promise<ApiResponse<UsersResponse>> {
+    try {
+      const payLoad = await this.jwtService.verifyAsync(access_token);
+      const account = await this.usersRepository.findOne({
+        where: { id: payLoad.id },
+      });
+
+      if (
+        !account ||
+        account.nonce !== payLoad.nonce ||
+        account.role !== 'admin'
+      ) {
+        return {
+          statusCode: HttpStatus.FORBIDDEN,
+          message: 'Unauthorized access',
+          data: null,
+        };
+      }
+
+      if (user.password) {
+        user.password = encrypt(user.password);
+      }
+
+      await this.usersRepository.update(id, user);
+
+      const response = await this.usersRepository.findOne({ where: { id } });
+
+      if (!response)
+        return {
+          statusCode: HttpStatus.NOT_FOUND,
+          message: 'User not found',
+          data: null,
+        };
+
+      const data = new UsersResponse(response);
+
+      return {
+        statusCode: HttpStatus.OK,
+        message: 'User updated successfully',
+        data,
+      };
+    } catch (error) {
+      console.error(error);
+      throw new HttpException(
+        {
+          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+          message: error.message || 'Failed to update user',
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  async deleteUser(
+    id: string,
+    access_token: string,
+  ): Promise<ApiResponse<UsersResponse>> {
+    try {
+      const payLoad = await this.jwtService.verifyAsync(access_token);
+      const account = await this.usersRepository.findOne({
+        where: { id: payLoad.id },
+      });
+
+      if (
+        !account ||
+        account.nonce !== payLoad.nonce ||
+        account.role !== 'admin'
+      ) {
+        return {
+          statusCode: HttpStatus.FORBIDDEN,
+          message: 'Unauthorized access',
+          data: null,
+        };
+      }
+
+      const response = await this.usersRepository.findOne({ where: { id } });
+
+      if (!response)
+        return {
+          statusCode: HttpStatus.NOT_FOUND,
+          message: 'User not found',
+          data: null,
+        };
+
+      await this.usersRepository.delete(id);
+
+      const data = new UsersResponse(response);
+
+      return {
+        statusCode: HttpStatus.OK,
+        message: 'User deleted successfully',
+        data,
+      };
+    } catch (error) {
+      console.error(error);
+      throw new HttpException(
+        {
+          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+          message: error.message || 'Failed to delete user',
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  /* CATEGORY ENDPOINTS */
+
+  async createCategory(
+    category: CategoryCreate,
+    access_token: string,
+  ): Promise<ApiResponse<CategoryResponse>> {
+    try {
+      const payLoad = await this.jwtService.verifyAsync(access_token);
+
+      const account = await this.usersRepository.findOne({
+        where: { id: payLoad.id },
+      });
+
+      if (
+        !account ||
+        account.nonce !== payLoad.nonce ||
+        account.role !== 'admin'
+      ) {
+        return {
+          statusCode: HttpStatus.FORBIDDEN,
+          message: 'Unauthorized access',
+          data: null,
+        };
+      }
+
+      const savedCategory = await this.categoryRepository.save(category);
+      return {
+        statusCode: HttpStatus.CREATED,
+        message: 'Category created successfully',
+        data: new CategoryResponse(savedCategory),
+      };
+    } catch (error) {
+      console.error(error);
+      throw new HttpException(
+        error.message || 'Failed to create category',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+  }
+
+  async findAllCategory(
+    page: number = 1,
+    limit: number = 10,
+    access_token: string,
+  ): Promise<
+    ApiResponse<{
+      data: CategoryResponse[];
+      totalPages: number;
+      currentPage: number;
+      totalItems: number;
+    }>
+  > {
+    try {
+      const payLoad = await this.jwtService.verifyAsync(access_token);
+      const account = await this.usersRepository.findOne({
+        where: { id: payLoad.id },
+      });
+
+      if (
+        !account ||
+        account.nonce !== payLoad.nonce ||
+        account.role !== 'admin'
+      ) {
+        return {
+          statusCode: HttpStatus.FORBIDDEN,
+          message: 'Unauthorized access',
+          data: null,
+        };
+      }
+      const [response, totalItems] = await this.categoryRepository.findAndCount(
+        {
+          skip: (page - 1) * limit,
+          take: limit,
+          relations: ['products', 'products.brand'],
+        },
+      );
+
+      const data = [];
+      for (let i = 0; i < response.length; i++) {
+        const category = new CategoryResponse(response[i]);
+        // const products = await response[i].products;
+        // category.products = products;
+        data.push(category);
+      }
+
+      return {
+        statusCode: HttpStatus.OK,
+        message: 'Categories retrieved successfully',
+        data: {
+          data: data,
+          totalPages: Math.ceil(totalItems / limit),
+          currentPage: page,
+          totalItems,
+        },
+      };
+    } catch (error) {
+      console.error(error);
+      throw new HttpException(
+        {
+          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+          message: error.message || 'Failed to retrieve Categories',
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  async findByIdCategory(
+    id: string,
+    access_token: string,
+  ): Promise<ApiResponse<CategoryResponse>> {
+    try {
+      const payLoad = await this.jwtService.verifyAsync(access_token);
+      const account = await this.usersRepository.findOne({
+        where: { id: payLoad.id },
+      });
+
+      if (
+        !account ||
+        account.nonce !== payLoad.nonce ||
+        account.role !== 'admin'
+      ) {
+        return {
+          statusCode: HttpStatus.FORBIDDEN,
+          message: 'Unauthorized access',
+          data: null,
+        };
+      }
+      const response = await this.categoryRepository.findOne({
+        where: { id },
+        relations: ['products', 'products.brand'],
+      });
+
+      if (!response)
+        return {
+          statusCode: HttpStatus.NOT_FOUND,
+          message: 'Category not found',
+          data: null,
+        };
+
+      const data = new CategoryResponse(response);
+      // const products = await response.products;
+      // data.products = products;
+
+      return {
+        statusCode: HttpStatus.OK,
+        message: 'Category retrieved successfully',
+        data,
+      };
+    } catch (error) {
+      console.error(error);
+
+      throw new HttpException(
+        {
+          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+          message: error.message || 'Failed to retrieve Category',
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  async findByNameCategory(
+    name: string,
+    access_token: string,
+  ): Promise<ApiResponse<CategoryResponse[]>> {
+    try {
+      const payLoad = await this.jwtService.verifyAsync(access_token);
+      const account = await this.usersRepository.findOne({
+        where: { id: payLoad.id },
+      });
+
+      if (
+        !account ||
+        account.nonce !== payLoad.nonce ||
+        account.role !== 'admin'
+      ) {
+        return {
+          statusCode: HttpStatus.FORBIDDEN,
+          message: 'Unauthorized access',
+          data: null,
+        };
+      }
+
+      const response = await this.categoryRepository.find({
+        where: { name: Like(`%${name}%`) },
+        relations: ['products', 'products.brand'],
+      });
+
+      const data = [];
+      for (let i = 0; i < response.length; i++) {
+        const category = new CategoryResponse(response[i]);
+        // const products = await response[i].products;
+        // category.products = products;
+        data.push(category);
+      }
+
+      return {
+        statusCode: HttpStatus.OK,
+        message: 'Category retrieved successfully',
+        data,
+      };
+    } catch (error) {
+      console.error(error);
+
+      throw new HttpException(
+        {
+          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+          message: error.message || 'Failed to retrieve Categories',
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  async updateCategory(
+    id: string,
+    category: CategoryUpdate,
+    access_token: string,
+  ): Promise<ApiResponse<CategoryResponse>> {
+    try {
+      const payLoad = await this.jwtService.verifyAsync(access_token);
+      const account = await this.usersRepository.findOne({
+        where: { id: payLoad.id },
+      });
+
+      if (
+        !account ||
+        account.nonce !== payLoad.nonce ||
+        account.role !== 'admin'
+      ) {
+        return {
+          statusCode: HttpStatus.FORBIDDEN,
+          message: 'Unauthorized access',
+          data: null,
+        };
+      }
+
+      await this.categoryRepository.update({ id }, category);
+
+      const response = await this.categoryRepository.findOne({
+        where: { id },
+        relations: ['products', 'products.brand'],
+      });
+
+      if (!response)
+        return {
+          statusCode: HttpStatus.NOT_FOUND,
+          message: 'Category not found',
+          data: null,
+        };
+
+      const data = new CategoryResponse(response);
+      // const products = await response.products;
+      // data.products = products;
+
+      return {
+        statusCode: HttpStatus.OK,
+        message: 'Category updated successfully',
+        data,
+      };
+    } catch (error) {
+      console.error(error);
+
+      throw new HttpException(
+        {
+          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+          message: error.message || 'Failed to Update Category',
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  async deleteCategory(
+    id: string,
+    access_token: string,
+  ): Promise<ApiResponse<CategoryResponse>> {
+    try {
+      const payLoad = await this.jwtService.verifyAsync(access_token);
+      const account = await this.usersRepository.findOne({
+        where: { id: payLoad.id },
+      });
+
+      if (
+        !account ||
+        account.nonce !== payLoad.nonce ||
+        account.role !== 'admin'
+      ) {
+        return {
+          statusCode: HttpStatus.FORBIDDEN,
+          message: 'Unauthorized access',
+          data: null,
+        };
+      }
+
+      const response = await this.categoryRepository.findOne({
+        where: { id },
+        relations: ['products', 'products.brand'],
+      });
+
+      if (!response)
+        return {
+          statusCode: HttpStatus.NOT_FOUND,
+          message: 'Category not found',
+          data: null,
+        };
+
+      await this.categoryRepository.delete(id);
+
+      const data = new CategoryResponse(response);
+      // const products = await response.products;
+      // data.products = products;
+
+      return {
+        statusCode: HttpStatus.OK,
+        message: 'Category deleted successfully',
+        data,
+      };
+    } catch (error) {
+      console.error(error);
+      throw new HttpException(
+        {
+          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+          message: error.message || 'Failed to Delete Category',
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  /* BRAND ENDPOINTS */
+
+  async createBrand(
+    category: BrandCreate,
+    access_token: string,
+  ): Promise<ApiResponse<BrandResponse>> {
+    try {
+      const payLoad = await this.jwtService.verifyAsync(access_token);
+
+      const account = await this.usersRepository.findOne({
+        where: { id: payLoad.id },
+      });
+
+      if (
+        !account ||
+        account.nonce !== payLoad.nonce ||
+        account.role !== 'admin'
+      ) {
+        return {
+          statusCode: HttpStatus.FORBIDDEN,
+          message: 'Unauthorized access',
+          data: null,
+        };
+      }
+
+      const savedBrand = await this.brandRepository.save(category);
+      return {
+        statusCode: HttpStatus.CREATED,
+        message: 'Brand created successfully',
+        data: new BrandResponse(savedBrand),
+      };
+    } catch (error) {
+      console.error(error);
+      throw new HttpException(
+        error.message || 'Failed to create category',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+  }
+
+  async findAllBrand(
+    page: number = 1,
+    limit: number = 10,
+    access_token: string,
+  ): Promise<
+    ApiResponse<{
+      data: BrandResponse[];
+      totalPages: number;
+      currentPage: number;
+      totalItems: number;
+    }>
+  > {
+    try {
+      const payLoad = await this.jwtService.verifyAsync(access_token);
+
+      const account = await this.usersRepository.findOne({
+        where: { id: payLoad.id },
+      });
+
+      if (
+        !account ||
+        account.nonce !== payLoad.nonce ||
+        account.role !== 'admin'
+      ) {
+        return {
+          statusCode: HttpStatus.FORBIDDEN,
+          message: 'Unauthorized access',
+          data: null,
+        };
+      }
+
+      const [response, totalItems] = await Promise.all([
+        this.brandRepository
+          .createQueryBuilder('brand')
+          .leftJoinAndSelect('brand.products', 'product')
+          .leftJoinAndSelect('product.category', 'category')
+          .loadRelationCountAndMap('brand.productCount', 'brand.products')
+          .orderBy('brand.name', 'ASC')
+          .getMany(),
+        this.brandRepository.count(),
+      ]);
+
+      if (!response) {
+        throw new Error('Failed to fetch brands');
+      }
+
+      const sortedResponse = response.sort(
+        (a: any, b: any) => (b.productCount || 0) - (a.productCount || 0),
+      );
+
+      const data = sortedResponse
+        .slice((page - 1) * limit, page * limit)
+        .map((brand) => new BrandResponse(brand));
+
+      return {
+        statusCode: HttpStatus.OK,
+        message: 'Brands retrieved successfully',
+        data: {
+          data,
+          totalPages: Math.ceil(totalItems / limit),
+          currentPage: page,
+          totalItems,
+        },
+      };
+    } catch (error) {
+      console.error('Detailed error:', {
+        error: error,
+        stack: error.stack,
+        message: error.message,
+      });
+
+      throw new HttpException(
+        {
+          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+          message: 'Failed to retrieve Brands: ' + error.message,
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  async findByIdBrand(
+    id: string,
+    access_token: string,
+  ): Promise<ApiResponse<BrandResponse>> {
+    try {
+      const payLoad = await this.jwtService.verifyAsync(access_token);
+
+      const account = await this.usersRepository.findOne({
+        where: { id: payLoad.id },
+      });
+
+      if (
+        !account ||
+        account.nonce !== payLoad.nonce ||
+        account.role !== 'admin'
+      ) {
+        return {
+          statusCode: HttpStatus.FORBIDDEN,
+          message: 'Unauthorized access',
+          data: null,
+        };
+      }
+
+      const response = await this.brandRepository.findOne({
+        where: { id },
+        relations: ['products', 'products.category'],
+      });
+
+      if (!response)
+        return {
+          statusCode: HttpStatus.NOT_FOUND,
+          message: 'Brand not found',
+          data: null,
+        };
+
+      const data = new BrandResponse(response);
+
+      return {
+        statusCode: HttpStatus.OK,
+        message: 'Brand retrieved successfully',
+        data,
+      };
+    } catch (error) {
+      console.error(error);
+
+      throw new HttpException(
+        {
+          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+          message: error.message || 'Failed to retrieve Brand',
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  async findByNameBrand(
+    name: string,
+    access_token: string,
+  ): Promise<ApiResponse<BrandResponse[]>> {
+    try {
+      const payLoad = await this.jwtService.verifyAsync(access_token);
+
+      const account = await this.usersRepository.findOne({
+        where: { id: payLoad.id },
+      });
+
+      if (
+        !account ||
+        account.nonce !== payLoad.nonce ||
+        account.role !== 'admin'
+      ) {
+        return {
+          statusCode: HttpStatus.FORBIDDEN,
+          message: 'Unauthorized access',
+          data: null,
+        };
+      }
+
+      const response = await this.brandRepository.find({
+        where: { name: Like(`%${name}%`) },
+        relations: ['products', 'products.category'],
+      });
+
+      const data = [];
+      for (let i = 0; i < response.length; i++) {
+        const category = new BrandResponse(response[i]);
+        // const products = await response[i].products;
+        // category.products = products;
+        data.push(category);
+      }
+
+      return {
+        statusCode: HttpStatus.OK,
+        message: 'Brand retrieved successfully',
+        data,
+      };
+    } catch (error) {
+      console.error(error);
+
+      throw new HttpException(
+        {
+          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+          message: error.message || 'Failed to retrieve Brands',
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  async updateBrand(
+    id: string,
+    category: BrandUpdate,
+    access_token: string,
+  ): Promise<ApiResponse<BrandResponse>> {
+    try {
+      const payLoad = await this.jwtService.verifyAsync(access_token);
+      const account = await this.usersRepository.findOne({
+        where: { id: payLoad.id },
+      });
+
+      if (
+        !account ||
+        account.nonce !== payLoad.nonce ||
+        account.role !== 'admin'
+      ) {
+        return {
+          statusCode: HttpStatus.FORBIDDEN,
+          message: 'Unauthorized access',
+          data: null,
+        };
+      }
+
+      await this.brandRepository.update({ id }, category);
+
+      const response = await this.brandRepository.findOne({
+        where: { id },
+        relations: ['products', 'products.category'],
+      });
+
+      if (!response)
+        return {
+          statusCode: HttpStatus.NOT_FOUND,
+          message: 'Brand not found',
+          data: null,
+        };
+
+      const data = new BrandResponse(response);
+      // const products = await response.products;
+      // data.products = products;
+
+      return {
+        statusCode: HttpStatus.OK,
+        message: 'Brand updated successfully',
+        data,
+      };
+    } catch (error) {
+      console.error(error);
+
+      throw new HttpException(
+        {
+          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+          message: error.message || 'Failed to Update Brand',
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  async deleteBrand(
+    id: string,
+    access_token: string,
+  ): Promise<ApiResponse<BrandResponse>> {
+    try {
+      const payLoad = await this.jwtService.verifyAsync(access_token);
+      const account = await this.usersRepository.findOne({
+        where: { id: payLoad.id },
+      });
+
+      if (
+        !account ||
+        account.nonce !== payLoad.nonce ||
+        account.role !== 'admin'
+      ) {
+        return {
+          statusCode: HttpStatus.FORBIDDEN,
+          message: 'Unauthorized access',
+          data: null,
+        };
+      }
+
+      const response = await this.brandRepository.findOne({
+        where: { id },
+        relations: ['products', 'products.category'],
+      });
+
+      if (!response)
+        return {
+          statusCode: HttpStatus.NOT_FOUND,
+          message: 'Brand not found',
+          data: null,
+        };
+
+      await this.brandRepository.delete(id);
+
+      const data = new BrandResponse(response);
+      // const products = await response.products;
+      // data.products = products;
+
+      return {
+        statusCode: HttpStatus.OK,
+        message: 'Brand deleted successfully',
+        data,
+      };
+    } catch (error) {
+      console.error(error);
+      throw new HttpException(
+        {
+          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+          message: error.message || 'Failed to Delete Brand',
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  /* PRODUCT ENDPOINTS  */
+
+  async createProduct(
+    product: ProductCreate,
+    access_token: string,
+  ): Promise<ApiResponse<ProductResponse>> {
+    try {
+      const payLoad = await this.jwtService.verifyAsync(access_token);
+
+      const account = await this.usersRepository.findOne({
+        where: { id: payLoad.id },
+      });
+
+      if (
+        !account ||
+        account.nonce !== payLoad.nonce ||
+        account.role !== 'admin'
+      ) {
+        return {
+          statusCode: HttpStatus.FORBIDDEN,
+          message: 'Unauthorized access',
+          data: null,
+        };
+      }
+
+      const savedProduct = await this.productRepository.save(product);
+
+      return {
+        statusCode: HttpStatus.CREATED,
+        message: 'Product created successfully',
+        data: new ProductResponse(savedProduct),
+      };
+    } catch (error) {
+      console.error(error);
+      throw new HttpException(
+        error.message || 'Failed to create product',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+  }
+
+  async createByListProduct(
+    product: any,
+    access_token: string,
+  ): Promise<ApiResponse<ProductResponse[]>> {
+    try {
+      const payLoad = await this.jwtService.verifyAsync(access_token);
+
+      const account = await this.usersRepository.findOne({
+        where: { id: payLoad.id },
+      });
+
+      if (
+        !account ||
+        account.nonce !== payLoad.nonce ||
+        account.role !== 'admin'
+      ) {
+        return {
+          statusCode: HttpStatus.FORBIDDEN,
+          message: 'Unauthorized access',
+          data: null,
+        };
+      }
+
+      const savedProduct = [];
+      for (let i = 0; i < product.length; i++) {
+        const element = await this.productRepository.save(product[i]);
+        savedProduct.push(new ProductResponse(element));
+      }
+
+      return {
+        statusCode: HttpStatus.CREATED,
+        message: 'Product created successfully',
+
+        data: savedProduct,
+      };
+    } catch (error) {
+      console.error(error);
+      throw new HttpException(
+        error.message || 'Failed to create product',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+  }
+
+  async findAllProduct(
+    page: number = 1,
+    limit: number = 10,
+    access_token: string,
+  ): Promise<
+    ApiResponse<{
+      data: ProductResponse[];
+      totalPages: number;
+      currentPage: number;
+      totalItems: number;
+    }>
+  > {
+    try {
+      const payLoad = await this.jwtService.verifyAsync(access_token);
+
+      const account = await this.usersRepository.findOne({
+        where: { id: payLoad.id },
+      });
+
+      if (
+        !account ||
+        account.nonce !== payLoad.nonce ||
+        account.role !== 'admin'
+      ) {
+        return {
+          statusCode: HttpStatus.FORBIDDEN,
+          message: 'Unauthorized access',
+          data: null,
+        };
+      }
+
+      const [response, totalItems] = await this.productRepository.findAndCount({
+        skip: (page - 1) * limit,
+        take: limit,
+        relations: ['category', 'brand'],
+      });
+
+      const data = response.map((item) => new ProductResponse(item));
+
+      return {
+        statusCode: HttpStatus.OK,
+        message: 'Products retrieved successfully',
+        data: {
+          data: data,
+          totalPages: Math.ceil(totalItems / limit),
+          currentPage: page,
+          totalItems,
+        },
+      };
+    } catch (error) {
+      console.error(error);
+      throw new HttpException(
+        {
+          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+          message: error.message || 'Failed to retrieve Products',
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  async findByIdProduct(
+    id: string,
+    access_token: string,
+  ): Promise<ApiResponse<ProductResponse>> {
+    try {
+      const payLoad = await this.jwtService.verifyAsync(access_token);
+
+      const account = await this.usersRepository.findOne({
+        where: { id: payLoad.id },
+      });
+
+      if (
+        !account ||
+        account.nonce !== payLoad.nonce ||
+        account.role !== 'admin'
+      ) {
+        return {
+          statusCode: HttpStatus.FORBIDDEN,
+          message: 'Unauthorized access',
+          data: null,
+        };
+      }
+
+      const response = await this.productRepository.findOne({
+        where: { id },
+        relations: ['category', 'brand'],
+      });
+
+      if (!response)
+        return {
+          statusCode: HttpStatus.NOT_FOUND,
+          message: 'Product not found',
+          data: null,
+        };
+
+      const data = new ProductResponse(response);
+
+      return {
+        statusCode: HttpStatus.OK,
+        message: 'Product retrieved successfully',
+        data,
+      };
+    } catch (error) {
+      console.error(error);
+
+      throw new HttpException(
+        {
+          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+          message: error.message || 'Failed to retrieve Product',
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  async findByNameProduct(
+    name: string,
+    access_token: string,
+  ): Promise<ApiResponse<ProductResponse[]>> {
+    try {
+      const payLoad = await this.jwtService.verifyAsync(access_token);
+
+      const account = await this.usersRepository.findOne({
+        where: { id: payLoad.id },
+      });
+
+      if (
+        !account ||
+        account.nonce !== payLoad.nonce ||
+        account.role !== 'admin'
+      ) {
+        return {
+          statusCode: HttpStatus.FORBIDDEN,
+          message: 'Unauthorized access',
+          data: null,
+        };
+      }
+
+      const response = await this.productRepository.find({
+        where: { name: Like(`%${name}%`) },
+        relations: ['category', 'brand'],
+      });
+
+      const data = response.map((item) => new ProductResponse(item));
+
+      return {
+        statusCode: HttpStatus.OK,
+        message: 'Product retrieved successfully',
+        data,
+      };
+    } catch (error) {
+      console.error(error);
+
+      throw new HttpException(
+        {
+          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+          message: error.message || 'Failed to retrieve Products',
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  async findMostPopularProduct(
+    page: number = 1,
+    limit: number = 10,
+    access_token: string,
+  ): Promise<
+    ApiResponse<{
+      data: ProductResponse[];
+      totalPages: number;
+      currentPage: number;
+      totalItems: number;
+    }>
+  > {
+    try {
+      const payLoad = await this.jwtService.verifyAsync(access_token);
+
+      const account = await this.usersRepository.findOne({
+        where: { id: payLoad.id },
+      });
+
+      if (
+        !account ||
+        account.nonce !== payLoad.nonce ||
+        account.role !== 'admin'
+      ) {
+        return {
+          statusCode: HttpStatus.FORBIDDEN,
+          message: 'Unauthorized access',
+          data: null,
+        };
+      }
+
+      const [products, totalItems] = await this.productRepository.findAndCount({
+        relations: ['category', 'brand', 'orderProducts'],
+      });
+
+      const sortedProducts = products
+        .map((product) => ({
+          ...product,
+          orderProductsCount: product.orderProducts.length,
+        }))
+        .sort((a, b) => b.orderProductsCount - a.orderProductsCount)
+        .slice((page - 1) * limit, page * limit);
+
+      const data = sortedProducts.map((item) => new ProductResponse(item));
+
+      return {
+        statusCode: HttpStatus.OK,
+        message: 'Most Popular Products retrieved successfully',
+        data: {
+          data: data,
+          totalPages: Math.ceil(totalItems / limit),
+          currentPage: page,
+          totalItems,
+        },
+      };
+    } catch (error) {
+      console.error(error);
+
+      throw new HttpException(
+        {
+          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+          message: error.message || 'Failed to retrieve Most Popular Products',
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  async searchProduct(
+    page: number = 1,
+    limit: number = 10,
+    sortBy: 'date' | 'alpha' | 'price' = 'date',
+    sortOrder: 'asc' | 'desc' = 'desc',
+    filters: {
+      name?: string;
+      categories?: string;
+      brand?: string;
+      min_price?: number;
+      max_price?: number;
+    },
+    access_token: string,
+  ): Promise<
+    ApiResponse<{
+      data: ProductResponse[];
+      totalPages: number;
+      currentPage: number;
+      totalItems: number;
+    }>
+  > {
+    try {
+      const payLoad = await this.jwtService.verifyAsync(access_token);
+
+      const account = await this.usersRepository.findOne({
+        where: { id: payLoad.id },
+      });
+
+      if (
+        !account ||
+        account.nonce !== payLoad.nonce ||
+        account.role !== 'admin'
+      ) {
+        return {
+          statusCode: HttpStatus.FORBIDDEN,
+          message: 'Unauthorized access',
+          data: null,
+        };
+      }
+
+      const queryBuilder = this.productRepository.createQueryBuilder('product');
+      queryBuilder.leftJoinAndSelect('product.category', 'category');
+      queryBuilder.leftJoinAndSelect('product.brand', 'brand');
+      queryBuilder.skip((page - 1) * limit).take(limit);
+
+      if (filters.name) {
+        queryBuilder.andWhere('LOWER(product.name) LIKE :name', {
+          name: `%${filters.name.toLowerCase()}%`,
+        });
+      }
+
+      if (filters.brand) {
+        queryBuilder.andWhere('LOWER(brand.name) LIKE :brand', {
+          brand: `%${filters.brand.toLowerCase()}%`,
+        });
+      }
+
+      if (filters.categories) {
+        const categoryList = decodeURIComponent(filters.categories).split(',');
+        queryBuilder.andWhere('category.name IN (:...categories)', {
+          categories: categoryList,
+        });
+      }
+
+      if (filters.min_price !== undefined) {
+        queryBuilder.andWhere('product.normalSinglePrice >= :min_price', {
+          min_price: filters.min_price,
+        });
+      }
+
+      if (filters.max_price !== undefined) {
+        queryBuilder.andWhere('product.normalSinglePrice <= :max_price', {
+          max_price: filters.max_price,
+        });
+      }
+
+      const order: 'ASC' | 'DESC' = sortOrder === 'asc' ? 'ASC' : 'DESC';
+      if (sortBy === 'date') {
+        queryBuilder.orderBy('product.created_At', order);
+      } else if (sortBy === 'alpha') {
+        queryBuilder.orderBy('product.name', order);
+      } else if (sortBy === 'price') {
+        queryBuilder.orderBy('product.normalSinglePrice', order);
+      }
+
+      const [products, totalItems] = await queryBuilder.getManyAndCount();
+
+      const data = products.map((product) => new ProductResponse(product));
+
+      const totalPages = Math.ceil(totalItems / limit);
+
+      return {
+        statusCode: HttpStatus.OK,
+        message: 'Products retrieved successfully',
+        data: {
+          data,
+          totalPages,
+          currentPage: page,
+          totalItems,
+        },
+      };
+    } catch (error) {
+      console.error(error);
+      throw new HttpException(
+        {
+          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+          message: error.message || 'Failed to retrieve Products',
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  async updateProduct(
+    id: string,
+    product: ProductUpdate,
+    access_token: string,
+  ): Promise<ApiResponse<ProductResponse>> {
+    try {
+      const payLoad = await this.jwtService.verifyAsync(access_token);
+      const account = await this.usersRepository.findOne({
+        where: { id: payLoad.id },
+      });
+
+      if (
+        !account ||
+        account.nonce !== payLoad.nonce ||
+        account.role !== 'admin'
+      ) {
+        return {
+          statusCode: HttpStatus.FORBIDDEN,
+          message: 'Unauthorized access',
+          data: null,
+        };
+      }
+
+      await this.productRepository.update(id, product);
+
+      const response = await this.productRepository.findOne({
+        where: { id },
+        relations: ['category', 'brand'],
+      });
+
+      if (!response)
+        return {
+          statusCode: HttpStatus.NOT_FOUND,
+          message: 'Product not found',
+          data: null,
+        };
+
+      const data = new ProductResponse(response);
+
+      return {
+        statusCode: HttpStatus.OK,
+        message: 'Product updated successfully',
+        data,
+      };
+    } catch (error) {
+      console.error(error);
+
+      throw new HttpException(
+        {
+          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+          message: error.message || 'Failed to Update Product',
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  async deleteProduct(
+    id: string,
+    access_token: string,
+  ): Promise<ApiResponse<ProductResponse>> {
+    try {
+      const payLoad = await this.jwtService.verifyAsync(access_token);
+      const account = await this.usersRepository.findOne({
+        where: { id: payLoad.id },
+      });
+
+      if (
+        !account ||
+        account.nonce !== payLoad.nonce ||
+        account.role !== 'admin'
+      ) {
+        return {
+          statusCode: HttpStatus.FORBIDDEN,
+          message: 'Unauthorized access',
+          data: null,
+        };
+      }
+
+      const response = await this.productRepository.findOne({
+        where: { id },
+        relations: ['category', 'brand'],
+      });
+
+      if (!response)
+        return {
+          statusCode: HttpStatus.NOT_FOUND,
+          message: 'Product not found',
+          data: null,
+        };
+
+      await this.productRepository.delete(id);
+
+      const data = new ProductResponse(response);
+
+      return {
+        statusCode: HttpStatus.OK,
+        message: 'Product deleted successfully',
+        data,
+      };
+    } catch (error) {
+      console.error(error);
+      throw new HttpException(
+        {
+          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+          message: error.message || 'Failed to Delete Product',
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  /* ORDER ENDPOINTS */
+
+  async createOrder(
+    order: OrderCreate,
+    access_token: string,
+  ): Promise<ApiResponse<OrderResponse>> {
+    try {
+      const orderItems: Record<string, number> = order.cart;
+      const { id } = await this.orderRepository.save(order);
+
+      const orderResponse = await this.orderRepository.findOne({
+        where: { id },
+        relations: ['order_Products'],
+      });
+
+      for (const id in orderItems) {
+        const orderItem = new OrderProduct();
+
+        const product = await this.productRepository.findOne({
+          where: { id },
+        });
+
+        orderItem.order = orderResponse;
+        orderItem.quantity = orderItems[id];
+        orderItem.product = product;
+
+        if (orderItems[id] > 5) {
+          orderItem.price =
+            product.soldMultiPrice !== 0
+              ? product.soldMultiPrice
+              : product.normalMultiPrice;
+        } else {
+          orderItem.price =
+            product.soldSinglePrice !== 0
+              ? product.soldSinglePrice
+              : product.normalSinglePrice;
+        }
+
+        const savedOrderItem =
+          await this.orderProductRepository.save(orderItem);
+
+        orderResponse.order_Products.push(savedOrderItem);
+      }
+
+      if (access_token !== null && access_token != 'null') {
+        const payLoad = await this.jwtService.verifyAsync(access_token);
+
+        const account = await this.usersRepository.findOne({
+          where: { id: payLoad.id },
+          relations: ['orders'],
+        });
+
+        if (!account || account.nonce !== payLoad.nonce) {
+          return {
+            statusCode: HttpStatus.FORBIDDEN,
+            message: 'Unauthorized access',
+            data: null,
+          };
+        }
+        account.orders.push(orderResponse);
+        await this.usersRepository.save(account);
+      }
+
+      const { id: orderId } = await this.orderRepository.save(orderResponse);
+      const data = await this.orderRepository.findOne({
+        where: { id: orderId },
+        relations: ['order_Products'],
+      });
+
+      return {
+        statusCode: HttpStatus.CREATED,
+        message: 'Order created successfully',
+        data: new OrderResponse(data),
+      };
+    } catch (error) {
+      console.error(error);
+      throw new HttpException(
+        error.message || 'Failed to create order',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+  }
+
+  async findAllOrder(
+    page: number = 1,
+    limit: number = 10,
+    access_token: string,
+  ): Promise<
+    ApiResponse<{
+      data: OrderResponse[];
+      totalPages: number;
+      currentPage: number;
+      totalItems: number;
+    }>
+  > {
+    try {
+      const payLoad = await this.jwtService.verifyAsync(access_token);
+
+      const account = await this.usersRepository.findOne({
+        where: { id: payLoad.id },
+      });
+
+      if (
+        !account ||
+        account.nonce !== payLoad.nonce ||
+        account.role !== 'admin'
+      ) {
+        return {
+          statusCode: HttpStatus.FORBIDDEN,
+          message: 'Unauthorized access',
+          data: null,
+        };
+      }
+
+      const [response, totalItems] = await this.orderRepository.findAndCount({
+        skip: (page - 1) * limit,
+        take: limit,
+        relations: ['order_Products'],
+      });
+
+      const data = response.map((item) => new OrderResponse(item));
+
+      return {
+        statusCode: HttpStatus.OK,
+        message: 'Orders retrieved successfully',
+        data: {
+          data: data,
+          totalPages: Math.ceil(totalItems / limit),
+          currentPage: page,
+          totalItems,
+        },
+      };
+    } catch (error) {
+      console.error(error);
+      throw new HttpException(
+        {
+          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+          message: error.message || 'Failed to retrieve Orders',
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  async findByIdOrder(
+    id: string,
+    access_token: string,
+  ): Promise<ApiResponse<OrderResponse>> {
+    try {
+      const payLoad = await this.jwtService.verifyAsync(access_token);
+
+      const account = await this.usersRepository.findOne({
+        where: { id: payLoad.id },
+      });
+
+      if (
+        !account ||
+        account.nonce !== payLoad.nonce ||
+        account.role !== 'admin'
+      ) {
+        return {
+          statusCode: HttpStatus.FORBIDDEN,
+          message: 'Unauthorized access',
+          data: null,
+        };
+      }
+
+      const response = await this.orderRepository.findOne({
+        where: { id },
+        relations: ['order_Products'],
+      });
+
+      if (!response)
+        return {
+          statusCode: HttpStatus.NOT_FOUND,
+          message: 'Order not found',
+          data: null,
+        };
+
+      const data = new OrderResponse(response);
+
+      return {
+        statusCode: HttpStatus.OK,
+        message: 'Order retrieved successfully',
+        data,
+      };
+    } catch (error) {
+      console.error(error);
+
+      throw new HttpException(
+        {
+          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+          message: error.message || 'Failed to retrieve Order',
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  async updateOrder(
+    id: string,
+    order: OrderUpdate,
+    access_token: string,
+  ): Promise<ApiResponse<OrderResponse>> {
+    try {
+      const payLoad = await this.jwtService.verifyAsync(access_token);
+      const account = await this.usersRepository.findOne({
+        where: { id: payLoad.id },
+      });
+
+      if (
+        !account ||
+        account.nonce !== payLoad.nonce ||
+        account.role !== 'admin'
+      ) {
+        return {
+          statusCode: HttpStatus.FORBIDDEN,
+          message: 'Unauthorized access',
+          data: null,
+        };
+      }
+
+      await this.orderRepository.update(id, order);
+
+      const response = await this.orderRepository.findOne({
+        where: { id },
+        relations: ['order_Products'],
+      });
+
+      if (!response)
+        return {
+          statusCode: HttpStatus.NOT_FOUND,
+          message: 'Order not found',
+          data: null,
+        };
+
+      const data = new OrderResponse(response);
+
+      return {
+        statusCode: HttpStatus.OK,
+        message: 'Order updated successfully',
+        data,
+      };
+    } catch (error) {
+      console.error(error);
+
+      throw new HttpException(
+        {
+          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+          message: error.message || 'Failed to Update Order',
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  async deleteOrder(
+    id: string,
+    access_token: string,
+  ): Promise<ApiResponse<OrderResponse>> {
+    try {
+      const payLoad = await this.jwtService.verifyAsync(access_token);
+      const account = await this.usersRepository.findOne({
+        where: { id: payLoad.id },
+      });
+
+      if (
+        !account ||
+        account.nonce !== payLoad.nonce ||
+        account.role !== 'admin'
+      ) {
+        return {
+          statusCode: HttpStatus.FORBIDDEN,
+          message: 'Unauthorized access',
+          data: null,
+        };
+      }
+
+      const response = await this.orderRepository.findOne({
+        where: { id },
+        relations: ['order_Products'],
+      });
+
+      if (!response)
+        return {
+          statusCode: HttpStatus.NOT_FOUND,
+          message: 'Order not found',
+          data: null,
+        };
+
+      await this.orderRepository.delete(id);
+
+      const data = new OrderResponse(response);
+
+      return {
+        statusCode: HttpStatus.OK,
+        message: 'Order deleted successfully',
+        data,
+      };
+    } catch (error) {
+      console.error(error);
+      throw new HttpException(
+        {
+          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+          message: error.message || 'Failed to Delete Order',
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  /* SPECIALOFFER ENDPOINTS */
+
+  async createSpecialOffer(
+    specialOffer: SpecialOfferCreate,
+    access_token: string,
+  ): Promise<ApiResponse<SpecialOfferResponse>> {
+    try {
+      const payLoad = await this.jwtService.verifyAsync(access_token);
+
+      const account = await this.usersRepository.findOne({
+        where: { id: payLoad.id },
+      });
+
+      if (
+        !account ||
+        account.nonce !== payLoad.nonce ||
+        account.role !== 'admin'
+      ) {
+        return {
+          statusCode: HttpStatus.FORBIDDEN,
+          message: 'Unauthorized access',
+          data: null,
+        };
+      }
+
+      const savedSpecialOffer =
+        await this.specialOfferRepository.save(specialOffer);
+      return {
+        statusCode: HttpStatus.CREATED,
+        message: 'SpecialOffer created successfully',
+        data: new SpecialOfferResponse(savedSpecialOffer),
+      };
+    } catch (error) {
+      console.error(error);
+      throw new HttpException(
+        error.message || 'Failed to create SpecialOffer',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+  }
+
+  async findAllSpecialOffer(
+    page: number = 1,
+    limit: number = 10,
+    access_token: string,
+  ): Promise<
+    ApiResponse<{
+      data: SpecialOfferResponse[];
+      totalPages: number;
+      currentPage: number;
+      totalItems: number;
+    }>
+  > {
+    try {
+      const payLoad = await this.jwtService.verifyAsync(access_token);
+
+      const account = await this.usersRepository.findOne({
+        where: { id: payLoad.id },
+      });
+
+      if (
+        !account ||
+        account.nonce !== payLoad.nonce ||
+        account.role !== 'admin'
+      ) {
+        return {
+          statusCode: HttpStatus.FORBIDDEN,
+          message: 'Unauthorized access',
+          data: null,
+        };
+      }
+
+      const [response, totalItems] =
+        await this.specialOfferRepository.findAndCount({
+          skip: (page - 1) * limit,
+          take: limit,
+        });
+
+      const data = response.map((item) => new SpecialOfferResponse(item));
+
+      return {
+        statusCode: HttpStatus.OK,
+        message: 'SpecialOffers retrieved successfully',
+        data: {
+          data: data,
+          totalPages: Math.ceil(totalItems / limit),
+          currentPage: page,
+          totalItems,
+        },
+      };
+    } catch (error) {
+      console.error(error);
+      throw new HttpException(
+        {
+          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+          message: error.message || 'Failed to retrieve SpecialOffers',
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  async findByIdSpecialOffer(
+    id: string,
+    access_token: string,
+  ): Promise<ApiResponse<SpecialOfferResponse>> {
+    try {
+      const payLoad = await this.jwtService.verifyAsync(access_token);
+
+      const account = await this.usersRepository.findOne({
+        where: { id: payLoad.id },
+      });
+
+      if (
+        !account ||
+        account.nonce !== payLoad.nonce ||
+        account.role !== 'admin'
+      ) {
+        return {
+          statusCode: HttpStatus.FORBIDDEN,
+          message: 'Unauthorized access',
+          data: null,
+        };
+      }
+
+      const response = await this.specialOfferRepository.findOne({
+        where: { id },
+      });
+
+      if (!response)
+        return {
+          statusCode: HttpStatus.NOT_FOUND,
+          message: 'SpecialOffer not found',
+          data: null,
+        };
+
+      const data = new SpecialOfferResponse(response);
+
+      return {
+        statusCode: HttpStatus.OK,
+        message: 'SpecialOffer retrieved successfully',
+        data,
+      };
+    } catch (error) {
+      console.error(error);
+
+      throw new HttpException(
+        {
+          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+          message: error.message || 'Failed to retrieve SpecialOffer',
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  async updateSpecialOffer(
+    id: string,
+    specialOffer: SpecialOfferUpdate,
+    access_token: string,
+  ): Promise<ApiResponse<SpecialOfferResponse>> {
+    try {
+      const payLoad = await this.jwtService.verifyAsync(access_token);
+      const account = await this.usersRepository.findOne({
+        where: { id: payLoad.id },
+      });
+
+      if (
+        !account ||
+        account.nonce !== payLoad.nonce ||
+        account.role !== 'admin'
+      ) {
+        return {
+          statusCode: HttpStatus.FORBIDDEN,
+          message: 'Unauthorized access',
+          data: null,
+        };
+      }
+
+      await this.specialOfferRepository.update({ id }, specialOffer);
+
+      const response = await this.specialOfferRepository.findOne({
+        where: { id },
+      });
+
+      if (!response)
+        return {
+          statusCode: HttpStatus.NOT_FOUND,
+          message: 'SpecialOffer not found',
+          data: null,
+        };
+
+      const data = new SpecialOfferResponse(response);
+
+      return {
+        statusCode: HttpStatus.OK,
+        message: 'SpecialOffer updated successfully',
+        data,
+      };
+    } catch (error) {
+      console.error(error);
+
+      throw new HttpException(
+        {
+          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+          message: error.message || 'Failed to Update SpecialOffer',
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  async deleteSpecialOffer(
+    id: string,
+    access_token: string,
+  ): Promise<ApiResponse<SpecialOfferResponse>> {
+    try {
+      const payLoad = await this.jwtService.verifyAsync(access_token);
+      const account = await this.usersRepository.findOne({
+        where: { id: payLoad.id },
+      });
+
+      if (
+        !account ||
+        account.nonce !== payLoad.nonce ||
+        account.role !== 'admin'
+      ) {
+        return {
+          statusCode: HttpStatus.FORBIDDEN,
+          message: 'Unauthorized access',
+          data: null,
+        };
+      }
+
+      const response = await this.specialOfferRepository.findOne({
+        where: { id },
+      });
+
+      if (!response)
+        return {
+          statusCode: HttpStatus.NOT_FOUND,
+          message: 'SpecialOffer not found',
+          data: null,
+        };
+
+      await this.specialOfferRepository.delete(id);
+
+      const data = new SpecialOfferResponse(response);
+
+      return {
+        statusCode: HttpStatus.OK,
+        message: 'SpecialOffer deleted successfully',
+        data,
+      };
+    } catch (error) {
+      console.error(error);
+      throw new HttpException(
+        {
+          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+          message: error.message || 'Failed to Delete SpecialOffer',
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 }

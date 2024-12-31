@@ -14,13 +14,27 @@ const typeorm_1 = require("@nestjs/typeorm");
 const users_entity_1 = require("../entities/users.entity");
 const jwt_1 = require("@nestjs/jwt");
 const jwt_constant_1 = require("../constants/jwt.constant");
+const brands_entity_1 = require("../entities/brands.entity");
+const categories_entity_1 = require("../entities/categories.entity");
+const orders_entity_1 = require("../entities/orders.entity");
+const products_entity_1 = require("../entities/products.entity");
+const specialOffers_entity_1 = require("../entities/specialOffers.entity");
+const orderProduct_entity_1 = require("../entities/orderProduct.entity");
 let AdminModule = class AdminModule {
 };
 exports.AdminModule = AdminModule;
 exports.AdminModule = AdminModule = __decorate([
     (0, common_1.Module)({
         imports: [
-            typeorm_1.TypeOrmModule.forFeature([users_entity_1.Users]),
+            typeorm_1.TypeOrmModule.forFeature([
+                users_entity_1.Users,
+                brands_entity_1.Brand,
+                categories_entity_1.Category,
+                orders_entity_1.Order,
+                orderProduct_entity_1.OrderProduct,
+                products_entity_1.Product,
+                specialOffers_entity_1.SpecialOffer,
+            ]),
             jwt_1.JwtModule.register({
                 global: true,
                 secret: jwt_constant_1.jwtConstants.secret,

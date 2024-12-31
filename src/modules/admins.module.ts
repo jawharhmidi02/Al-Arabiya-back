@@ -5,10 +5,24 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Users } from '../entities/users.entity';
 import { JwtModule } from '@nestjs/jwt';
 import { jwtConstants } from 'src/constants/jwt.constant';
+import { Brand } from 'src/entities/brands.entity';
+import { Category } from 'src/entities/categories.entity';
+import { Order } from 'src/entities/orders.entity';
+import { Product } from 'src/entities/products.entity';
+import { SpecialOffer } from 'src/entities/specialOffers.entity';
+import { OrderProduct } from 'src/entities/orderProduct.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Users]),
+    TypeOrmModule.forFeature([
+      Users,
+      Brand,
+      Category,
+      Order,
+      OrderProduct,
+      Product,
+      SpecialOffer,
+    ]),
     JwtModule.register({
       global: true,
       secret: jwtConstants.secret,
