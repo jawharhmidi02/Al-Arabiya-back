@@ -7,6 +7,7 @@ import { Brand } from './entities/brands.entity';
 import { Product } from './entities/products.entity';
 import { Order } from './entities/orders.entity';
 import { OrderProduct } from './entities/orderProduct.entity';
+import { SpecialOffer } from './entities/specialOffers.entity';
 
 dotenv.config();
 
@@ -29,7 +30,15 @@ const {
       password: SUPABASE_PASSWORD,
       database: SUPABASE_DATABASE,
       url: SUPABASE_DATABASE_URL,
-      entities: [Users, Category, Brand, Product, Order, OrderProduct],
+      entities: [
+        Users,
+        Category,
+        Brand,
+        Product,
+        Order,
+        OrderProduct,
+        SpecialOffer,
+      ],
       synchronize: true,
     }),
   ],

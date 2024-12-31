@@ -64,6 +64,21 @@ export class ProductController {
     return this.productService.findByName(name);
   }
 
+  @Get('/mostpopular')
+  findMostPopular(
+    @Query('page') page: number,
+    @Query('limit') limit: number,
+  ): Promise<
+    ApiResponse<{
+      data: ProductResponse[];
+      totalPages: number;
+      currentPage: number;
+      totalItems: number;
+    }>
+  > {
+    return this.productService.findMostPopular(page, limit);
+  }
+
   @Get('/search')
   async search(
     @Query('page') page: number = 1,

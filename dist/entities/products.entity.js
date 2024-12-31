@@ -13,6 +13,7 @@ exports.Product = void 0;
 const typeorm_1 = require("typeorm");
 const categories_entity_1 = require("./categories.entity");
 const brands_entity_1 = require("./brands.entity");
+const orderProduct_entity_1 = require("./orderProduct.entity");
 let Product = class Product {
 };
 exports.Product = Product;
@@ -78,6 +79,12 @@ __decorate([
     (0, typeorm_1.JoinColumn)(),
     __metadata("design:type", brands_entity_1.Brand)
 ], Product.prototype, "brand", void 0);
+__decorate([
+    (0, typeorm_1.OneToMany)(() => orderProduct_entity_1.OrderProduct, (orderProduct) => orderProduct.product, {
+        cascade: true,
+    }),
+    __metadata("design:type", Array)
+], Product.prototype, "orderProducts", void 0);
 exports.Product = Product = __decorate([
     (0, typeorm_1.Entity)()
 ], Product);

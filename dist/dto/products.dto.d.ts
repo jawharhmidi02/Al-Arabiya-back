@@ -1,6 +1,7 @@
 import { Product } from 'src/entities/products.entity';
 import { Category } from 'src/entities/categories.entity';
 import { Brand } from 'src/entities/brands.entity';
+import { OrderProduct } from 'src/entities/orderProduct.entity';
 declare class CategoryDTO {
     id: string;
 }
@@ -50,6 +51,7 @@ export declare class ProductResponse {
     in_Stock: boolean;
     category: Category;
     brand: Brand;
+    orderProducts?: OrderProduct[];
     constructor(product: Product);
 }
 export {};

@@ -159,6 +159,38 @@ let ProductService = class ProductService {
             }, common_1.HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+    async findMostPopular(page = 1, limit = 10) {
+        try {
+            const [products, totalItems] = await this.productRepository.findAndCount({
+                relations: ['category', 'brand', 'orderProducts'],
+            });
+            const sortedProducts = products
+                .map((product) => ({
+                ...product,
+                orderProductsCount: product.orderProducts.length,
+            }))
+                .sort((a, b) => b.orderProductsCount - a.orderProductsCount)
+                .slice((page - 1) * limit, page * limit);
+            const data = sortedProducts.map((item) => new products_dto_1.ProductResponse(item));
+            return {
+                statusCode: common_1.HttpStatus.OK,
+                message: 'Most Popular Products retrieved successfully',
+                data: {
+                    data: data,
+                    totalPages: Math.ceil(totalItems / limit),
+                    currentPage: page,
+                    totalItems,
+                },
+            };
+        }
+        catch (error) {
+            console.error(error);
+            throw new common_1.HttpException({
+                statusCode: common_1.HttpStatus.INTERNAL_SERVER_ERROR,
+                message: error.message || 'Failed to retrieve Most Popular Products',
+            }, common_1.HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
     async search(page = 1, limit = 10, sortBy = 'date', sortOrder = 'desc', filters) {
         try {
             const queryBuilder = this.productRepository.createQueryBuilder('product');

@@ -38,6 +38,7 @@ class BrandResponse {
         this.id = brand.id;
         this.name = brand.name;
         this.img = brand.img;
+        this.productCount = brand.productCount;
         this.products = brand.products;
     }
 }

@@ -35,6 +35,9 @@ let ProductController = class ProductController {
     findByName(name) {
         return this.productService.findByName(name);
     }
+    findMostPopular(page, limit) {
+        return this.productService.findMostPopular(page, limit);
+    }
     async search(page = 1, limit = 10, sortBy = 'date', sortOrder = 'desc', name, categories, brand, min_price, max_price) {
         return this.productService.search(page, limit, sortBy, sortOrder, {
             name,
@@ -90,6 +93,14 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)
 ], ProductController.prototype, "findByName", null);
+__decorate([
+    (0, common_1.Get)('/mostpopular'),
+    __param(0, (0, common_1.Query)('page')),
+    __param(1, (0, common_1.Query)('limit')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number, Number]),
+    __metadata("design:returntype", Promise)
+], ProductController.prototype, "findMostPopular", null);
 __decorate([
     (0, common_1.Get)('/search'),
     __param(0, (0, common_1.Query)('page')),

@@ -16,6 +16,7 @@ const products_module_1 = require("./modules/products.module");
 const ping_database_module_1 = require("./modules/ping_database.module");
 const orders_module_1 = require("./modules/orders.module");
 const admins_module_1 = require("./modules/admins.module");
+const specialOffers_module_1 = require("./modules/specialOffers.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -30,6 +31,7 @@ exports.AppModule = AppModule = __decorate([
             products_module_1.ProductModule,
             ping_database_module_1.PingModule,
             orders_module_1.OrderModule,
+            specialOffers_module_1.SpecialOfferModule,
         ],
     })
 ], AppModule);

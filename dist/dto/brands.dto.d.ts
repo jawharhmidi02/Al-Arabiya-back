@@ -12,6 +12,7 @@ export declare class BrandResponse {
     id: string;
     name: string;
     img: string;
+    productCount?: number;
     products?: Product[];
     constructor(brand: Brand);
 }

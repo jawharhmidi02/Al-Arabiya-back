@@ -12,6 +12,7 @@ import { Product } from 'src/entities/products.entity';
 import { Category } from 'src/entities/categories.entity';
 import { Type } from 'class-transformer';
 import { Brand } from 'src/entities/brands.entity';
+import { OrderProduct } from 'src/entities/orderProduct.entity';
 
 class CategoryDTO {
   @IsUUID()
@@ -130,6 +131,7 @@ export class ProductResponse {
   in_Stock: boolean;
   category: Category;
   brand: Brand;
+  orderProducts?: OrderProduct[];
 
   constructor(product: Product) {
     this.id = product.id;
@@ -146,5 +148,6 @@ export class ProductResponse {
     this.in_Stock = product.in_Stock;
     this.category = product.category;
     this.brand = product.brand;
+    this.orderProducts = product.orderProducts;
   }
 }

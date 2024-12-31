@@ -207,6 +207,55 @@ export class ProductService {
     }
   }
 
+  async findMostPopular(
+    page: number = 1,
+    limit: number = 10,
+  ): Promise<
+    ApiResponse<{
+      data: ProductResponse[];
+      totalPages: number;
+      currentPage: number;
+      totalItems: number;
+    }>
+  > {
+    try {
+      const [products, totalItems] = await this.productRepository.findAndCount({
+        relations: ['category', 'brand', 'orderProducts'],
+      });
+
+      const sortedProducts = products
+        .map((product) => ({
+          ...product,
+          orderProductsCount: product.orderProducts.length,
+        }))
+        .sort((a, b) => b.orderProductsCount - a.orderProductsCount)
+        .slice((page - 1) * limit, page * limit);
+
+      const data = sortedProducts.map((item) => new ProductResponse(item));
+
+      return {
+        statusCode: HttpStatus.OK,
+        message: 'Most Popular Products retrieved successfully',
+        data: {
+          data: data,
+          totalPages: Math.ceil(totalItems / limit),
+          currentPage: page,
+          totalItems,
+        },
+      };
+    } catch (error) {
+      console.error(error);
+
+      throw new HttpException(
+        {
+          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+          message: error.message || 'Failed to retrieve Most Popular Products',
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
   async search(
     page: number = 1,
     limit: number = 10,

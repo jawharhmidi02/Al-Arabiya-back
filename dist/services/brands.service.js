@@ -55,21 +55,28 @@ let BrandService = class BrandService {
     }
     async findAll(page = 1, limit = 10) {
         try {
-            const [response, totalItems] = await this.brandRepository.findAndCount({
-                skip: (page - 1) * limit,
-                take: limit,
-                relations: ['products', 'products.category'],
-            });
-            const data = [];
-            for (let i = 0; i < response.length; i++) {
-                const category = new brands_dto_1.BrandResponse(response[i]);
-                data.push(category);
+            const [response, totalItems] = await Promise.all([
+                this.brandRepository
+                    .createQueryBuilder('brand')
+                    .leftJoinAndSelect('brand.products', 'product')
+                    .leftJoinAndSelect('product.category', 'category')
+                    .loadRelationCountAndMap('brand.productCount', 'brand.products')
+                    .orderBy('brand.name', 'ASC')
+                    .getMany(),
+                this.brandRepository.count(),
+            ]);
+            if (!response) {
+                throw new Error('Failed to fetch brands');
             }
+            const sortedResponse = response.sort((a, b) => (b.productCount || 0) - (a.productCount || 0));
+            const data = sortedResponse
+                .slice((page - 1) * limit, page * limit)
+                .map((brand) => new brands_dto_1.BrandResponse(brand));
             return {
                 statusCode: common_1.HttpStatus.OK,
                 message: 'Brands retrieved successfully',
                 data: {
-                    data: data,
+                    data,
                     totalPages: Math.ceil(totalItems / limit),
                     currentPage: page,
                     totalItems,
@@ -77,10 +84,14 @@ let BrandService = class BrandService {
             };
         }
         catch (error) {
-            console.error(error);
+            console.error('Detailed error:', {
+                error: error,
+                stack: error.stack,
+                message: error.message,
+            });
             throw new common_1.HttpException({
                 statusCode: common_1.HttpStatus.INTERNAL_SERVER_ERROR,
-                message: error.message || 'Failed to retrieve Brands',
+                message: 'Failed to retrieve Brands: ' + error.message,
             }, common_1.HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

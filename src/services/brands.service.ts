@@ -6,6 +6,7 @@ import { Like, Repository } from 'typeorm';
 import { BrandCreate, BrandResponse, BrandUpdate } from 'src/dto/brands.dto';
 import { ApiResponse } from 'src/common/interfaces/response.interface';
 import { Users } from 'src/entities/users.entity';
+import { Product } from 'src/entities/products.entity';
 
 @Injectable()
 export class BrandService {
@@ -55,6 +56,52 @@ export class BrandService {
     }
   }
 
+  // async findAll(
+  //   page: number = 1,
+  //   limit: number = 10,
+  // ): Promise<
+  //   ApiResponse<{
+  //     data: BrandResponse[];
+  //     totalPages: number;
+  //     currentPage: number;
+  //     totalItems: number;
+  //   }>
+  // > {
+  //   try {
+  //     const [response, totalItems] = await this.brandRepository.findAndCount({
+  //       skip: (page - 1) * limit,
+  //       take: limit,
+  //       relations: ['products', 'products.category'],
+  //     });
+
+  //     const data = [];
+  //     for (let i = 0; i < response.length; i++) {
+  //       const category = new BrandResponse(response[i]);
+  //       data.push(category);
+  //     }
+
+  //     return {
+  //       statusCode: HttpStatus.OK,
+  //       message: 'Brands retrieved successfully',
+  //       data: {
+  //         data: data,
+  //         totalPages: Math.ceil(totalItems / limit),
+  //         currentPage: page,
+  //         totalItems,
+  //       },
+  //     };
+  //   } catch (error) {
+  //     console.error(error);
+  //     throw new HttpException(
+  //       {
+  //         statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+  //         message: error.message || 'Failed to retrieve Brands',
+  //       },
+  //       HttpStatus.INTERNAL_SERVER_ERROR,
+  //     );
+  //   }
+  // }
+
   async findAll(
     page: number = 1,
     limit: number = 10,
@@ -67,36 +114,50 @@ export class BrandService {
     }>
   > {
     try {
-      const [response, totalItems] = await this.brandRepository.findAndCount({
-        skip: (page - 1) * limit,
-        take: limit,
-        relations: ['products', 'products.category'],
-      });
+      const [response, totalItems] = await Promise.all([
+        this.brandRepository
+          .createQueryBuilder('brand')
+          .leftJoinAndSelect('brand.products', 'product')
+          .leftJoinAndSelect('product.category', 'category')
+          .loadRelationCountAndMap('brand.productCount', 'brand.products')
+          .orderBy('brand.name', 'ASC')
+          .getMany(),
+        this.brandRepository.count(),
+      ]);
 
-      const data = [];
-      for (let i = 0; i < response.length; i++) {
-        const category = new BrandResponse(response[i]);
-        // const products = await response[i].products;
-        // category.products = products;
-        data.push(category);
+      if (!response) {
+        throw new Error('Failed to fetch brands');
       }
+
+      const sortedResponse = response.sort(
+        (a: any, b: any) => (b.productCount || 0) - (a.productCount || 0),
+      );
+
+      const data = sortedResponse
+        .slice((page - 1) * limit, page * limit)
+        .map((brand) => new BrandResponse(brand));
 
       return {
         statusCode: HttpStatus.OK,
         message: 'Brands retrieved successfully',
         data: {
-          data: data,
+          data,
           totalPages: Math.ceil(totalItems / limit),
           currentPage: page,
           totalItems,
         },
       };
     } catch (error) {
-      console.error(error);
+      console.error('Detailed error:', {
+        error: error,
+        stack: error.stack,
+        message: error.message,
+      });
+
       throw new HttpException(
         {
           statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-          message: error.message || 'Failed to retrieve Brands',
+          message: 'Failed to retrieve Brands: ' + error.message,
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
@@ -118,8 +179,6 @@ export class BrandService {
         };
 
       const data = new BrandResponse(response);
-      // const products = await response.products;
-      // data.products = products;
 
       return {
         statusCode: HttpStatus.OK,

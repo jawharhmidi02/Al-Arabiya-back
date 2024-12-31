@@ -19,6 +19,12 @@ export declare class ProductService {
     }>>;
     findById(id: string): Promise<ApiResponse<ProductResponse>>;
     findByName(name: string): Promise<ApiResponse<ProductResponse[]>>;
+    findMostPopular(page?: number, limit?: number): Promise<ApiResponse<{
+        data: ProductResponse[];
+        totalPages: number;
+        currentPage: number;
+        totalItems: number;
+    }>>;
     search(page: number, limit: number, sortBy: 'date' | 'alpha' | 'price', sortOrder: 'asc' | 'desc', filters: {
         name?: string;
         categories?: string;

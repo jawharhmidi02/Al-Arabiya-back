@@ -1,5 +1,6 @@
 import { Category } from './categories.entity';
 import { Brand } from './brands.entity';
+import { OrderProduct } from './orderProduct.entity';
 export declare class Product {
     id: string;
     name: string;
@@ -15,4 +16,5 @@ export declare class Product {
     created_At: Date;
     category: Category;
     brand: Brand;
+    orderProducts: OrderProduct[];
 }

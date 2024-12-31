@@ -158,6 +158,7 @@ class ProductResponse {
         this.in_Stock = product.in_Stock;
         this.category = product.category;
         this.brand = product.brand;
+        this.orderProducts = product.orderProducts;
     }
 }
 exports.ProductResponse = ProductResponse;

@@ -5,10 +5,12 @@ import {
   JoinTable,
   ManyToMany,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Category } from './categories.entity';
 import { Brand } from './brands.entity';
+import { OrderProduct } from './orderProduct.entity';
 
 @Entity()
 export class Product {
@@ -59,4 +61,9 @@ export class Product {
   })
   @JoinColumn()
   brand: Brand;
+
+  @OneToMany(() => OrderProduct, (orderProduct) => orderProduct.product, {
+    cascade: true,
+  })
+  orderProducts: OrderProduct[];
 }

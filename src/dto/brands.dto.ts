@@ -22,12 +22,14 @@ export class BrandResponse {
   id: string;
   name: string;
   img: string;
+  productCount?: number;
   products?: Product[];
 
   constructor(brand: Brand) {
     this.id = brand.id;
     this.name = brand.name;
     this.img = brand.img;
+    this.productCount = (brand as any).productCount;
     this.products = brand.products;
   }
 }

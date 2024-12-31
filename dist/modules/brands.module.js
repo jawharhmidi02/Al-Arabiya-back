@@ -13,6 +13,7 @@ const jwt_1 = require("@nestjs/jwt");
 const typeorm_1 = require("@nestjs/typeorm");
 const jwt_constant_1 = require("../constants/jwt.constant");
 const brands_entity_1 = require("../entities/brands.entity");
+const products_entity_1 = require("../entities/products.entity");
 const users_entity_1 = require("../entities/users.entity");
 const brands_service_1 = require("../services/brands.service");
 let BrandModule = class BrandModule {
@@ -21,7 +22,7 @@ exports.BrandModule = BrandModule;
 exports.BrandModule = BrandModule = __decorate([
     (0, common_1.Module)({
         imports: [
-            typeorm_1.TypeOrmModule.forFeature([brands_entity_1.Brand, users_entity_1.Users]),
+            typeorm_1.TypeOrmModule.forFeature([brands_entity_1.Brand, users_entity_1.Users, products_entity_1.Product]),
             jwt_1.JwtModule.register({ secret: jwt_constant_1.jwtConstants.secret, global: true }),
         ],
         providers: [brands_service_1.BrandService],
