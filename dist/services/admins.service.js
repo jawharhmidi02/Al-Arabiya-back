@@ -705,7 +705,14 @@ let AdminService = class AdminService {
         }
         catch (error) {
             console.error(error);
-            throw new common_1.HttpException(error.message || 'Failed to create category', common_1.HttpStatus.BAD_REQUEST);
+            var message = error.message || 'Failed';
+            if (message.includes('duplicate key value violates unique constraint')) {
+                message = 'Category already exists';
+            }
+            throw new common_1.HttpException({
+                statusCode: common_1.HttpStatus.BAD_REQUEST,
+                message,
+            }, common_1.HttpStatus.BAD_REQUEST);
         }
     }
     async findAllCategory(page = 1, limit = 10, access_token) {
@@ -936,7 +943,14 @@ let AdminService = class AdminService {
         }
         catch (error) {
             console.error(error);
-            throw new common_1.HttpException(error.message || 'Failed to create category', common_1.HttpStatus.BAD_REQUEST);
+            var message = error.message || 'Failed';
+            if (message.includes('duplicate key value violates unique constraint')) {
+                message = 'Brand already exists';
+            }
+            throw new common_1.HttpException({
+                statusCode: common_1.HttpStatus.BAD_REQUEST,
+                message,
+            }, common_1.HttpStatus.BAD_REQUEST);
         }
     }
     async findAllBrand(page = 1, limit = 10, access_token) {
@@ -1178,7 +1192,14 @@ let AdminService = class AdminService {
         }
         catch (error) {
             console.error(error);
-            throw new common_1.HttpException(error.message || 'Failed to create product', common_1.HttpStatus.BAD_REQUEST);
+            var message = error.message || 'Failed';
+            if (message.includes('duplicate key value violates unique constraint')) {
+                message = 'Product already exists';
+            }
+            throw new common_1.HttpException({
+                statusCode: common_1.HttpStatus.BAD_REQUEST,
+                message,
+            }, common_1.HttpStatus.BAD_REQUEST);
         }
     }
     async createByListProduct(product, access_token) {

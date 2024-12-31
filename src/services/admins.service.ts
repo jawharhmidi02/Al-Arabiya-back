@@ -835,8 +835,15 @@ export class AdminService {
       };
     } catch (error) {
       console.error(error);
+      var message: String = error.message || 'Failed';
+      if (message.includes('duplicate key value violates unique constraint')) {
+        message = 'Category already exists';
+      }
       throw new HttpException(
-        error.message || 'Failed to create category',
+        {
+          statusCode: HttpStatus.BAD_REQUEST,
+          message,
+        },
         HttpStatus.BAD_REQUEST,
       );
     }
@@ -1166,8 +1173,15 @@ export class AdminService {
       };
     } catch (error) {
       console.error(error);
+      var message: String = error.message || 'Failed';
+      if (message.includes('duplicate key value violates unique constraint')) {
+        message = 'Brand already exists';
+      }
       throw new HttpException(
-        error.message || 'Failed to create category',
+        {
+          statusCode: HttpStatus.BAD_REQUEST,
+          message,
+        },
         HttpStatus.BAD_REQUEST,
       );
     }
@@ -1513,8 +1527,15 @@ export class AdminService {
       };
     } catch (error) {
       console.error(error);
+      var message: String = error.message || 'Failed';
+      if (message.includes('duplicate key value violates unique constraint')) {
+        message = 'Product already exists';
+      }
       throw new HttpException(
-        error.message || 'Failed to create product',
+        {
+          statusCode: HttpStatus.BAD_REQUEST,
+          message,
+        },
         HttpStatus.BAD_REQUEST,
       );
     }
