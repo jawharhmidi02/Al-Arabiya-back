@@ -42,7 +42,7 @@ exports.ConnectModule = ConnectModule = __decorate([
                     orderProduct_entity_1.OrderProduct,
                     specialOffers_entity_1.SpecialOffer,
                 ],
-                synchronize: true,
+                synchronize: Boolean(process.env.DEVELOPMENT) || false,
             }),
         ],
     })

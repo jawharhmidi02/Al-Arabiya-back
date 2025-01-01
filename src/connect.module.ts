@@ -39,7 +39,7 @@ const {
         OrderProduct,
         SpecialOffer,
       ],
-      synchronize: true,
+      synchronize: Boolean(process.env.DEVELOPMENT) || false,
     }),
   ],
 })
