@@ -17,6 +17,7 @@ const products_entity_1 = require("./entities/products.entity");
 const orders_entity_1 = require("./entities/orders.entity");
 const orderProduct_entity_1 = require("./entities/orderProduct.entity");
 const specialOffers_entity_1 = require("./entities/specialOffers.entity");
+const customizations_entity_1 = require("./entities/customizations.entity");
 dotenv.config();
 const { SUPABASE_HOST, SUPABASE_PORT, SUPABASE_USERNAME, SUPABASE_PASSWORD, SUPABASE_DATABASE, SUPABASE_DATABASE_URL, } = process.env;
 let ConnectModule = class ConnectModule {
@@ -41,6 +42,7 @@ exports.ConnectModule = ConnectModule = __decorate([
                     orders_entity_1.Order,
                     orderProduct_entity_1.OrderProduct,
                     specialOffers_entity_1.SpecialOffer,
+                    customizations_entity_1.Customization,
                 ],
                 synchronize: Boolean(process.env.DEVELOPMENT) || false,
             }),

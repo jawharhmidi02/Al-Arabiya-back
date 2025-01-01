@@ -8,6 +8,7 @@ import { PingModule } from './modules/ping_database.module';
 import { OrderModule } from './modules/orders.module';
 import { AdminModule } from './modules/admins.module';
 import { SpecialOfferModule } from './modules/specialOffers.module';
+import { CustomizationModule } from './modules/customizations.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { SpecialOfferModule } from './modules/specialOffers.module';
     PingModule,
     OrderModule,
     SpecialOfferModule,
+    CustomizationModule,
   ],
 })
 export class AppModule {}

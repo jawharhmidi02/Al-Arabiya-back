@@ -17,6 +17,7 @@ const ping_database_module_1 = require("./modules/ping_database.module");
 const orders_module_1 = require("./modules/orders.module");
 const admins_module_1 = require("./modules/admins.module");
 const specialOffers_module_1 = require("./modules/specialOffers.module");
+const customizations_module_1 = require("./modules/customizations.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -32,6 +33,7 @@ exports.AppModule = AppModule = __decorate([
             ping_database_module_1.PingModule,
             orders_module_1.OrderModule,
             specialOffers_module_1.SpecialOfferModule,
+            customizations_module_1.CustomizationModule,
         ],
     })
 ], AppModule);

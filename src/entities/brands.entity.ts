@@ -1,5 +1,12 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { Product } from './products.entity';
+import { Customization } from './customizations.entity';
 
 @Entity()
 export class Brand {
@@ -14,4 +21,9 @@ export class Brand {
 
   @OneToMany(() => Product, (product) => product.brand)
   products: Product[];
+
+  @ManyToOne(() => Customization, (customization) => customization.brands, {
+    onDelete: 'SET NULL',
+  })
+  customization: Customization;
 }

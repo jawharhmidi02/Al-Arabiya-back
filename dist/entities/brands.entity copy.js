@@ -12,7 +12,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Brand = void 0;
 const typeorm_1 = require("typeorm");
 const products_entity_1 = require("./products.entity");
-const customizations_entity_1 = require("./customizations.entity");
 let Brand = class Brand {
 };
 exports.Brand = Brand;
@@ -32,13 +31,7 @@ __decorate([
     (0, typeorm_1.OneToMany)(() => products_entity_1.Product, (product) => product.brand),
     __metadata("design:type", Array)
 ], Brand.prototype, "products", void 0);
-__decorate([
-    (0, typeorm_1.ManyToOne)(() => customizations_entity_1.Customization, (customization) => customization.brands, {
-        onDelete: 'SET NULL',
-    }),
-    __metadata("design:type", customizations_entity_1.Customization)
-], Brand.prototype, "customization", void 0);
 exports.Brand = Brand = __decorate([
     (0, typeorm_1.Entity)()
 ], Brand);
-//# sourceMappingURL=brands.entity.js.map
+//# sourceMappingURL=brands.entity%20copy.js.map

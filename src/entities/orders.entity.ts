@@ -1,5 +1,6 @@
 import {
   Column,
+  CreateDateColumn,
   Entity,
   ManyToOne,
   OneToMany,
@@ -16,7 +17,7 @@ export class Order {
   @Column({ default: 'Waiting to get Accepted...' })
   state: string;
 
-  @Column({ default: new Date() })
+  @CreateDateColumn()
   created_At: Date;
 
   @Column()

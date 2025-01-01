@@ -9,36 +9,38 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Brand = void 0;
+exports.Customization = void 0;
 const typeorm_1 = require("typeorm");
+const brands_entity_1 = require("./brands.entity");
+const categories_entity_1 = require("./categories.entity");
 const products_entity_1 = require("./products.entity");
-const customizations_entity_1 = require("./customizations.entity");
-let Brand = class Brand {
+let Customization = class Customization {
 };
-exports.Brand = Brand;
+exports.Customization = Customization;
 __decorate([
     (0, typeorm_1.PrimaryGeneratedColumn)('uuid'),
     __metadata("design:type", String)
-], Brand.prototype, "id", void 0);
-__decorate([
-    (0, typeorm_1.Column)({ unique: true }),
-    __metadata("design:type", String)
-], Brand.prototype, "name", void 0);
+], Customization.prototype, "id", void 0);
 __decorate([
     (0, typeorm_1.Column)(),
-    __metadata("design:type", String)
-], Brand.prototype, "img", void 0);
+    __metadata("design:type", Number)
+], Customization.prototype, "deliveryPrice", void 0);
 __decorate([
-    (0, typeorm_1.OneToMany)(() => products_entity_1.Product, (product) => product.brand),
+    (0, typeorm_1.ManyToMany)(() => products_entity_1.Product),
+    (0, typeorm_1.JoinTable)(),
     __metadata("design:type", Array)
-], Brand.prototype, "products", void 0);
+], Customization.prototype, "featuredProducts", void 0);
 __decorate([
-    (0, typeorm_1.ManyToOne)(() => customizations_entity_1.Customization, (customization) => customization.brands, {
-        onDelete: 'SET NULL',
-    }),
-    __metadata("design:type", customizations_entity_1.Customization)
-], Brand.prototype, "customization", void 0);
-exports.Brand = Brand = __decorate([
+    (0, typeorm_1.ManyToMany)(() => categories_entity_1.Category),
+    (0, typeorm_1.JoinTable)(),
+    __metadata("design:type", Array)
+], Customization.prototype, "categories", void 0);
+__decorate([
+    (0, typeorm_1.ManyToMany)(() => brands_entity_1.Brand),
+    (0, typeorm_1.JoinTable)(),
+    __metadata("design:type", Array)
+], Customization.prototype, "brands", void 0);
+exports.Customization = Customization = __decorate([
     (0, typeorm_1.Entity)()
-], Brand);
-//# sourceMappingURL=brands.entity.js.map
+], Customization);
+//# sourceMappingURL=customization.entity.js.map

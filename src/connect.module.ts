@@ -8,6 +8,7 @@ import { Product } from './entities/products.entity';
 import { Order } from './entities/orders.entity';
 import { OrderProduct } from './entities/orderProduct.entity';
 import { SpecialOffer } from './entities/specialOffers.entity';
+import { Customization } from './entities/customizations.entity';
 
 dotenv.config();
 
@@ -38,6 +39,7 @@ const {
         Order,
         OrderProduct,
         SpecialOffer,
+        Customization,
       ],
       synchronize: Boolean(process.env.DEVELOPMENT) || false,
     }),

@@ -14,6 +14,7 @@ const typeorm_1 = require("typeorm");
 const categories_entity_1 = require("./categories.entity");
 const brands_entity_1 = require("./brands.entity");
 const orderProduct_entity_1 = require("./orderProduct.entity");
+const customizations_entity_1 = require("./customizations.entity");
 let Product = class Product {
 };
 exports.Product = Product;
@@ -62,7 +63,7 @@ __decorate([
     __metadata("design:type", Boolean)
 ], Product.prototype, "in_Stock", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ default: new Date() }),
+    (0, typeorm_1.CreateDateColumn)(),
     __metadata("design:type", Date)
 ], Product.prototype, "created_At", void 0);
 __decorate([
@@ -85,6 +86,12 @@ __decorate([
     }),
     __metadata("design:type", Array)
 ], Product.prototype, "orderProducts", void 0);
+__decorate([
+    (0, typeorm_1.ManyToOne)(() => customizations_entity_1.Customization, (customization) => customization.featuredProducts, {
+        onDelete: 'SET NULL',
+    }),
+    __metadata("design:type", customizations_entity_1.Customization)
+], Product.prototype, "customization", void 0);
 exports.Product = Product = __decorate([
     (0, typeorm_1.Entity)()
 ], Product);

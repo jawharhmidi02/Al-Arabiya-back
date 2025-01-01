@@ -1,5 +1,6 @@
 import {
   Column,
+  CreateDateColumn,
   Entity,
   JoinColumn,
   JoinTable,
@@ -11,6 +12,7 @@ import {
 import { Category } from './categories.entity';
 import { Brand } from './brands.entity';
 import { OrderProduct } from './orderProduct.entity';
+import { Customization } from './customizations.entity';
 
 @Entity()
 export class Product {
@@ -47,7 +49,7 @@ export class Product {
   @Column({ type: 'boolean', default: true })
   in_Stock: boolean;
 
-  @Column({ default: new Date() })
+  @CreateDateColumn()
   created_At: Date;
 
   @ManyToOne(() => Category, (category) => category.products, {
@@ -66,4 +68,13 @@ export class Product {
     cascade: true,
   })
   orderProducts: OrderProduct[];
+
+  @ManyToOne(
+    () => Customization,
+    (customization) => customization.featuredProducts,
+    {
+      onDelete: 'SET NULL',
+    },
+  )
+  customization: Customization;
 }
