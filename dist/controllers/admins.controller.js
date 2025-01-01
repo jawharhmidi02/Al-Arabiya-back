@@ -55,8 +55,8 @@ let AdminController = class AdminController {
     async createCategory(categoryDto, access_token) {
         return await this.adminService.createCategory(categoryDto, access_token);
     }
-    async findAllCategory(page, limit, access_token) {
-        return await this.adminService.findAllCategory(page, limit, access_token);
+    async findAllCategory(page, limit, name, access_token) {
+        return await this.adminService.findAllCategory(page, limit, name, access_token);
     }
     async findByIdCategory(id, access_token) {
         return await this.adminService.findByIdCategory(id, access_token);
@@ -73,8 +73,8 @@ let AdminController = class AdminController {
     async createBrand(brandDto, access_token) {
         return await this.adminService.createBrand(brandDto, access_token);
     }
-    async findAllBrand(page, limit, access_token) {
-        return await this.adminService.findAllBrand(page, limit, access_token);
+    async findAllBrand(page, limit, name, access_token) {
+        return await this.adminService.findAllBrand(page, limit, name, access_token);
     }
     async findByIdBrand(id, access_token) {
         return await this.adminService.findByIdBrand(id, access_token);
@@ -234,9 +234,10 @@ __decorate([
     (0, common_1.Get)('/category'),
     __param(0, (0, common_1.Query)('page')),
     __param(1, (0, common_1.Query)('limit')),
-    __param(2, (0, common_1.Headers)('access_token')),
+    __param(2, (0, common_1.Query)('name')),
+    __param(3, (0, common_1.Headers)('access_token')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number, Number, String]),
+    __metadata("design:paramtypes", [Number, Number, String, String]),
     __metadata("design:returntype", Promise)
 ], AdminController.prototype, "findAllCategory", null);
 __decorate([
@@ -284,9 +285,10 @@ __decorate([
     (0, common_1.Get)('/brand'),
     __param(0, (0, common_1.Query)('page')),
     __param(1, (0, common_1.Query)('limit')),
-    __param(2, (0, common_1.Headers)('access_token')),
+    __param(2, (0, common_1.Query)('name')),
+    __param(3, (0, common_1.Headers)('access_token')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number, Number, String]),
+    __metadata("design:paramtypes", [Number, Number, String, String]),
     __metadata("design:returntype", Promise)
 ], AdminController.prototype, "findAllBrand", null);
 __decorate([

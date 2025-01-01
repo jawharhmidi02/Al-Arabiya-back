@@ -37,7 +37,7 @@ export declare class AdminService {
     updateUser(id: string, user: UsersUpdate, access_token: string): Promise<ApiResponse<UsersResponse>>;
     deleteUser(id: string, access_token: string): Promise<ApiResponse<UsersResponse>>;
     createCategory(category: CategoryCreate, access_token: string): Promise<ApiResponse<CategoryResponse>>;
-    findAllCategory(page: number, limit: number, access_token: string): Promise<ApiResponse<{
+    findAllCategory(page: number, limit: number, name: string, access_token: string): Promise<ApiResponse<{
         data: CategoryResponse[];
         totalPages: number;
         currentPage: number;
@@ -47,8 +47,8 @@ export declare class AdminService {
     findByNameCategory(name: string, access_token: string): Promise<ApiResponse<CategoryResponse[]>>;
     updateCategory(id: string, category: CategoryUpdate, access_token: string): Promise<ApiResponse<CategoryResponse>>;
     deleteCategory(id: string, access_token: string): Promise<ApiResponse<CategoryResponse>>;
-    createBrand(category: BrandCreate, access_token: string): Promise<ApiResponse<BrandResponse>>;
-    findAllBrand(page: number, limit: number, access_token: string): Promise<ApiResponse<{
+    createBrand(brand: BrandCreate, access_token: string): Promise<ApiResponse<BrandResponse>>;
+    findAllBrand(page: number, limit: number, name: string, access_token: string): Promise<ApiResponse<{
         data: BrandResponse[];
         totalPages: number;
         currentPage: number;
@@ -56,7 +56,7 @@ export declare class AdminService {
     }>>;
     findByIdBrand(id: string, access_token: string): Promise<ApiResponse<BrandResponse>>;
     findByNameBrand(name: string, access_token: string): Promise<ApiResponse<BrandResponse[]>>;
-    updateBrand(id: string, category: BrandUpdate, access_token: string): Promise<ApiResponse<BrandResponse>>;
+    updateBrand(id: string, brand: BrandUpdate, access_token: string): Promise<ApiResponse<BrandResponse>>;
     deleteBrand(id: string, access_token: string): Promise<ApiResponse<BrandResponse>>;
     createProduct(product: ProductCreate, access_token: string): Promise<ApiResponse<ProductResponse>>;
     createByListProduct(product: any, access_token: string): Promise<ApiResponse<ProductResponse[]>>;

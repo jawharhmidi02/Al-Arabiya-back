@@ -5,6 +5,7 @@ export declare class Users {
     email: string;
     password: string;
     phone: string;
+    city: string;
     address: string;
     cart: Record<string, number>;
     orders: Order[];

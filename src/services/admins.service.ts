@@ -1,6 +1,6 @@
 import { Injectable, HttpStatus, HttpException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Like, Repository } from 'typeorm';
+import { ILike, Repository } from 'typeorm';
 import { Users } from '../entities/users.entity';
 import { UsersResponse, UsersUpdate } from 'src/dto/users.dto';
 import { JwtService } from '@nestjs/jwt';
@@ -31,6 +31,7 @@ import {
   SpecialOfferUpdate,
 } from 'src/dto/specialOffers.dto';
 import { SpecialOffer } from 'src/entities/specialOffers.entity';
+import { v2 as cloudinary, UploadApiResponse } from 'cloudinary';
 
 const algorithm = 'aes-256-cbc';
 const key = Buffer.from(process.env.CRYPTO_SECRET_KEY, 'hex');
@@ -852,6 +853,7 @@ export class AdminService {
   async findAllCategory(
     page: number = 1,
     limit: number = 10,
+    name: string = '',
     access_token: string,
   ): Promise<
     ApiResponse<{
@@ -878,8 +880,10 @@ export class AdminService {
           data: null,
         };
       }
+
       const [response, totalItems] = await this.categoryRepository.findAndCount(
         {
+          where: { name: ILike(`%${name}%`) },
           skip: (page - 1) * limit,
           take: limit,
           relations: ['products', 'products.brand'],
@@ -889,8 +893,6 @@ export class AdminService {
       const data = [];
       for (let i = 0; i < response.length; i++) {
         const category = new CategoryResponse(response[i]);
-        // const products = await response[i].products;
-        // category.products = products;
         data.push(category);
       }
 
@@ -950,8 +952,6 @@ export class AdminService {
         };
 
       const data = new CategoryResponse(response);
-      // const products = await response.products;
-      // data.products = products;
 
       return {
         statusCode: HttpStatus.OK,
@@ -994,15 +994,14 @@ export class AdminService {
       }
 
       const response = await this.categoryRepository.find({
-        where: { name: Like(`%${name}%`) },
+        where: { name: ILike(`%${name}%`) },
         relations: ['products', 'products.brand'],
       });
 
       const data = [];
       for (let i = 0; i < response.length; i++) {
         const category = new CategoryResponse(response[i]);
-        // const products = await response[i].products;
-        // category.products = products;
+
         data.push(category);
       }
 
@@ -1062,8 +1061,6 @@ export class AdminService {
         };
 
       const data = new CategoryResponse(response);
-      // const products = await response.products;
-      // data.products = products;
 
       return {
         statusCode: HttpStatus.OK,
@@ -1072,13 +1069,16 @@ export class AdminService {
       };
     } catch (error) {
       console.error(error);
-
+      var message: String = error.message || 'Signup Failed';
+      if (message.includes('duplicate key value violates unique constraint')) {
+        message = 'Category already exists';
+      }
       throw new HttpException(
         {
-          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-          message: error.message || 'Failed to Update Category',
+          statusCode: HttpStatus.BAD_REQUEST,
+          message,
         },
-        HttpStatus.INTERNAL_SERVER_ERROR,
+        HttpStatus.BAD_REQUEST,
       );
     }
   }
@@ -1120,8 +1120,6 @@ export class AdminService {
       await this.categoryRepository.delete(id);
 
       const data = new CategoryResponse(response);
-      // const products = await response.products;
-      // data.products = products;
 
       return {
         statusCode: HttpStatus.OK,
@@ -1143,10 +1141,12 @@ export class AdminService {
   /* BRAND ENDPOINTS */
 
   async createBrand(
-    category: BrandCreate,
+    brand: BrandCreate,
     access_token: string,
   ): Promise<ApiResponse<BrandResponse>> {
     try {
+      console.log(brand);
+      
       const payLoad = await this.jwtService.verifyAsync(access_token);
 
       const account = await this.usersRepository.findOne({
@@ -1165,7 +1165,33 @@ export class AdminService {
         };
       }
 
-      const savedBrand = await this.brandRepository.save(category);
+      cloudinary.config({
+        cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+        api_key: process.env.CLOUDINARY_API_KEY,
+        api_secret: process.env.CLOUDINARY_API_SECRET,
+      });
+
+      const base64Data = brand.img.replace(/^data:image\/\w+;base64,/, '');
+
+      const uploadResult = await new Promise<UploadApiResponse>(
+        (resolve, reject) => {
+          cloudinary.uploader.upload(
+            `data:image/png;base64,${base64Data}`,
+            {
+              folder: 'Al-Arabiya',
+              resource_type: 'auto',
+            },
+            (error, result) => {
+              if (error) reject(error);
+              resolve(result);
+            },
+          );
+        },
+      );
+
+      brand.img = uploadResult.secure_url;
+
+      const savedBrand = await this.brandRepository.save(brand);
       return {
         statusCode: HttpStatus.CREATED,
         message: 'Brand created successfully',
@@ -1190,6 +1216,7 @@ export class AdminService {
   async findAllBrand(
     page: number = 1,
     limit: number = 10,
+    name: string = '',
     access_token: string,
   ): Promise<
     ApiResponse<{
@@ -1225,6 +1252,7 @@ export class AdminService {
           .leftJoinAndSelect('product.category', 'category')
           .loadRelationCountAndMap('brand.productCount', 'brand.products')
           .orderBy('brand.name', 'ASC')
+          .where('brand.name ILIKE :name', { name: `%${name}%` })
           .getMany(),
         this.brandRepository.count(),
       ]);
@@ -1347,15 +1375,14 @@ export class AdminService {
       }
 
       const response = await this.brandRepository.find({
-        where: { name: Like(`%${name}%`) },
+        where: { name: ILike(`%${name}%`) },
         relations: ['products', 'products.category'],
       });
 
       const data = [];
       for (let i = 0; i < response.length; i++) {
         const category = new BrandResponse(response[i]);
-        // const products = await response[i].products;
-        // category.products = products;
+
         data.push(category);
       }
 
@@ -1379,7 +1406,7 @@ export class AdminService {
 
   async updateBrand(
     id: string,
-    category: BrandUpdate,
+    brand: BrandUpdate,
     access_token: string,
   ): Promise<ApiResponse<BrandResponse>> {
     try {
@@ -1400,7 +1427,35 @@ export class AdminService {
         };
       }
 
-      await this.brandRepository.update({ id }, category);
+      if (brand.img) {
+        cloudinary.config({
+          cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+          api_key: process.env.CLOUDINARY_API_KEY,
+          api_secret: process.env.CLOUDINARY_API_SECRET,
+        });
+
+        const base64Data = brand.img.replace(/^data:image\/\w+;base64,/, '');
+
+        const uploadResult = await new Promise<UploadApiResponse>(
+          (resolve, reject) => {
+            cloudinary.uploader.upload(
+              `data:image/png;base64,${base64Data}`,
+              {
+                folder: 'Al-Arabiya',
+                resource_type: 'auto',
+              },
+              (error, result) => {
+                if (error) reject(error);
+                resolve(result);
+              },
+            );
+          },
+        );
+
+        brand.img = uploadResult.secure_url;
+      }
+
+      await this.brandRepository.update({ id }, brand);
 
       const response = await this.brandRepository.findOne({
         where: { id },
@@ -1415,8 +1470,6 @@ export class AdminService {
         };
 
       const data = new BrandResponse(response);
-      // const products = await response.products;
-      // data.products = products;
 
       return {
         statusCode: HttpStatus.OK,
@@ -1425,13 +1478,16 @@ export class AdminService {
       };
     } catch (error) {
       console.error(error);
-
+      var message: String = error.message || 'Failed';
+      if (message.includes('duplicate key value violates unique constraint')) {
+        message = 'Brand already exists';
+      }
       throw new HttpException(
         {
-          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-          message: error.message || 'Failed to Update Brand',
+          statusCode: HttpStatus.BAD_REQUEST,
+          message,
         },
-        HttpStatus.INTERNAL_SERVER_ERROR,
+        HttpStatus.BAD_REQUEST,
       );
     }
   }
@@ -1473,8 +1529,6 @@ export class AdminService {
       await this.brandRepository.delete(id);
 
       const data = new BrandResponse(response);
-      // const products = await response.products;
-      // data.products = products;
 
       return {
         statusCode: HttpStatus.OK,
@@ -1725,7 +1779,7 @@ export class AdminService {
       }
 
       const response = await this.productRepository.find({
-        where: { name: Like(`%${name}%`) },
+        where: { name: ILike(`%${name}%`) },
         relations: ['category', 'brand'],
       });
 

@@ -124,6 +124,7 @@ export class AdminController {
   async findAllCategory(
     @Query('page') page: number,
     @Query('limit') limit: number,
+    @Query('name') name: string,
     @Headers('access_token') access_token: string,
   ): Promise<
     ApiResponse<{
@@ -133,7 +134,12 @@ export class AdminController {
       totalItems: number;
     }>
   > {
-    return await this.adminService.findAllCategory(page, limit, access_token);
+    return await this.adminService.findAllCategory(
+      page,
+      limit,
+      name,
+      access_token,
+    );
   }
 
   @Get('/category/byid/:id')
@@ -183,6 +189,7 @@ export class AdminController {
   async findAllBrand(
     @Query('page') page: number,
     @Query('limit') limit: number,
+    @Query('name') name: string,
     @Headers('access_token') access_token: string,
   ): Promise<
     ApiResponse<{
@@ -192,7 +199,12 @@ export class AdminController {
       totalItems: number;
     }>
   > {
-    return await this.adminService.findAllBrand(page, limit, access_token);
+    return await this.adminService.findAllBrand(
+      page,
+      limit,
+      name,
+      access_token,
+    );
   }
 
   @Get('/brand/byid/:id')

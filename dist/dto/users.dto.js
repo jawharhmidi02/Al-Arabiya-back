@@ -41,6 +41,10 @@ __decorate([
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], UsersCreate.prototype, "address", void 0);
+__decorate([
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], UsersCreate.prototype, "city", void 0);
 class UsersUpdate {
 }
 exports.UsersUpdate = UsersUpdate;
@@ -60,6 +64,10 @@ __decorate([
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], UsersUpdate.prototype, "phone", void 0);
+__decorate([
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], UsersUpdate.prototype, "city", void 0);
 __decorate([
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
@@ -93,6 +101,7 @@ class UsersResponse {
         this.id = user.id;
         this.full_name = user.full_name;
         this.phone = user.phone;
+        this.city = user.city;
         this.address = user.address;
         this.cart = user.cart;
         this.orders = user.orders;

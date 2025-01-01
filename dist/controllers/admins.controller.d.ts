@@ -21,7 +21,7 @@ export declare class AdminController {
     updateUser(id: string, access_token: string, user: UsersUpdate): Promise<ApiResponse<UsersResponse>>;
     deleteUser(id: string, access_token: string): Promise<ApiResponse<UsersResponse>>;
     createCategory(categoryDto: CategoryCreate, access_token: string): Promise<ApiResponse<CategoryResponse>>;
-    findAllCategory(page: number, limit: number, access_token: string): Promise<ApiResponse<{
+    findAllCategory(page: number, limit: number, name: string, access_token: string): Promise<ApiResponse<{
         data: CategoryResponse[];
         totalPages: number;
         currentPage: number;
@@ -32,7 +32,7 @@ export declare class AdminController {
     updateCategory(id: string, category: CategoryUpdate, access_token: string): Promise<ApiResponse<CategoryResponse>>;
     deleteCategory(id: string, access_token: string): Promise<ApiResponse<CategoryResponse>>;
     createBrand(brandDto: BrandCreate, access_token?: string): Promise<ApiResponse<BrandResponse>>;
-    findAllBrand(page: number, limit: number, access_token: string): Promise<ApiResponse<{
+    findAllBrand(page: number, limit: number, name: string, access_token: string): Promise<ApiResponse<{
         data: BrandResponse[];
         totalPages: number;
         currentPage: number;

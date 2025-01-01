@@ -38,6 +38,10 @@ __decorate([
 __decorate([
     (0, typeorm_1.Column)(),
     __metadata("design:type", String)
+], Users.prototype, "city", void 0);
+__decorate([
+    (0, typeorm_1.Column)(),
+    __metadata("design:type", String)
 ], Users.prototype, "address", void 0);
 __decorate([
     (0, typeorm_1.Column)({ type: 'json', default: {} }),

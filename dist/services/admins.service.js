@@ -33,6 +33,7 @@ const products_dto_1 = require("../dto/products.dto");
 const orders_dto_1 = require("../dto/orders.dto");
 const specialOffers_dto_1 = require("../dto/specialOffers.dto");
 const specialOffers_entity_1 = require("../entities/specialOffers.entity");
+const cloudinary_1 = require("cloudinary");
 const algorithm = 'aes-256-cbc';
 const key = Buffer.from(process.env.CRYPTO_SECRET_KEY, 'hex');
 const iv = (0, crypto_1.randomBytes)(16);
@@ -715,7 +716,7 @@ let AdminService = class AdminService {
             }, common_1.HttpStatus.BAD_REQUEST);
         }
     }
-    async findAllCategory(page = 1, limit = 10, access_token) {
+    async findAllCategory(page = 1, limit = 10, name = '', access_token) {
         try {
             const payLoad = await this.jwtService.verifyAsync(access_token);
             const account = await this.usersRepository.findOne({
@@ -731,6 +732,7 @@ let AdminService = class AdminService {
                 };
             }
             const [response, totalItems] = await this.categoryRepository.findAndCount({
+                where: { name: (0, typeorm_2.ILike)(`%${name}%`) },
                 skip: (page - 1) * limit,
                 take: limit,
                 relations: ['products', 'products.brand'],
@@ -815,7 +817,7 @@ let AdminService = class AdminService {
                 };
             }
             const response = await this.categoryRepository.find({
-                where: { name: (0, typeorm_2.Like)(`%${name}%`) },
+                where: { name: (0, typeorm_2.ILike)(`%${name}%`) },
                 relations: ['products', 'products.brand'],
             });
             const data = [];
@@ -872,10 +874,14 @@ let AdminService = class AdminService {
         }
         catch (error) {
             console.error(error);
+            var message = error.message || 'Signup Failed';
+            if (message.includes('duplicate key value violates unique constraint')) {
+                message = 'Category already exists';
+            }
             throw new common_1.HttpException({
-                statusCode: common_1.HttpStatus.INTERNAL_SERVER_ERROR,
-                message: error.message || 'Failed to Update Category',
-            }, common_1.HttpStatus.INTERNAL_SERVER_ERROR);
+                statusCode: common_1.HttpStatus.BAD_REQUEST,
+                message,
+            }, common_1.HttpStatus.BAD_REQUEST);
         }
     }
     async deleteCategory(id, access_token) {
@@ -919,8 +925,9 @@ let AdminService = class AdminService {
             }, common_1.HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    async createBrand(category, access_token) {
+    async createBrand(brand, access_token) {
         try {
+            console.log(brand);
             const payLoad = await this.jwtService.verifyAsync(access_token);
             const account = await this.usersRepository.findOne({
                 where: { id: payLoad.id },
@@ -934,7 +941,24 @@ let AdminService = class AdminService {
                     data: null,
                 };
             }
-            const savedBrand = await this.brandRepository.save(category);
+            cloudinary_1.v2.config({
+                cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+                api_key: process.env.CLOUDINARY_API_KEY,
+                api_secret: process.env.CLOUDINARY_API_SECRET,
+            });
+            const base64Data = brand.img.replace(/^data:image\/\w+;base64,/, '');
+            const uploadResult = await new Promise((resolve, reject) => {
+                cloudinary_1.v2.uploader.upload(`data:image/png;base64,${base64Data}`, {
+                    folder: 'Al-Arabiya',
+                    resource_type: 'auto',
+                }, (error, result) => {
+                    if (error)
+                        reject(error);
+                    resolve(result);
+                });
+            });
+            brand.img = uploadResult.secure_url;
+            const savedBrand = await this.brandRepository.save(brand);
             return {
                 statusCode: common_1.HttpStatus.CREATED,
                 message: 'Brand created successfully',
@@ -953,7 +977,7 @@ let AdminService = class AdminService {
             }, common_1.HttpStatus.BAD_REQUEST);
         }
     }
-    async findAllBrand(page = 1, limit = 10, access_token) {
+    async findAllBrand(page = 1, limit = 10, name = '', access_token) {
         try {
             const payLoad = await this.jwtService.verifyAsync(access_token);
             const account = await this.usersRepository.findOne({
@@ -975,6 +999,7 @@ let AdminService = class AdminService {
                     .leftJoinAndSelect('product.category', 'category')
                     .loadRelationCountAndMap('brand.productCount', 'brand.products')
                     .orderBy('brand.name', 'ASC')
+                    .where('brand.name ILIKE :name', { name: `%${name}%` })
                     .getMany(),
                 this.brandRepository.count(),
             ]);
@@ -1064,7 +1089,7 @@ let AdminService = class AdminService {
                 };
             }
             const response = await this.brandRepository.find({
-                where: { name: (0, typeorm_2.Like)(`%${name}%`) },
+                where: { name: (0, typeorm_2.ILike)(`%${name}%`) },
                 relations: ['products', 'products.category'],
             });
             const data = [];
@@ -1086,7 +1111,7 @@ let AdminService = class AdminService {
             }, common_1.HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    async updateBrand(id, category, access_token) {
+    async updateBrand(id, brand, access_token) {
         try {
             const payLoad = await this.jwtService.verifyAsync(access_token);
             const account = await this.usersRepository.findOne({
@@ -1101,7 +1126,26 @@ let AdminService = class AdminService {
                     data: null,
                 };
             }
-            await this.brandRepository.update({ id }, category);
+            if (brand.img) {
+                cloudinary_1.v2.config({
+                    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+                    api_key: process.env.CLOUDINARY_API_KEY,
+                    api_secret: process.env.CLOUDINARY_API_SECRET,
+                });
+                const base64Data = brand.img.replace(/^data:image\/\w+;base64,/, '');
+                const uploadResult = await new Promise((resolve, reject) => {
+                    cloudinary_1.v2.uploader.upload(`data:image/png;base64,${base64Data}`, {
+                        folder: 'Al-Arabiya',
+                        resource_type: 'auto',
+                    }, (error, result) => {
+                        if (error)
+                            reject(error);
+                        resolve(result);
+                    });
+                });
+                brand.img = uploadResult.secure_url;
+            }
+            await this.brandRepository.update({ id }, brand);
             const response = await this.brandRepository.findOne({
                 where: { id },
                 relations: ['products', 'products.category'],
@@ -1121,10 +1165,14 @@ let AdminService = class AdminService {
         }
         catch (error) {
             console.error(error);
+            var message = error.message || 'Failed';
+            if (message.includes('duplicate key value violates unique constraint')) {
+                message = 'Brand already exists';
+            }
             throw new common_1.HttpException({
-                statusCode: common_1.HttpStatus.INTERNAL_SERVER_ERROR,
-                message: error.message || 'Failed to Update Brand',
-            }, common_1.HttpStatus.INTERNAL_SERVER_ERROR);
+                statusCode: common_1.HttpStatus.BAD_REQUEST,
+                message,
+            }, common_1.HttpStatus.BAD_REQUEST);
         }
     }
     async deleteBrand(id, access_token) {
@@ -1329,7 +1377,7 @@ let AdminService = class AdminService {
                 };
             }
             const response = await this.productRepository.find({
-                where: { name: (0, typeorm_2.Like)(`%${name}%`) },
+                where: { name: (0, typeorm_2.ILike)(`%${name}%`) },
                 relations: ['category', 'brand'],
             });
             const data = response.map((item) => new products_dto_1.ProductResponse(item));

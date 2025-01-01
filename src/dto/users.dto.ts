@@ -30,6 +30,9 @@ export class UsersCreate {
 
   @IsString()
   address: string;
+
+  @IsString()
+  city: string;
 }
 
 export class UsersUpdate {
@@ -44,6 +47,9 @@ export class UsersUpdate {
 
   @IsString()
   phone: string;
+
+  @IsString()
+  city: string;
 
   @IsString()
   address: string;
@@ -78,6 +84,8 @@ export class UsersResponse {
 
   phone: string;
 
+  city: string;
+
   address: string;
 
   cart: Record<string, number>;
@@ -93,6 +101,7 @@ export class UsersResponse {
     this.id = user.id;
     this.full_name = user.full_name;
     this.phone = user.phone;
+    this.city = user.city;
     this.address = user.address;
     this.cart = user.cart;
     this.orders = user.orders;

@@ -19,6 +19,9 @@ export class Users {
   phone: string;
 
   @Column()
+  city: string;
+
+  @Column()
   address: string;
 
   @Column({ type: 'json', default: {} })

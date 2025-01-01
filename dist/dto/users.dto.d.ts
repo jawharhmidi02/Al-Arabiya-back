@@ -9,12 +9,14 @@ export declare class UsersCreate {
     password: string;
     phone: string;
     address: string;
+    city: string;
 }
 export declare class UsersUpdate {
     full_name: string;
     email: string;
     password: string;
     phone: string;
+    city: string;
     address: string;
     cart: Record<string, number>;
     orders: OrderDTO[];
@@ -27,6 +29,7 @@ export declare class UsersResponse {
     email: string;
     password: string;
     phone: string;
+    city: string;
     address: string;
     cart: Record<string, number>;
     orders: Order[];
