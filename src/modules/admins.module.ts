@@ -11,6 +11,7 @@ import { Order } from 'src/entities/orders.entity';
 import { Product } from 'src/entities/products.entity';
 import { SpecialOffer } from 'src/entities/specialOffers.entity';
 import { OrderProduct } from 'src/entities/orderProduct.entity';
+import { Customization } from 'src/entities/customizations.entity';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { OrderProduct } from 'src/entities/orderProduct.entity';
       OrderProduct,
       Product,
       SpecialOffer,
+      Customization,
     ]),
     JwtModule.register({
       global: true,

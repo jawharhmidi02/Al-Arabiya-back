@@ -20,6 +20,7 @@ const orders_entity_1 = require("../entities/orders.entity");
 const products_entity_1 = require("../entities/products.entity");
 const specialOffers_entity_1 = require("../entities/specialOffers.entity");
 const orderProduct_entity_1 = require("../entities/orderProduct.entity");
+const customizations_entity_1 = require("../entities/customizations.entity");
 let AdminModule = class AdminModule {
 };
 exports.AdminModule = AdminModule;
@@ -34,6 +35,7 @@ exports.AdminModule = AdminModule = __decorate([
                 orderProduct_entity_1.OrderProduct,
                 products_entity_1.Product,
                 specialOffers_entity_1.SpecialOffer,
+                customizations_entity_1.Customization,
             ]),
             jwt_1.JwtModule.register({
                 global: true,

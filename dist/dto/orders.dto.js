@@ -50,6 +50,10 @@ __decorate([
     __metadata("design:type", String)
 ], OrderCreate.prototype, "address", void 0);
 __decorate([
+    (0, class_validator_1.IsNumber)(),
+    __metadata("design:type", Number)
+], OrderCreate.prototype, "deliveryPrice", void 0);
+__decorate([
     (0, class_validator_1.IsObject)(),
     (0, class_validator_1.Validate)((obj) => {
         if (typeof obj !== 'object' || Array.isArray(obj))
@@ -98,6 +102,11 @@ __decorate([
 ], OrderUpdate.prototype, "address", void 0);
 __decorate([
     (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsNumber)(),
+    __metadata("design:type", Number)
+], OrderUpdate.prototype, "deliveryPrice", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], OrderUpdate.prototype, "type", void 0);
@@ -118,6 +127,7 @@ class OrderResponse {
         this.email = order.email;
         this.city = order.city;
         this.address = order.address;
+        this.deliveryPrice = order.deliveryPrice;
         this.type = order.type;
         this.order_Products = order.order_Products;
     }

@@ -38,6 +38,9 @@ export class Order {
   @Column()
   address: string;
 
+  @Column({ default: 0 })
+  deliveryPrice: number;
+
   @Column({ default: 'delivery' })
   type: string;
 

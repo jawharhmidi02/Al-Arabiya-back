@@ -96,7 +96,7 @@ let CustomizationService = class CustomizationService {
                 relations: [
                     'featuredProducts',
                     'featuredProducts.category',
-                    'featuredProducts.brands',
+                    'featuredProducts.brand',
                     'brands',
                     'categories',
                 ],
@@ -143,7 +143,7 @@ let CustomizationService = class CustomizationService {
                 relations: [
                     'featuredProducts',
                     'featuredProducts.category',
-                    'featuredProducts.brands',
+                    'featuredProducts.brand',
                     'brands',
                     'categories',
                 ],
@@ -189,7 +189,7 @@ let CustomizationService = class CustomizationService {
                 relations: [
                     'featuredProducts',
                     'featuredProducts.category',
-                    'featuredProducts.brands',
+                    'featuredProducts.brand',
                     'brands',
                     'categories',
                 ],

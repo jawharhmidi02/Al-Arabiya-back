@@ -34,6 +34,8 @@ const orders_dto_1 = require("../dto/orders.dto");
 const specialOffers_dto_1 = require("../dto/specialOffers.dto");
 const specialOffers_entity_1 = require("../entities/specialOffers.entity");
 const cloudinary_1 = require("cloudinary");
+const customizations_entity_1 = require("../entities/customizations.entity");
+const customizations_dto_1 = require("../dto/customizations.dto");
 const algorithm = 'aes-256-cbc';
 const key = Buffer.from(process.env.CRYPTO_SECRET_KEY, 'hex');
 const iv = (0, crypto_1.randomBytes)(16);
@@ -53,7 +55,7 @@ function decrypt(text) {
     return decrypted.toString();
 }
 let AdminService = class AdminService {
-    constructor(usersRepository, categoryRepository, brandRepository, orderRepository, orderProductRepository, productRepository, specialOfferRepository, jwtService) {
+    constructor(usersRepository, categoryRepository, brandRepository, orderRepository, orderProductRepository, productRepository, specialOfferRepository, customizationRepository, jwtService) {
         this.usersRepository = usersRepository;
         this.categoryRepository = categoryRepository;
         this.brandRepository = brandRepository;
@@ -61,6 +63,7 @@ let AdminService = class AdminService {
         this.orderProductRepository = orderProductRepository;
         this.productRepository = productRepository;
         this.specialOfferRepository = specialOfferRepository;
+        this.customizationRepository = customizationRepository;
         this.jwtService = jwtService;
         this.transporter = nodemailer.createTransport({
             service: 'gmail',
@@ -2009,6 +2012,222 @@ let AdminService = class AdminService {
             }, common_1.HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+    async createCustomization(customization, access_token) {
+        try {
+            const payLoad = await this.jwtService.verifyAsync(access_token);
+            const account = await this.usersRepository.findOne({
+                where: { id: payLoad.id },
+            });
+            if (!account ||
+                account.nonce !== payLoad.nonce ||
+                account.role !== 'admin') {
+                return {
+                    statusCode: common_1.HttpStatus.FORBIDDEN,
+                    message: 'Unauthorized access',
+                    data: null,
+                };
+            }
+            const count = await this.customizationRepository.count();
+            if (count > 0) {
+                throw new common_1.HttpException('Customization already exists', common_1.HttpStatus.BAD_REQUEST);
+            }
+            const savedCustomization = await this.customizationRepository.save(customization);
+            return {
+                statusCode: common_1.HttpStatus.CREATED,
+                message: 'Customization created successfully',
+                data: new customizations_dto_1.CustomizationResponse(savedCustomization),
+            };
+        }
+        catch (error) {
+            console.error(error);
+            throw new common_1.HttpException(error.message || 'Failed to create customization', common_1.HttpStatus.BAD_REQUEST);
+        }
+    }
+    async findCustomization(access_token) {
+        try {
+            const payLoad = await this.jwtService.verifyAsync(access_token);
+            const account = await this.usersRepository.findOne({
+                where: { id: payLoad.id },
+            });
+            if (!account ||
+                account.nonce !== payLoad.nonce ||
+                account.role !== 'admin') {
+                return {
+                    statusCode: common_1.HttpStatus.FORBIDDEN,
+                    message: 'Unauthorized access',
+                    data: null,
+                };
+            }
+            const response = await this.customizationRepository.find({
+                relations: [
+                    'featuredProducts',
+                    'featuredProducts.category',
+                    'featuredProducts.brand',
+                    'brands',
+                    'categories',
+                ],
+            });
+            if (response.length === 0)
+                return {
+                    statusCode: common_1.HttpStatus.NOT_FOUND,
+                    message: 'Customization not found',
+                    data: null,
+                };
+            const data = new customizations_dto_1.CustomizationResponse(response[0]);
+            return {
+                statusCode: common_1.HttpStatus.OK,
+                message: 'Customization retrieved successfully',
+                data,
+            };
+        }
+        catch (error) {
+            console.error(error);
+            throw new common_1.HttpException({
+                statusCode: common_1.HttpStatus.INTERNAL_SERVER_ERROR,
+                message: error.message || 'Failed to retrieve Customization',
+            }, common_1.HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    async findByIdCustomization(id, access_token) {
+        try {
+            const payLoad = await this.jwtService.verifyAsync(access_token);
+            const account = await this.usersRepository.findOne({
+                where: { id: payLoad.id },
+            });
+            if (!account ||
+                account.nonce !== payLoad.nonce ||
+                account.role !== 'admin') {
+                return {
+                    statusCode: common_1.HttpStatus.FORBIDDEN,
+                    message: 'Unauthorized access',
+                    data: null,
+                };
+            }
+            const response = await this.customizationRepository.findOne({
+                where: { id },
+                relations: [
+                    'featuredProducts',
+                    'featuredProducts.category',
+                    'featuredProducts.brand',
+                    'brands',
+                    'categories',
+                ],
+            });
+            if (!response)
+                return {
+                    statusCode: common_1.HttpStatus.NOT_FOUND,
+                    message: 'Customization not found',
+                    data: null,
+                };
+            const data = new customizations_dto_1.CustomizationResponse(response);
+            return {
+                statusCode: common_1.HttpStatus.OK,
+                message: 'Customization retrieved successfully',
+                data,
+            };
+        }
+        catch (error) {
+            console.error(error);
+            throw new common_1.HttpException({
+                statusCode: common_1.HttpStatus.INTERNAL_SERVER_ERROR,
+                message: error.message || 'Failed to retrieve Customization',
+            }, common_1.HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    async updateCustomization(id, customization, access_token) {
+        try {
+            const payLoad = await this.jwtService.verifyAsync(access_token);
+            const account = await this.usersRepository.findOne({
+                where: { id: payLoad.id },
+            });
+            if (!account ||
+                account.nonce !== payLoad.nonce ||
+                account.role !== 'admin') {
+                return {
+                    statusCode: common_1.HttpStatus.FORBIDDEN,
+                    message: 'Unauthorized access',
+                    data: null,
+                };
+            }
+            await this.customizationRepository.update({ id }, customization);
+            const response = await this.customizationRepository.findOne({
+                where: { id },
+                relations: [
+                    'featuredProducts',
+                    'featuredProducts.category',
+                    'featuredProducts.brand',
+                    'brands',
+                    'categories',
+                ],
+            });
+            if (!response)
+                return {
+                    statusCode: common_1.HttpStatus.NOT_FOUND,
+                    message: 'Customization not found',
+                    data: null,
+                };
+            const data = new customizations_dto_1.CustomizationResponse(response);
+            return {
+                statusCode: common_1.HttpStatus.OK,
+                message: 'Customization updated successfully',
+                data,
+            };
+        }
+        catch (error) {
+            console.error(error);
+            throw new common_1.HttpException({
+                statusCode: common_1.HttpStatus.INTERNAL_SERVER_ERROR,
+                message: error.message || 'Failed to Update Customization',
+            }, common_1.HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    async deleteCustomization(id, access_token) {
+        try {
+            const payLoad = await this.jwtService.verifyAsync(access_token);
+            const account = await this.usersRepository.findOne({
+                where: { id: payLoad.id },
+            });
+            if (!account ||
+                account.nonce !== payLoad.nonce ||
+                account.role !== 'admin') {
+                return {
+                    statusCode: common_1.HttpStatus.FORBIDDEN,
+                    message: 'Unauthorized access',
+                    data: null,
+                };
+            }
+            const response = await this.customizationRepository.findOne({
+                where: { id },
+                relations: [
+                    'featuredProducts',
+                    'featuredProducts.category',
+                    'featuredProducts.brand',
+                    'brands',
+                    'categories',
+                ],
+            });
+            if (!response)
+                return {
+                    statusCode: common_1.HttpStatus.NOT_FOUND,
+                    message: 'Customization not found',
+                    data: null,
+                };
+            await this.customizationRepository.delete(id);
+            const data = new customizations_dto_1.CustomizationResponse(response);
+            return {
+                statusCode: common_1.HttpStatus.OK,
+                message: 'Customization deleted successfully',
+                data,
+            };
+        }
+        catch (error) {
+            console.error(error);
+            throw new common_1.HttpException({
+                statusCode: common_1.HttpStatus.INTERNAL_SERVER_ERROR,
+                message: error.message || 'Failed to Delete Customization',
+            }, common_1.HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 };
 exports.AdminService = AdminService;
 exports.AdminService = AdminService = __decorate([
@@ -2020,7 +2239,9 @@ exports.AdminService = AdminService = __decorate([
     __param(4, (0, typeorm_1.InjectRepository)(orderProduct_entity_1.OrderProduct)),
     __param(5, (0, typeorm_1.InjectRepository)(products_entity_1.Product)),
     __param(6, (0, typeorm_1.InjectRepository)(specialOffers_entity_1.SpecialOffer)),
+    __param(7, (0, typeorm_1.InjectRepository)(customizations_entity_1.Customization)),
     __metadata("design:paramtypes", [typeorm_2.Repository,
+        typeorm_2.Repository,
         typeorm_2.Repository,
         typeorm_2.Repository,
         typeorm_2.Repository,

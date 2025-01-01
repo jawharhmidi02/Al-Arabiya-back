@@ -6,6 +6,7 @@ import { BrandCreate, BrandResponse, BrandUpdate } from 'src/dto/brands.dto';
 import { ProductCreate, ProductResponse, ProductUpdate } from 'src/dto/products.dto';
 import { OrderCreate, OrderResponse, OrderUpdate } from 'src/dto/orders.dto';
 import { SpecialOfferCreate, SpecialOfferResponse, SpecialOfferUpdate } from 'src/dto/specialOffers.dto';
+import { CustomizationCreate, CustomizationResponse, CustomizationUpdate } from 'src/dto/customizations.dto';
 export declare class AdminController {
     private readonly adminService;
     constructor(adminService: AdminService);
@@ -86,4 +87,9 @@ export declare class AdminController {
     findByIdSpecialOffer(id: string, access_token: string): Promise<ApiResponse<SpecialOfferResponse>>;
     updateSpecialOffer(id: string, specialOffer: SpecialOfferUpdate, access_token: string): Promise<ApiResponse<SpecialOfferResponse>>;
     deleteSpecialOffer(id: string, access_token: string): Promise<ApiResponse<SpecialOfferResponse>>;
+    createCustomization(customizationDto: CustomizationCreate, access_token: string): Promise<ApiResponse<CustomizationResponse>>;
+    findCustomization(access_token: string): Promise<ApiResponse<CustomizationResponse>>;
+    findByIdCustomization(id: string, access_token: string): Promise<ApiResponse<CustomizationResponse>>;
+    updateCustomization(id: string, customization: CustomizationUpdate, access_token: string): Promise<ApiResponse<CustomizationResponse>>;
+    deleteCustomization(id: string, access_token: string): Promise<ApiResponse<CustomizationResponse>>;
 }

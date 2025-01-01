@@ -113,7 +113,7 @@ export class CustomizationService {
         relations: [
           'featuredProducts',
           'featuredProducts.category',
-          'featuredProducts.brands',
+          'featuredProducts.brand',
           'brands',
           'categories',
         ],
@@ -176,7 +176,7 @@ export class CustomizationService {
         relations: [
           'featuredProducts',
           'featuredProducts.category',
-          'featuredProducts.brands',
+          'featuredProducts.brand',
           'brands',
           'categories',
         ],
@@ -236,7 +236,7 @@ export class CustomizationService {
         relations: [
           'featuredProducts',
           'featuredProducts.category',
-          'featuredProducts.brands',
+          'featuredProducts.brand',
           'brands',
           'categories',
         ],

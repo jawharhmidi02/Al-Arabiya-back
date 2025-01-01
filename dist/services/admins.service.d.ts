@@ -14,6 +14,8 @@ import { ProductCreate, ProductResponse, ProductUpdate } from 'src/dto/products.
 import { OrderCreate, OrderResponse, OrderUpdate } from 'src/dto/orders.dto';
 import { SpecialOfferCreate, SpecialOfferResponse, SpecialOfferUpdate } from 'src/dto/specialOffers.dto';
 import { SpecialOffer } from 'src/entities/specialOffers.entity';
+import { Customization } from 'src/entities/customizations.entity';
+import { CustomizationCreate, CustomizationResponse, CustomizationUpdate } from 'src/dto/customizations.dto';
 export declare class AdminService {
     private usersRepository;
     private categoryRepository;
@@ -22,9 +24,10 @@ export declare class AdminService {
     private orderProductRepository;
     private productRepository;
     private specialOfferRepository;
+    private customizationRepository;
     private jwtService;
     private transporter;
-    constructor(usersRepository: Repository<Users>, categoryRepository: Repository<Category>, brandRepository: Repository<Brand>, orderRepository: Repository<Order>, orderProductRepository: Repository<OrderProduct>, productRepository: Repository<Product>, specialOfferRepository: Repository<SpecialOffer>, jwtService: JwtService);
+    constructor(usersRepository: Repository<Users>, categoryRepository: Repository<Category>, brandRepository: Repository<Brand>, orderRepository: Repository<Order>, orderProductRepository: Repository<OrderProduct>, productRepository: Repository<Product>, specialOfferRepository: Repository<SpecialOffer>, customizationRepository: Repository<Customization>, jwtService: JwtService);
     signin(email: string, password: string): Promise<ApiResponse<{
         access_token: string;
     }>>;
@@ -108,4 +111,9 @@ export declare class AdminService {
     findByIdSpecialOffer(id: string, access_token: string): Promise<ApiResponse<SpecialOfferResponse>>;
     updateSpecialOffer(id: string, specialOffer: SpecialOfferUpdate, access_token: string): Promise<ApiResponse<SpecialOfferResponse>>;
     deleteSpecialOffer(id: string, access_token: string): Promise<ApiResponse<SpecialOfferResponse>>;
+    createCustomization(customization: CustomizationCreate, access_token: string): Promise<ApiResponse<CustomizationResponse>>;
+    findCustomization(access_token: string): Promise<ApiResponse<CustomizationResponse>>;
+    findByIdCustomization(id: string, access_token: string): Promise<ApiResponse<CustomizationResponse>>;
+    updateCustomization(id: string, customization: CustomizationUpdate, access_token: string): Promise<ApiResponse<CustomizationResponse>>;
+    deleteCustomization(id: string, access_token: string): Promise<ApiResponse<CustomizationResponse>>;
 }

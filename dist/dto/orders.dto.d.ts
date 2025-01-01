@@ -11,6 +11,7 @@ export declare class OrderCreate {
     email: string;
     city: string;
     address: string;
+    deliveryPrice: number;
     cart: Record<string, number>;
 }
 export declare class OrderUpdate {
@@ -21,6 +22,7 @@ export declare class OrderUpdate {
     email?: string;
     city?: string;
     address?: string;
+    deliveryPrice?: number;
     type?: string;
     order_Products?: OrderProductDTO[];
 }
@@ -34,6 +36,7 @@ export declare class OrderResponse {
     email: string;
     city: string;
     address: string;
+    deliveryPrice: number;
     type: string;
     order_Products: OrderProduct[];
     constructor(order: Order);

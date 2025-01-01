@@ -1,5 +1,6 @@
 import {
   IsDate,
+  IsNumber,
   IsObject,
   IsOptional,
   IsString,
@@ -37,6 +38,9 @@ export class OrderCreate {
 
   @IsString()
   address: string;
+
+  @IsNumber()
+  deliveryPrice: number;
 
   @IsObject()
   @Validate((obj: any) => {
@@ -76,6 +80,10 @@ export class OrderUpdate {
   address?: string;
 
   @IsOptional()
+  @IsNumber()
+  deliveryPrice?: number;
+
+  @IsOptional()
   @IsString()
   type?: string;
 
@@ -95,6 +103,7 @@ export class OrderResponse {
   email: string;
   city: string;
   address: string;
+  deliveryPrice: number;
   type: string;
   order_Products: OrderProduct[];
 
@@ -108,6 +117,7 @@ export class OrderResponse {
     this.email = order.email;
     this.city = order.city;
     this.address = order.address;
+    this.deliveryPrice = order.deliveryPrice;
     this.type = order.type;
     this.order_Products = order.order_Products;
   }

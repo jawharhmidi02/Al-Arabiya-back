@@ -21,6 +21,7 @@ const brands_dto_1 = require("../dto/brands.dto");
 const products_dto_1 = require("../dto/products.dto");
 const orders_dto_1 = require("../dto/orders.dto");
 const specialOffers_dto_1 = require("../dto/specialOffers.dto");
+const customizations_dto_1 = require("../dto/customizations.dto");
 let AdminController = class AdminController {
     constructor(adminService) {
         this.adminService = adminService;
@@ -150,6 +151,21 @@ let AdminController = class AdminController {
     }
     async deleteSpecialOffer(id, access_token) {
         return await this.adminService.deleteSpecialOffer(id, access_token);
+    }
+    async createCustomization(customizationDto, access_token) {
+        return await this.adminService.createCustomization(customizationDto, access_token);
+    }
+    async findCustomization(access_token) {
+        return await this.adminService.findCustomization(access_token);
+    }
+    async findByIdCustomization(id, access_token) {
+        return await this.adminService.findByIdCustomization(id, access_token);
+    }
+    async updateCustomization(id, customization, access_token) {
+        return await this.adminService.updateCustomization(id, customization, access_token);
+    }
+    async deleteCustomization(id, access_token) {
+        return await this.adminService.deleteCustomization(id, access_token);
     }
 };
 exports.AdminController = AdminController;
@@ -491,6 +507,46 @@ __decorate([
     __metadata("design:paramtypes", [String, String]),
     __metadata("design:returntype", Promise)
 ], AdminController.prototype, "deleteSpecialOffer", null);
+__decorate([
+    (0, common_1.Post)('/customization'),
+    __param(0, (0, common_1.Body)()),
+    __param(1, (0, common_1.Headers)('access_token')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [customizations_dto_1.CustomizationCreate, String]),
+    __metadata("design:returntype", Promise)
+], AdminController.prototype, "createCustomization", null);
+__decorate([
+    (0, common_1.Get)('/customization'),
+    __param(0, (0, common_1.Headers)('access_token')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], AdminController.prototype, "findCustomization", null);
+__decorate([
+    (0, common_1.Get)('/customization/byid/:id'),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Headers)('access_token')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String]),
+    __metadata("design:returntype", Promise)
+], AdminController.prototype, "findByIdCustomization", null);
+__decorate([
+    (0, common_1.Put)('/customization/:id'),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Body)()),
+    __param(2, (0, common_1.Headers)('access_token')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, customizations_dto_1.CustomizationUpdate, String]),
+    __metadata("design:returntype", Promise)
+], AdminController.prototype, "updateCustomization", null);
+__decorate([
+    (0, common_1.Delete)('/customization/:id'),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Headers)('access_token')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String]),
+    __metadata("design:returntype", Promise)
+], AdminController.prototype, "deleteCustomization", null);
 exports.AdminController = AdminController = __decorate([
     (0, common_1.Controller)('admins'),
     __metadata("design:paramtypes", [admins_service_1.AdminService])

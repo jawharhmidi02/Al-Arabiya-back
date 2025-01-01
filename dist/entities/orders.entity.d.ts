@@ -10,6 +10,7 @@ export declare class Order {
     email: string;
     city: string;
     address: string;
+    deliveryPrice: number;
     type: string;
     order_Products: OrderProduct[];
     user: Users;

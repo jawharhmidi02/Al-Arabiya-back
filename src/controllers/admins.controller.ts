@@ -29,6 +29,11 @@ import {
   SpecialOfferResponse,
   SpecialOfferUpdate,
 } from 'src/dto/specialOffers.dto';
+import {
+  CustomizationCreate,
+  CustomizationResponse,
+  CustomizationUpdate,
+} from 'src/dto/customizations.dto';
 
 @Controller('admins')
 export class AdminController {
@@ -477,5 +482,52 @@ export class AdminController {
     @Headers('access_token') access_token: string,
   ): Promise<ApiResponse<SpecialOfferResponse>> {
     return await this.adminService.deleteSpecialOffer(id, access_token);
+  }
+
+  @Post('/customization')
+  async createCustomization(
+    @Body() customizationDto: CustomizationCreate,
+    @Headers('access_token') access_token: string,
+  ): Promise<ApiResponse<CustomizationResponse>> {
+    return await this.adminService.createCustomization(
+      customizationDto,
+      access_token,
+    );
+  }
+
+  @Get('/customization')
+  async findCustomization(
+    @Headers('access_token') access_token: string,
+  ): Promise<ApiResponse<CustomizationResponse>> {
+    return await this.adminService.findCustomization(access_token);
+  }
+
+  @Get('/customization/byid/:id')
+  async findByIdCustomization(
+    @Param('id') id: string,
+    @Headers('access_token') access_token: string,
+  ): Promise<ApiResponse<CustomizationResponse>> {
+    return await this.adminService.findByIdCustomization(id, access_token);
+  }
+
+  @Put('/customization/:id')
+  async updateCustomization(
+    @Param('id') id: string,
+    @Body() customization: CustomizationUpdate,
+    @Headers('access_token') access_token: string,
+  ): Promise<ApiResponse<CustomizationResponse>> {
+    return await this.adminService.updateCustomization(
+      id,
+      customization,
+      access_token,
+    );
+  }
+
+  @Delete('/customization/:id')
+  async deleteCustomization(
+    @Param('id') id: string,
+    @Headers('access_token') access_token: string,
+  ): Promise<ApiResponse<CustomizationResponse>> {
+    return await this.adminService.deleteCustomization(id, access_token);
   }
 }

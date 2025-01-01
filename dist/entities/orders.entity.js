@@ -53,6 +53,10 @@ __decorate([
     __metadata("design:type", String)
 ], Order.prototype, "address", void 0);
 __decorate([
+    (0, typeorm_1.Column)({ default: 0 }),
+    __metadata("design:type", Number)
+], Order.prototype, "deliveryPrice", void 0);
+__decorate([
     (0, typeorm_1.Column)({ default: 'delivery' }),
     __metadata("design:type", String)
 ], Order.prototype, "type", void 0);
