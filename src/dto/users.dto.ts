@@ -36,41 +36,55 @@ export class UsersCreate {
 }
 
 export class UsersUpdate {
+  @IsOptional()
   @IsString()
-  full_name: string;
+  full_name?: string;
 
+  @IsOptional()
   @IsString()
-  email: string;
+  email?: string;
 
+  @IsOptional()
   @IsString()
-  password: string;
+  password?: string;
 
+  @IsOptional()
   @IsString()
-  phone: string;
+  current_password?: string;
 
+  @IsOptional()
   @IsString()
-  city: string;
+  phone?: string;
 
+  @IsOptional()
   @IsString()
-  address: string;
+  city?: string;
 
+  @IsOptional()
+  @IsString()
+  address?: string;
+
+  @IsOptional()
   @IsObject()
   @Validate((obj: any) => {
     if (typeof obj !== 'object' || Array.isArray(obj)) return false;
     return Object.values(obj).every((value) => typeof value === 'number');
   })
-  cart: Record<string, number>;
+  cart?: Record<string, number>;
 
+  @IsOptional()
   @IsOptional()
   @ValidateNested()
   @Type(() => OrderDTO)
-  orders: OrderDTO[];
+  orders?: OrderDTO[];
 
+  @IsOptional()
   @IsString()
-  role: string;
+  role?: string;
 
+  @IsOptional()
   @IsString()
-  nonce: string;
+  nonce?: string;
 }
 
 export class UsersResponse {

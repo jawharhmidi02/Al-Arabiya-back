@@ -30,7 +30,7 @@ __decorate([
 ], Category.prototype, "products", void 0);
 __decorate([
     (0, typeorm_1.ManyToOne)(() => customizations_entity_1.Customization, (customization) => customization.categories, {
-        onDelete: 'SET NULL',
+        onDelete: 'CASCADE',
     }),
     __metadata("design:type", customizations_entity_1.Customization)
 ], Category.prototype, "customization", void 0);

@@ -73,7 +73,7 @@ export class Product {
     () => Customization,
     (customization) => customization.featuredProducts,
     {
-      onDelete: 'SET NULL',
+      onDelete: 'CASCADE',
     },
   )
   customization: Customization;

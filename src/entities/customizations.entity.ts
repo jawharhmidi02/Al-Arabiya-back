@@ -2,8 +2,9 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
-  ManyToMany,
+  OneToMany,
   JoinTable,
+  ManyToOne,
 } from 'typeorm';
 import { Brand } from './brands.entity';
 import { Category } from './categories.entity';
@@ -17,15 +18,12 @@ export class Customization {
   @Column()
   deliveryPrice: number;
 
-  @ManyToMany(() => Product)
-  @JoinTable()
+  @OneToMany(() => Product, (product) => product.customization)
   featuredProducts: Product[];
 
-  @ManyToMany(() => Category)
-  @JoinTable()
+  @OneToMany(() => Category, (category) => category.customization)
   categories: Category[];
 
-  @ManyToMany(() => Brand)
-  @JoinTable()
+  @OneToMany(() => Brand, (brand) => brand.customization)
   brands: Brand[];
 }

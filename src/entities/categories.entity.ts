@@ -21,7 +21,7 @@ export class Category {
   products: Product[];
 
   @ManyToOne(() => Customization, (customization) => customization.categories, {
-    onDelete: 'SET NULL',
+    onDelete: 'CASCADE',
   })
   customization: Customization;
 }

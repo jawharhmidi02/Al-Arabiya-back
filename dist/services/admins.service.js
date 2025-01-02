@@ -622,6 +622,12 @@ let AdminService = class AdminService {
                     data: null,
                 };
             }
+            if (id === account.id) {
+                if (user.current_password !== decrypt(account.password)) {
+                    throw new Error('Invalid password');
+                }
+                delete user['current_password'];
+            }
             if (user.password) {
                 user.password = encrypt(user.password);
             }
@@ -1351,7 +1357,7 @@ let AdminService = class AdminService {
             const [response, totalItems] = await this.productRepository.findAndCount({
                 skip: (page - 1) * limit,
                 take: limit,
-                relations: ['category', 'brand'],
+                relations: ['category', 'brand', 'orderProducts'],
                 where: [{ name: (0, typeorm_2.ILike)(`%${name}%`) }, (0, class_validator_1.isUUID)(name) ? { id: name } : {}],
             });
             const data = response.map((item) => new products_dto_1.ProductResponse(item));
@@ -2179,6 +2185,7 @@ let AdminService = class AdminService {
                     'featuredProducts',
                     'featuredProducts.category',
                     'featuredProducts.brand',
+                    'featuredProducts.orderProducts',
                     'brands',
                     'categories',
                 ],
@@ -2225,6 +2232,7 @@ let AdminService = class AdminService {
                     'featuredProducts',
                     'featuredProducts.category',
                     'featuredProducts.brand',
+                    'featuredProducts.orderProducts',
                     'brands',
                     'categories',
                 ],
@@ -2265,13 +2273,69 @@ let AdminService = class AdminService {
                     data: null,
                 };
             }
-            await this.customizationRepository.update({ id }, customization);
+            if (customization.featuredProducts ||
+                customization.brands ||
+                customization.categories) {
+                const oldData = await this.customizationRepository.findOne({
+                    where: { id },
+                    relations: [
+                        'featuredProducts',
+                        'featuredProducts.category',
+                        'featuredProducts.brand',
+                        'brands',
+                        'categories',
+                    ],
+                });
+                if (!oldData) {
+                    return {
+                        statusCode: common_1.HttpStatus.NOT_FOUND,
+                        message: 'Customization not found',
+                        data: null,
+                    };
+                }
+                if (customization.featuredProducts) {
+                    const featuredProducts = [];
+                    for (let i = 0; i < customization.featuredProducts.length; i++) {
+                        const product = await this.productRepository.findOne({
+                            where: { id: customization.featuredProducts[i].id },
+                            relations: ['category', 'brand'],
+                        });
+                        featuredProducts.push(product);
+                    }
+                    oldData.featuredProducts = featuredProducts;
+                }
+                if (customization.categories) {
+                    const categories = [];
+                    for (let i = 0; i < customization.categories.length; i++) {
+                        const category = await this.categoryRepository.findOne({
+                            where: { id: customization.categories[i].id },
+                        });
+                        categories.push(category);
+                    }
+                    oldData.categories = categories;
+                }
+                if (customization.brands) {
+                    const brands = [];
+                    for (let i = 0; i < customization.brands.length; i++) {
+                        const brand = await this.brandRepository.findOne({
+                            where: { id: customization.brands[i].id },
+                        });
+                        brands.push(brand);
+                    }
+                    oldData.brands = brands;
+                }
+                await this.customizationRepository.save(oldData);
+            }
+            else {
+                await this.customizationRepository.update({ id }, customization);
+            }
             const response = await this.customizationRepository.findOne({
                 where: { id },
                 relations: [
                     'featuredProducts',
                     'featuredProducts.category',
                     'featuredProducts.brand',
+                    'featuredProducts.orderProducts',
                     'brands',
                     'categories',
                 ],
@@ -2318,6 +2382,7 @@ let AdminService = class AdminService {
                     'featuredProducts',
                     'featuredProducts.category',
                     'featuredProducts.brand',
+                    'featuredProducts.orderProducts',
                     'brands',
                     'categories',
                 ],

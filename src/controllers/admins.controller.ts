@@ -490,6 +490,8 @@ export class AdminController {
     return await this.adminService.deleteSpecialOffer(id, access_token);
   }
 
+  /* CUSTOMIZATION ENDPOINTS */
+
   @Post('/customization')
   async createCustomization(
     @Body() customizationDto: CustomizationCreate,

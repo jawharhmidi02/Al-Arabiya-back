@@ -23,7 +23,7 @@ export class Brand {
   products: Product[];
 
   @ManyToOne(() => Customization, (customization) => customization.brands, {
-    onDelete: 'SET NULL',
+    onDelete: 'CASCADE',
   })
   customization: Customization;
 }

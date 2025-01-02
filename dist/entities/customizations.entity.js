@@ -26,18 +26,15 @@ __decorate([
     __metadata("design:type", Number)
 ], Customization.prototype, "deliveryPrice", void 0);
 __decorate([
-    (0, typeorm_1.ManyToMany)(() => products_entity_1.Product),
-    (0, typeorm_1.JoinTable)(),
+    (0, typeorm_1.OneToMany)(() => products_entity_1.Product, (product) => product.customization),
     __metadata("design:type", Array)
 ], Customization.prototype, "featuredProducts", void 0);
 __decorate([
-    (0, typeorm_1.ManyToMany)(() => categories_entity_1.Category),
-    (0, typeorm_1.JoinTable)(),
+    (0, typeorm_1.OneToMany)(() => categories_entity_1.Category, (category) => category.customization),
     __metadata("design:type", Array)
 ], Customization.prototype, "categories", void 0);
 __decorate([
-    (0, typeorm_1.ManyToMany)(() => brands_entity_1.Brand),
-    (0, typeorm_1.JoinTable)(),
+    (0, typeorm_1.OneToMany)(() => brands_entity_1.Brand, (brand) => brand.customization),
     __metadata("design:type", Array)
 ], Customization.prototype, "brands", void 0);
 exports.Customization = Customization = __decorate([

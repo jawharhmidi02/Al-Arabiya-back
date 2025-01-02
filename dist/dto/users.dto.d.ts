@@ -12,16 +12,17 @@ export declare class UsersCreate {
     city: string;
 }
 export declare class UsersUpdate {
-    full_name: string;
-    email: string;
-    password: string;
-    phone: string;
-    city: string;
-    address: string;
-    cart: Record<string, number>;
-    orders: OrderDTO[];
-    role: string;
-    nonce: string;
+    full_name?: string;
+    email?: string;
+    password?: string;
+    current_password?: string;
+    phone?: string;
+    city?: string;
+    address?: string;
+    cart?: Record<string, number>;
+    orders?: OrderDTO[];
+    role?: string;
+    nonce?: string;
 }
 export declare class UsersResponse {
     id: string;

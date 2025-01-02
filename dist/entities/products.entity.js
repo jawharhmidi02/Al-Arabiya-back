@@ -88,7 +88,7 @@ __decorate([
 ], Product.prototype, "orderProducts", void 0);
 __decorate([
     (0, typeorm_1.ManyToOne)(() => customizations_entity_1.Customization, (customization) => customization.featuredProducts, {
-        onDelete: 'SET NULL',
+        onDelete: 'CASCADE',
     }),
     __metadata("design:type", customizations_entity_1.Customization)
 ], Product.prototype, "customization", void 0);
