@@ -90,7 +90,7 @@ __decorate([
 ], ProductUpdate.prototype, "name", void 0);
 __decorate([
     (0, class_validator_1.IsOptional)(),
-    (0, class_validator_1.IsArray)({ each: true }),
+    (0, class_validator_1.IsArray)(),
     __metadata("design:type", Array)
 ], ProductUpdate.prototype, "img", void 0);
 __decorate([

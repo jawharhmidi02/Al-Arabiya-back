@@ -1595,6 +1595,20 @@ let AdminService = class AdminService {
                     data: null,
                 };
             }
+            if (product.name) {
+                if (existingProduct.name != product.name) {
+                    const testUnique = await this.productRepository.findOne({
+                        where: { name: product.name },
+                    });
+                    if (testUnique) {
+                        return {
+                            statusCode: common_1.HttpStatus.BAD_REQUEST,
+                            message: 'Product already exists',
+                            data: null,
+                        };
+                    }
+                }
+            }
             if (product.img && product.img.length > 0) {
                 const updatedImages = [];
                 cloudinary_1.v2.config({

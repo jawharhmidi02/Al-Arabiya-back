@@ -73,7 +73,7 @@ export class ProductUpdate {
   name?: string;
 
   @IsOptional()
-  @IsArray({ each: true })
+  @IsArray()
   img?: string[];
 
   @IsOptional()

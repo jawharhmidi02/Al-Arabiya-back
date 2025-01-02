@@ -2098,6 +2098,21 @@ export class AdminService {
         };
       }
 
+      if (product.name) {
+        if (existingProduct.name != product.name) {
+          const testUnique = await this.productRepository.findOne({
+            where: { name: product.name },
+          });
+          if (testUnique) {
+            return {
+              statusCode: HttpStatus.BAD_REQUEST,
+              message: 'Product already exists',
+              data: null,
+            };
+          }
+        }
+      }
+
       if (product.img && product.img.length > 0) {
         const updatedImages = [];
 
