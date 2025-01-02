@@ -14,6 +14,20 @@ async function bootstrap() {
         whitelist: true,
         forbidNonWhitelisted: true,
         skipMissingProperties: true,
+        disableErrorMessages: false,
+        enableDebugMessages: true,
+        validationError: {
+            target: false,
+            value: true,
+        },
+        exceptionFactory: (errors) => {
+            const result = errors.map((error) => ({
+                property: error.property,
+                message: error.constraints ? Object.values(error.constraints) : [],
+                value: error.value,
+            }));
+            return new common_1.BadRequestException(result);
+        },
     }));
     app.enableCors();
     app.useGlobalFilters(new http_exception_filter_1.HttpExceptionFilter());

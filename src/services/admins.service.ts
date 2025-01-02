@@ -1,6 +1,6 @@
 import { Injectable, HttpStatus, HttpException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ILike, Repository } from 'typeorm';
+import { Brackets, ILike, Or, Repository } from 'typeorm';
 import { Users } from '../entities/users.entity';
 import { UsersResponse, UsersUpdate } from 'src/dto/users.dto';
 import { JwtService } from '@nestjs/jwt';
@@ -38,6 +38,7 @@ import {
   CustomizationResponse,
   CustomizationUpdate,
 } from 'src/dto/customizations.dto';
+import { isUUID } from 'class-validator';
 
 const algorithm = 'aes-256-cbc';
 const key = Buffer.from(process.env.CRYPTO_SECRET_KEY, 'hex');
@@ -891,7 +892,10 @@ export class AdminService {
 
       const [response, totalItems] = await this.categoryRepository.findAndCount(
         {
-          where: { name: ILike(`%${name}%`) },
+          where: [
+            { name: ILike(`%${name}%`) },
+            isUUID(name) ? { id: name } : {},
+          ],
           skip: (page - 1) * limit,
           take: limit,
           relations: ['products', 'products.brand'],
@@ -1236,11 +1240,9 @@ export class AdminService {
   > {
     try {
       const payLoad = await this.jwtService.verifyAsync(access_token);
-
       const account = await this.usersRepository.findOne({
         where: { id: payLoad.id },
       });
-
       if (
         !account ||
         account.nonce !== payLoad.nonce ||
@@ -1253,16 +1255,24 @@ export class AdminService {
         };
       }
 
+      const queryBuilder = this.brandRepository
+        .createQueryBuilder('brand')
+        .leftJoinAndSelect('brand.products', 'product')
+        .leftJoinAndSelect('product.category', 'category')
+        .loadRelationCountAndMap('brand.productCount', 'brand.products')
+        .orderBy('brand.name', 'ASC');
+
+      if (name) {
+        queryBuilder.where(
+          new Brackets((qb) => {
+            qb.where('brand.name ILIKE :name', { name: `%${name}%` });
+          }),
+        );
+      }
+
       const [response, totalItems] = await Promise.all([
-        this.brandRepository
-          .createQueryBuilder('brand')
-          .leftJoinAndSelect('brand.products', 'product')
-          .leftJoinAndSelect('product.category', 'category')
-          .loadRelationCountAndMap('brand.productCount', 'brand.products')
-          .orderBy('brand.name', 'ASC')
-          .where('brand.name ILIKE :name', { name: `%${name}%` })
-          .getMany(),
-        this.brandRepository.count(),
+        queryBuilder.getMany(),
+        queryBuilder.getCount(),
       ]);
 
       if (!response) {
@@ -1293,7 +1303,6 @@ export class AdminService {
         stack: error.stack,
         message: error.message,
       });
-
       throw new HttpException(
         {
           statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
@@ -1580,6 +1589,63 @@ export class AdminService {
         };
       }
 
+      const testUnique = await this.productRepository.findOne({
+        where: { name: product.name },
+      });
+      if (testUnique) {
+        return {
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: 'Product already exists',
+          data: null,
+        };
+      }
+
+      cloudinary.config({
+        cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+        api_key: process.env.CLOUDINARY_API_KEY,
+        api_secret: process.env.CLOUDINARY_API_SECRET,
+      });
+
+      const uploadedImageUrls = [];
+
+      for (let i = 0; i < product.img.length; i++) {
+        const base64Data = product.img[i].replace(
+          /^data:image\/\w+;base64,/,
+          '',
+        );
+
+        try {
+          const uploadResult = await new Promise<UploadApiResponse>(
+            (resolve, reject) => {
+              cloudinary.uploader.upload(
+                `data:image/png;base64,${base64Data}`,
+                {
+                  folder: 'Al-Arabiya',
+                  resource_type: 'auto',
+                },
+                (error, result) => {
+                  if (error) reject(error);
+                  resolve(result);
+                },
+              );
+            },
+          );
+
+          uploadedImageUrls.push(uploadResult.secure_url);
+        } catch (uploadError) {
+          console.error(`Error uploading image ${i}:`, uploadError);
+          throw new HttpException(
+            {
+              statusCode: HttpStatus.BAD_REQUEST,
+              message: `Failed to upload image ${i + 1}`,
+            },
+            HttpStatus.BAD_REQUEST,
+          );
+        }
+      }
+
+      product.img = uploadedImageUrls;
+
       const savedProduct = await this.productRepository.save(product);
 
       return {
@@ -1590,7 +1656,10 @@ export class AdminService {
     } catch (error) {
       console.error(error);
       var message: String = error.message || 'Failed';
-      if (message.includes('duplicate key value violates unique constraint')) {
+      if (
+        message.includes('duplicate key value violates unique constraint') ||
+        message.includes('Product already exists')
+      ) {
         message = 'Product already exists';
       }
       throw new HttpException(
@@ -1650,6 +1719,7 @@ export class AdminService {
   async findAllProduct(
     page: number = 1,
     limit: number = 10,
+    name: string = '',
     access_token: string,
   ): Promise<
     ApiResponse<{
@@ -1682,6 +1752,7 @@ export class AdminService {
         skip: (page - 1) * limit,
         take: limit,
         relations: ['category', 'brand'],
+        where: [{ name: ILike(`%${name}%`) }, isUUID(name) ? { id: name } : {}],
       });
 
       const data = response.map((item) => new ProductResponse(item));
@@ -2015,6 +2086,68 @@ export class AdminService {
         };
       }
 
+      const existingProduct = await this.productRepository.findOne({
+        where: { id },
+      });
+
+      if (!existingProduct) {
+        return {
+          statusCode: HttpStatus.NOT_FOUND,
+          message: 'Product not found',
+          data: null,
+        };
+      }
+
+      if (product.img && product.img.length > 0) {
+        const updatedImages = [];
+
+        cloudinary.config({
+          cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+          api_key: process.env.CLOUDINARY_API_KEY,
+          api_secret: process.env.CLOUDINARY_API_SECRET,
+        });
+
+        for (const image of product.img) {
+          if (image.startsWith('http')) {
+            updatedImages.push(image);
+            continue;
+          }
+
+          const base64Data = image.replace(/^data:image\/\w+;base64,/, '');
+
+          try {
+            const uploadResult = await new Promise<UploadApiResponse>(
+              (resolve, reject) => {
+                cloudinary.uploader.upload(
+                  `data:image/png;base64,${base64Data}`,
+                  {
+                    folder: 'Al-Arabiya',
+                    resource_type: 'auto',
+                  },
+                  (error, result) => {
+                    if (error) reject(error);
+                    resolve(result);
+                  },
+                );
+              },
+            );
+
+            updatedImages.push(uploadResult.secure_url);
+          } catch (uploadError) {
+            console.error('Error uploading new image:', uploadError);
+            throw new HttpException(
+              {
+                statusCode: HttpStatus.BAD_REQUEST,
+                message: 'Failed to upload new image',
+              },
+              HttpStatus.BAD_REQUEST,
+            );
+          }
+        }
+
+        product.img = updatedImages;
+      }
+
       await this.productRepository.update(id, product);
 
       const response = await this.productRepository.findOne({
@@ -2022,15 +2155,15 @@ export class AdminService {
         relations: ['category', 'brand'],
       });
 
-      if (!response)
+      if (!response) {
         return {
           statusCode: HttpStatus.NOT_FOUND,
           message: 'Product not found',
           data: null,
         };
+      }
 
       const data = new ProductResponse(response);
-
       return {
         statusCode: HttpStatus.OK,
         message: 'Product updated successfully',
@@ -2038,13 +2171,19 @@ export class AdminService {
       };
     } catch (error) {
       console.error(error);
-
+      let message: string = error.message || 'Failed';
+      if (
+        message.includes('duplicate key value violates unique constraint') ||
+        message.includes('Product already exists')
+      ) {
+        message = 'Product already exists';
+      }
       throw new HttpException(
         {
-          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-          message: error.message || 'Failed to Update Product',
+          statusCode: HttpStatus.BAD_REQUEST,
+          message,
         },
-        HttpStatus.INTERNAL_SERVER_ERROR,
+        HttpStatus.BAD_REQUEST,
       );
     }
   }
@@ -2956,8 +3095,6 @@ export class AdminService {
       await this.customizationRepository.delete(id);
 
       const data = new CustomizationResponse(response);
-      // const products = await response.products;
-      // data.products = products;
 
       return {
         statusCode: HttpStatus.OK,

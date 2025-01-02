@@ -15,20 +15,26 @@ let HttpExceptionFilter = class HttpExceptionFilter {
         const request = ctx.getRequest();
         let status = common_1.HttpStatus.INTERNAL_SERVER_ERROR;
         let message = 'An unexpected error occurred';
+        let validationErrors = null;
         if (exception instanceof common_1.HttpException) {
             status = exception.getStatus();
             message = exception.message;
+            const exceptionResponse = exception.getResponse();
+            if (typeof exceptionResponse === 'object') {
+                validationErrors = exceptionResponse;
+            }
         }
         const errorResponse = {
             statusCode: status,
             message,
             data: null,
+            errors: validationErrors,
         };
         response.status(status).json(errorResponse);
     }
 };
 exports.HttpExceptionFilter = HttpExceptionFilter;
 exports.HttpExceptionFilter = HttpExceptionFilter = __decorate([
-    (0, common_1.Catch)()
+    (0, common_1.Catch)(common_1.HttpException)
 ], HttpExceptionFilter);
 //# sourceMappingURL=http-exception.filter.js.map

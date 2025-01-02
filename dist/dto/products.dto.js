@@ -32,7 +32,7 @@ __decorate([
     __metadata("design:type", String)
 ], ProductCreate.prototype, "name", void 0);
 __decorate([
-    (0, class_validator_1.IsArray)({ each: true }),
+    (0, class_validator_1.IsArray)(),
     __metadata("design:type", Array)
 ], ProductCreate.prototype, "img", void 0);
 __decorate([
@@ -40,33 +40,36 @@ __decorate([
     __metadata("design:type", String)
 ], ProductCreate.prototype, "description", void 0);
 __decorate([
-    (0, class_validator_1.IsBoolean)(),
-    __metadata("design:type", Boolean)
-], ProductCreate.prototype, "onSold", void 0);
-__decorate([
-    (0, class_validator_1.IsNumber)(),
-    __metadata("design:type", Number)
-], ProductCreate.prototype, "soldPercentage", void 0);
-__decorate([
     (0, class_validator_1.IsNumber)(),
     __metadata("design:type", Number)
 ], ProductCreate.prototype, "normalSinglePrice", void 0);
 __decorate([
     (0, class_validator_1.IsNumber)(),
     __metadata("design:type", Number)
-], ProductCreate.prototype, "soldSinglePrice", void 0);
-__decorate([
-    (0, class_validator_1.IsNumber)(),
-    __metadata("design:type", Number)
 ], ProductCreate.prototype, "normalMultiPrice", void 0);
-__decorate([
-    (0, class_validator_1.IsNumber)(),
-    __metadata("design:type", Number)
-], ProductCreate.prototype, "soldMultiPrice", void 0);
 __decorate([
     (0, class_validator_1.IsBoolean)(),
     __metadata("design:type", Boolean)
 ], ProductCreate.prototype, "in_Stock", void 0);
+__decorate([
+    (0, class_validator_1.IsBoolean)(),
+    __metadata("design:type", Boolean)
+], ProductCreate.prototype, "onSold", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsNumber)(),
+    __metadata("design:type", Number)
+], ProductCreate.prototype, "soldPercentage", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsNumber)(),
+    __metadata("design:type", Number)
+], ProductCreate.prototype, "soldSinglePrice", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsNumber)(),
+    __metadata("design:type", Number)
+], ProductCreate.prototype, "soldMultiPrice", void 0);
 __decorate([
     (0, class_validator_1.ValidateNested)(),
     (0, class_transformer_1.Type)(() => CategoryDTO),

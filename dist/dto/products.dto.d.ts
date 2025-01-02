@@ -12,13 +12,13 @@ export declare class ProductCreate {
     name: string;
     img: string[];
     description: string;
-    onSold: boolean;
-    soldPercentage: number;
     normalSinglePrice: number;
-    soldSinglePrice: number;
     normalMultiPrice: number;
-    soldMultiPrice: number;
     in_Stock: boolean;
+    onSold: boolean;
+    soldPercentage?: number;
+    soldSinglePrice?: number;
+    soldMultiPrice?: number;
     category: CategoryDTO;
     brand: BrandDTO;
 }

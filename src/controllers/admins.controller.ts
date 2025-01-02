@@ -270,6 +270,7 @@ export class AdminController {
   async findAllProduct(
     @Query('page') page: number,
     @Query('limit') limit: number,
+    @Query('name') name: string,
     @Headers('access_token') access_token: string,
   ): Promise<
     ApiResponse<{
@@ -279,7 +280,12 @@ export class AdminController {
       totalItems: number;
     }>
   > {
-    return await this.adminService.findAllProduct(page, limit, access_token);
+    return await this.adminService.findAllProduct(
+      page,
+      limit,
+      name,
+      access_token,
+    );
   }
 
   @Get('/product/byid/:id')

@@ -28,32 +28,35 @@ export class ProductCreate {
   @IsString()
   name: string;
 
-  @IsArray({ each: true })
+  @IsArray()
   img: string[];
 
   @IsString()
   description: string;
 
-  @IsBoolean()
-  onSold: boolean;
-
-  @IsNumber()
-  soldPercentage: number;
-
   @IsNumber()
   normalSinglePrice: number;
 
   @IsNumber()
-  soldSinglePrice: number;
-
-  @IsNumber()
   normalMultiPrice: number;
-
-  @IsNumber()
-  soldMultiPrice: number;
 
   @IsBoolean()
   in_Stock: boolean;
+
+  @IsBoolean()
+  onSold: boolean;
+
+  @IsOptional()
+  @IsNumber()
+  soldPercentage?: number;
+
+  @IsOptional()
+  @IsNumber()
+  soldSinglePrice?: number;
+
+  @IsOptional()
+  @IsNumber()
+  soldMultiPrice?: number;
 
   @ValidateNested()
   @Type(() => CategoryDTO)

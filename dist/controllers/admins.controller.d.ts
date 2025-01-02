@@ -45,7 +45,7 @@ export declare class AdminController {
     deleteBrand(id: string, access_token: string): Promise<ApiResponse<BrandResponse>>;
     createProduct(productDto: ProductCreate, access_token: string): Promise<ApiResponse<ProductResponse>>;
     createByListProduct(productDto: any, access_token?: string): Promise<ApiResponse<ProductResponse[]>>;
-    findAllProduct(page: number, limit: number, access_token: string): Promise<ApiResponse<{
+    findAllProduct(page: number, limit: number, name: string, access_token: string): Promise<ApiResponse<{
         data: ProductResponse[];
         totalPages: number;
         currentPage: number;

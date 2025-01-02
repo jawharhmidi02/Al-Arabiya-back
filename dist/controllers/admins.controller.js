@@ -95,8 +95,8 @@ let AdminController = class AdminController {
     async createByListProduct(productDto, access_token) {
         return await this.adminService.createByListProduct(productDto, access_token);
     }
-    async findAllProduct(page, limit, access_token) {
-        return await this.adminService.findAllProduct(page, limit, access_token);
+    async findAllProduct(page, limit, name, access_token) {
+        return await this.adminService.findAllProduct(page, limit, name, access_token);
     }
     async findByIdProduct(id, access_token) {
         return await this.adminService.findByIdProduct(id, access_token);
@@ -360,9 +360,10 @@ __decorate([
     (0, common_1.Get)('/product'),
     __param(0, (0, common_1.Query)('page')),
     __param(1, (0, common_1.Query)('limit')),
-    __param(2, (0, common_1.Headers)('access_token')),
+    __param(2, (0, common_1.Query)('name')),
+    __param(3, (0, common_1.Headers)('access_token')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number, Number, String]),
+    __metadata("design:paramtypes", [Number, Number, String, String]),
     __metadata("design:returntype", Promise)
 ], AdminController.prototype, "findAllProduct", null);
 __decorate([

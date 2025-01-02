@@ -31,19 +31,19 @@ export class Product {
   @Column({ default: false, nullable: true })
   onSold: boolean;
 
-  @Column({ default: 0, nullable: true })
+  @Column({ type: 'float', default: 0, nullable: true })
   soldPercentage: number;
 
   @Column({ type: 'float' })
   normalSinglePrice: number;
 
-  @Column({ type: 'float', default: 0 })
+  @Column({ type: 'float', default: 0, nullable: true })
   soldSinglePrice: number;
 
   @Column({ type: 'float' })
   normalMultiPrice: number;
 
-  @Column({ type: 'float', default: 0 })
+  @Column({ type: 'float', default: 0, nullable: true })
   soldMultiPrice: number;
 
   @Column({ type: 'boolean', default: true })

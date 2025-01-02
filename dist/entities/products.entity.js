@@ -39,7 +39,7 @@ __decorate([
     __metadata("design:type", Boolean)
 ], Product.prototype, "onSold", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ default: 0, nullable: true }),
+    (0, typeorm_1.Column)({ type: 'float', default: 0, nullable: true }),
     __metadata("design:type", Number)
 ], Product.prototype, "soldPercentage", void 0);
 __decorate([
@@ -47,7 +47,7 @@ __decorate([
     __metadata("design:type", Number)
 ], Product.prototype, "normalSinglePrice", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: 'float', default: 0 }),
+    (0, typeorm_1.Column)({ type: 'float', default: 0, nullable: true }),
     __metadata("design:type", Number)
 ], Product.prototype, "soldSinglePrice", void 0);
 __decorate([
@@ -55,7 +55,7 @@ __decorate([
     __metadata("design:type", Number)
 ], Product.prototype, "normalMultiPrice", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: 'float', default: 0 }),
+    (0, typeorm_1.Column)({ type: 'float', default: 0, nullable: true }),
     __metadata("design:type", Number)
 ], Product.prototype, "soldMultiPrice", void 0);
 __decorate([
