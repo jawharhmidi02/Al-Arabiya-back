@@ -2602,6 +2602,35 @@ export class AdminService {
         };
       }
 
+      cloudinary.config({
+        cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+        api_key: process.env.CLOUDINARY_API_KEY,
+        api_secret: process.env.CLOUDINARY_API_SECRET,
+      });
+
+      const base64Data = specialOffer.img.replace(
+        /^data:image\/\w+;base64,/,
+        '',
+      );
+
+      const uploadResult = await new Promise<UploadApiResponse>(
+        (resolve, reject) => {
+          cloudinary.uploader.upload(
+            `data:image/png;base64,${base64Data}`,
+            {
+              folder: 'Al-Arabiya',
+              resource_type: 'auto',
+            },
+            (error, result) => {
+              if (error) reject(error);
+              resolve(result);
+            },
+          );
+        },
+      );
+
+      specialOffer.img = uploadResult.secure_url;
+
       const savedSpecialOffer =
         await this.specialOfferRepository.save(specialOffer);
       return {

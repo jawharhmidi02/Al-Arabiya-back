@@ -1965,6 +1965,23 @@ let AdminService = class AdminService {
                     data: null,
                 };
             }
+            cloudinary_1.v2.config({
+                cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+                api_key: process.env.CLOUDINARY_API_KEY,
+                api_secret: process.env.CLOUDINARY_API_SECRET,
+            });
+            const base64Data = specialOffer.img.replace(/^data:image\/\w+;base64,/, '');
+            const uploadResult = await new Promise((resolve, reject) => {
+                cloudinary_1.v2.uploader.upload(`data:image/png;base64,${base64Data}`, {
+                    folder: 'Al-Arabiya',
+                    resource_type: 'auto',
+                }, (error, result) => {
+                    if (error)
+                        reject(error);
+                    resolve(result);
+                });
+            });
+            specialOffer.img = uploadResult.secure_url;
             const savedSpecialOffer = await this.specialOfferRepository.save(specialOffer);
             return {
                 statusCode: common_1.HttpStatus.CREATED,
