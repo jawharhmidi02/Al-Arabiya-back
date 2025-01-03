@@ -1961,7 +1961,7 @@ export class AdminService {
     if (product.img?.length > 0) {
       const updatedImages = await Promise.all(
         product.img.map(async (image) => {
-          if (image.startsWith('http')) {
+          if (image.startsWith('http') || image.startsWith('/images/')) {
             return image;
           }
           return await this.uploadToCloudinary(image);
