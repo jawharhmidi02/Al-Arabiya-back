@@ -7,8 +7,24 @@ import { json, urlencoded } from 'express';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const port = process.env.PORT || 5000;
+
   app.use(json({ limit: '50mb' }));
   app.use(urlencoded({ limit: '50mb', extended: true }));
+
+  app.enableCors({
+    origin: ['https://al-arabiya.vercel.app', 'http://localhost:3000'],
+    methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
+    allowedHeaders: [
+      'Content-Type',
+      'Accept',
+      'Authorization',
+      'access_token',
+      'admin_access_token',
+    ],
+    credentials: true,
+    preflightContinue: false,
+    optionsSuccessStatus: 204,
+  });
 
   app.useGlobalPipes(
     new ValidationPipe({
@@ -32,14 +48,9 @@ async function bootstrap() {
     }),
   );
 
-  app.enableCors({
-    origin: ['https://al-arabiya.vercel.app', 'http://localhost:3000'],
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-    credentials: true,
-  });
-
   app.useGlobalFilters(new HttpExceptionFilter());
   await app.listen(port);
   console.log(`Server is running on port ${port}`);
 }
+
 bootstrap();

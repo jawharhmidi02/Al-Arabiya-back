@@ -18,7 +18,11 @@ const orders_module_1 = require("./modules/orders.module");
 const admins_module_1 = require("./modules/admins.module");
 const specialOffers_module_1 = require("./modules/specialOffers.module");
 const customizations_module_1 = require("./modules/customizations.module");
+const cors_middleware_1 = require("./middleware/cors.middleware");
 let AppModule = class AppModule {
+    configure(consumer) {
+        consumer.apply(cors_middleware_1.CorsMiddleware).forRoutes('*');
+    }
 };
 exports.AppModule = AppModule;
 exports.AppModule = AppModule = __decorate([
