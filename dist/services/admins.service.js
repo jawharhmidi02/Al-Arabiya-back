@@ -82,16 +82,17 @@ let AdminService = class AdminService {
     async uploadToCloudinary(base64Image) {
         try {
             const base64Data = base64Image.replace(/^data:image\/\w+;base64,/, '');
-            return new Promise((resolve, reject) => {
+            const uploadResult = await new Promise((resolve, reject) => {
                 cloudinary_1.v2.uploader.upload(`data:image/png;base64,${base64Data}`, {
                     folder: 'Al-Arabiya',
                     resource_type: 'auto',
                 }, (error, result) => {
                     if (error)
                         reject(error);
-                    resolve(result.secure_url);
+                    resolve(result);
                 });
             });
+            return uploadResult.secure_url;
         }
         catch (error) {
             throw new common_1.HttpException('Failed to upload image', common_1.HttpStatus.BAD_REQUEST);
@@ -1491,7 +1492,7 @@ let AdminService = class AdminService {
         }
         if (product.img?.length > 0) {
             const updatedImages = await Promise.all(product.img.map(async (image) => {
-                if (image.startsWith('http')) {
+                if (image.startsWith('http') || image.startsWith('/images/')) {
                     return image;
                 }
                 return await this.uploadToCloudinary(image);
