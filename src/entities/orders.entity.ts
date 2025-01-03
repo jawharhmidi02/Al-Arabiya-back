@@ -49,6 +49,9 @@ export class Order {
   })
   order_Products: OrderProduct[];
 
-  @ManyToOne(() => Users, (user) => user.orders, { nullable: true })
+  @ManyToOne(() => Users, (user) => user.orders, {
+    nullable: true,
+    onDelete: 'SET NULL',
+  })
   user: Users;
 }

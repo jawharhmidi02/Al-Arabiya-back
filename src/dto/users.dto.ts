@@ -89,26 +89,17 @@ export class UsersUpdate {
 
 export class UsersResponse {
   id: string;
-
   full_name: string;
-
   email: string;
-
   password: string;
-
   phone: string;
-
   city: string;
-
   address: string;
-
   cart: Record<string, number>;
-
   orders: Order[];
-
   role: string;
-
   nonce: string;
+  created_At: Date;
 
   constructor(user: Users) {
     this.email = user.email;
@@ -121,5 +112,6 @@ export class UsersResponse {
     this.orders = user.orders;
     this.role = user.role;
     this.nonce = user.nonce;
+    this.created_At = user.created_At;
   }
 }

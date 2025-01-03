@@ -36,6 +36,7 @@ export declare class UsersResponse {
     orders: Order[];
     role: string;
     nonce: string;
+    created_At: Date;
     constructor(user: Users);
 }
 export {};

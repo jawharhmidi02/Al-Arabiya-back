@@ -98,9 +98,9 @@ let AdminService = class AdminService {
             throw new common_1.HttpException('Failed to upload image', common_1.HttpStatus.BAD_REQUEST);
         }
     }
-    async verifyAdmin(access_token) {
+    async verifyAdmin(admin_access_token) {
         try {
-            const payload = await this.jwtService.verifyAsync(access_token);
+            const payload = await this.jwtService.verifyAsync(admin_access_token);
             const account = await this.usersRepository.findOne({
                 where: { id: payload.id },
             });
@@ -142,7 +142,7 @@ let AdminService = class AdminService {
             return {
                 statusCode: common_1.HttpStatus.OK,
                 message: 'Sign-in successful',
-                data: { access_token: accessToken },
+                data: { admin_access_token: accessToken },
             };
         }
         catch (error) {
@@ -213,7 +213,7 @@ let AdminService = class AdminService {
                     data: null,
                 };
             }
-            const access_token = await this.jwtService.signAsync({
+            const admin_access_token = await this.jwtService.signAsync({
                 id: response.id,
                 email: email.toLowerCase(),
                 nonce: response.nonce,
@@ -285,7 +285,7 @@ let AdminService = class AdminService {
         <div class="content">
             <p>مرحباً،</p>
             <p>لقد تلقينا طلباً لاستعادة كلمة المرور الخاصة بك على موقع العربية. يمكنك إعادة تعيين كلمة المرور من خلال الرابط أدناه:</p>
-            <a href="${process.env.API_URL}/users/recoverhtml?access_token=${access_token}" target="_blank">إعادة تعيين كلمة المرور</a>
+            <a href="${process.env.API_URL}/users/recoverhtml?admin_access_token=${admin_access_token}" target="_blank">إعادة تعيين كلمة المرور</a>
             <p>إذا لم تطلب ذلك، يمكنك تجاهل هذا البريد الإلكتروني.</p>
         </div>
         <div class="footer">
@@ -326,9 +326,9 @@ let AdminService = class AdminService {
             };
         }
     }
-    async recoverPageHtml(access_token) {
+    async recoverPageHtml(admin_access_token) {
         try {
-            const payLoad = await this.jwtService.verifyAsync(access_token, {
+            const payLoad = await this.jwtService.verifyAsync(admin_access_token, {
                 secret: jwt_constant_1.jwtConstants.secret,
             });
             if (payLoad.email == undefined) {
@@ -457,7 +457,7 @@ let AdminService = class AdminService {
         document.querySelector("#change").addEventListener("click", async () => {
           const password = document.querySelector("#password").value;
           const confirmPassword = document.querySelector("#confirmPassword").value;
-          const access_token = new URLSearchParams(window.location.search).get("access_token");
+          const admin_access_token = new URLSearchParams(window.location.search).get("admin_access_token");
 
           if (!password || !confirmPassword) {
             showToast("يرجى ملء جميع الحقول.", "error");
@@ -474,10 +474,10 @@ let AdminService = class AdminService {
             return;
           }
 
-          if (access_token) {
+          if (admin_access_token) {
             try {
               const response = await fetch(
-                \`${process.env.API_URL}/users/changepassfromrecover/\${password}?access_token=\${access_token}\`,
+                \`${process.env.API_URL}/users/changepassfromrecover/\${password}?admin_access_token=\${admin_access_token}\`,
                 {
                   method: "POST",
                   headers: {
@@ -520,9 +520,9 @@ let AdminService = class AdminService {
             return `<h1>حدث خطأ أثناء معالجة طلبك</h1>`;
         }
     }
-    async changePasswordFromRecover(access_token, newPassword) {
+    async changePasswordFromRecover(admin_access_token, newPassword) {
         try {
-            const payLoad = await this.jwtService.verifyAsync(access_token, {
+            const payLoad = await this.jwtService.verifyAsync(admin_access_token, {
                 secret: jwt_constant_1.jwtConstants.secret,
             });
             if (!payLoad.email) {
@@ -580,9 +580,9 @@ let AdminService = class AdminService {
             };
         }
     }
-    async findAllUser(access_token) {
+    async findAllUser(admin_access_token) {
         try {
-            const account = await this.verifyAdmin(access_token);
+            const account = await this.verifyAdmin(admin_access_token);
             const response = await this.usersRepository.find();
             const data = response.map((user) => new users_dto_1.UsersResponse(user));
             return {
@@ -599,9 +599,9 @@ let AdminService = class AdminService {
             }, common_1.HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    async findByIdUser(id, access_token) {
+    async findByIdUser(id, admin_access_token) {
         try {
-            const account = await this.verifyAdmin(access_token);
+            const account = await this.verifyAdmin(admin_access_token);
             const response = await this.usersRepository.findOne({ where: { id } });
             if (!response)
                 return {
@@ -624,11 +624,12 @@ let AdminService = class AdminService {
             }, common_1.HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    async updateUser(id, user, access_token) {
+    async updateUser(id, user, admin_access_token) {
         try {
-            const account = await this.verifyAdmin(access_token);
+            const account = await this.verifyAdmin(admin_access_token);
             if (id === account.id) {
-                if (user.current_password !== decrypt(account.password)) {
+                if (user.current_password &&
+                    user.current_password !== decrypt(account.password)) {
                     throw new Error('Invalid password');
                 }
                 delete user['current_password'];
@@ -653,15 +654,19 @@ let AdminService = class AdminService {
         }
         catch (error) {
             console.error(error);
+            var message = error.message || 'Signup Failed';
+            if (message.includes('duplicate key value violates unique constraint')) {
+                message = 'Email already exists';
+            }
             throw new common_1.HttpException({
-                statusCode: common_1.HttpStatus.INTERNAL_SERVER_ERROR,
-                message: error.message || 'Failed to update user',
-            }, common_1.HttpStatus.INTERNAL_SERVER_ERROR);
+                statusCode: common_1.HttpStatus.BAD_REQUEST,
+                message,
+            }, common_1.HttpStatus.BAD_REQUEST);
         }
     }
-    async deleteUser(id, access_token) {
+    async deleteUser(id, admin_access_token) {
         try {
-            const account = await this.verifyAdmin(access_token);
+            const account = await this.verifyAdmin(admin_access_token);
             const response = await this.usersRepository.findOne({ where: { id } });
             if (!response)
                 return {
@@ -685,9 +690,9 @@ let AdminService = class AdminService {
             }, common_1.HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    async createCategory(category, access_token) {
+    async createCategory(category, admin_access_token) {
         try {
-            const account = await this.verifyAdmin(access_token);
+            const account = await this.verifyAdmin(admin_access_token);
             const savedCategory = await this.categoryRepository.save(category);
             return {
                 statusCode: common_1.HttpStatus.CREATED,
@@ -707,9 +712,9 @@ let AdminService = class AdminService {
             }, common_1.HttpStatus.BAD_REQUEST);
         }
     }
-    async findAllCategory(page = 1, limit = 10, name = '', access_token) {
+    async findAllCategory(page = 1, limit = 10, name = '', admin_access_token) {
         try {
-            const account = await this.verifyAdmin(access_token);
+            const account = await this.verifyAdmin(admin_access_token);
             const [response, totalItems] = await this.categoryRepository.findAndCount({
                 where: [
                     { name: (0, typeorm_2.ILike)(`%${name}%`) },
@@ -743,9 +748,9 @@ let AdminService = class AdminService {
             }, common_1.HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    async findByIdCategory(id, access_token) {
+    async findByIdCategory(id, admin_access_token) {
         try {
-            const account = await this.verifyAdmin(access_token);
+            const account = await this.verifyAdmin(admin_access_token);
             const response = await this.categoryRepository.findOne({
                 where: { id },
                 relations: ['products', 'products.brand'],
@@ -771,9 +776,9 @@ let AdminService = class AdminService {
             }, common_1.HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    async findByNameCategory(name, access_token) {
+    async findByNameCategory(name, admin_access_token) {
         try {
-            const account = await this.verifyAdmin(access_token);
+            const account = await this.verifyAdmin(admin_access_token);
             const response = await this.categoryRepository.find({
                 where: { name: (0, typeorm_2.ILike)(`%${name}%`) },
                 relations: ['products', 'products.brand'],
@@ -797,9 +802,9 @@ let AdminService = class AdminService {
             }, common_1.HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    async updateCategory(id, category, access_token) {
+    async updateCategory(id, category, admin_access_token) {
         try {
-            const account = await this.verifyAdmin(access_token);
+            const account = await this.verifyAdmin(admin_access_token);
             await this.categoryRepository.update({ id }, category);
             const response = await this.categoryRepository.findOne({
                 where: { id },
@@ -830,9 +835,9 @@ let AdminService = class AdminService {
             }, common_1.HttpStatus.BAD_REQUEST);
         }
     }
-    async deleteCategory(id, access_token) {
+    async deleteCategory(id, admin_access_token) {
         try {
-            const account = await this.verifyAdmin(access_token);
+            const account = await this.verifyAdmin(admin_access_token);
             const response = await this.categoryRepository.findOne({
                 where: { id },
                 relations: ['products', 'products.brand'],
@@ -859,9 +864,9 @@ let AdminService = class AdminService {
             }, common_1.HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    async createBrand(brand, access_token) {
+    async createBrand(brand, admin_access_token) {
         try {
-            const account = await this.verifyAdmin(access_token);
+            const account = await this.verifyAdmin(admin_access_token);
             if (brand.img) {
                 if (!(brand.img.startsWith('http') || brand.img.startsWith('/images/'))) {
                     const uploadResult = await this.uploadToCloudinary(brand.img);
@@ -887,9 +892,9 @@ let AdminService = class AdminService {
             }, common_1.HttpStatus.BAD_REQUEST);
         }
     }
-    async findAllBrand(page = 1, limit = 10, name = '', access_token) {
+    async findAllBrand(page = 1, limit = 10, name = '', admin_access_token) {
         try {
-            const payLoad = await this.jwtService.verifyAsync(access_token);
+            const payLoad = await this.jwtService.verifyAsync(admin_access_token);
             const account = await this.usersRepository.findOne({
                 where: { id: payLoad.id },
             });
@@ -947,9 +952,9 @@ let AdminService = class AdminService {
             }, common_1.HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    async findByIdBrand(id, access_token) {
+    async findByIdBrand(id, admin_access_token) {
         try {
-            const account = await this.verifyAdmin(access_token);
+            const account = await this.verifyAdmin(admin_access_token);
             const response = await this.brandRepository.findOne({
                 where: { id },
                 relations: ['products', 'products.category'],
@@ -975,9 +980,9 @@ let AdminService = class AdminService {
             }, common_1.HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    async findByNameBrand(name, access_token) {
+    async findByNameBrand(name, admin_access_token) {
         try {
-            const account = await this.verifyAdmin(access_token);
+            const account = await this.verifyAdmin(admin_access_token);
             const response = await this.brandRepository.find({
                 where: { name: (0, typeorm_2.ILike)(`%${name}%`) },
                 relations: ['products', 'products.category'],
@@ -1001,9 +1006,9 @@ let AdminService = class AdminService {
             }, common_1.HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    async updateBrand(id, brand, access_token) {
+    async updateBrand(id, brand, admin_access_token) {
         try {
-            const account = await this.verifyAdmin(access_token);
+            const account = await this.verifyAdmin(admin_access_token);
             if (brand.img) {
                 if (!(brand.img.startsWith('http') || brand.img.startsWith('/images/'))) {
                     const uploadResult = await this.uploadToCloudinary(brand.img);
@@ -1040,9 +1045,9 @@ let AdminService = class AdminService {
             }, common_1.HttpStatus.BAD_REQUEST);
         }
     }
-    async deleteBrand(id, access_token) {
+    async deleteBrand(id, admin_access_token) {
         try {
-            const account = await this.verifyAdmin(access_token);
+            const account = await this.verifyAdmin(admin_access_token);
             const response = await this.brandRepository.findOne({
                 where: { id },
                 relations: ['products', 'products.category'],
@@ -1069,9 +1074,9 @@ let AdminService = class AdminService {
             }, common_1.HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    async createProduct(product, access_token) {
+    async createProduct(product, admin_access_token) {
         try {
-            const account = await this.verifyAdmin(access_token);
+            const account = await this.verifyAdmin(admin_access_token);
             const testUnique = await this.productRepository.findOne({
                 where: { name: product.name },
             });
@@ -1111,9 +1116,9 @@ let AdminService = class AdminService {
             }, common_1.HttpStatus.BAD_REQUEST);
         }
     }
-    async createByListProduct(product, access_token) {
+    async createByListProduct(product, admin_access_token) {
         try {
-            const account = await this.verifyAdmin(access_token);
+            const account = await this.verifyAdmin(admin_access_token);
             const savedProduct = [];
             for (let i = 0; i < product.length; i++) {
                 const element = await this.productRepository.save(product[i]);
@@ -1130,9 +1135,9 @@ let AdminService = class AdminService {
             throw new common_1.HttpException(error.message || 'Failed to create product', common_1.HttpStatus.BAD_REQUEST);
         }
     }
-    async findAllProduct(page = 1, limit = 10, name = '', access_token) {
+    async findAllProduct(page = 1, limit = 10, name = '', admin_access_token) {
         try {
-            const account = await this.verifyAdmin(access_token);
+            const account = await this.verifyAdmin(admin_access_token);
             const [response, totalItems] = await this.productRepository.findAndCount({
                 skip: (page - 1) * limit,
                 take: limit,
@@ -1159,9 +1164,9 @@ let AdminService = class AdminService {
             }, common_1.HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    async findByIdProduct(id, access_token) {
+    async findByIdProduct(id, admin_access_token) {
         try {
-            const account = await this.verifyAdmin(access_token);
+            const account = await this.verifyAdmin(admin_access_token);
             const response = await this.productRepository.findOne({
                 where: { id },
                 relations: ['category', 'brand'],
@@ -1187,9 +1192,9 @@ let AdminService = class AdminService {
             }, common_1.HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    async findByNameProduct(name, access_token) {
+    async findByNameProduct(name, admin_access_token) {
         try {
-            const account = await this.verifyAdmin(access_token);
+            const account = await this.verifyAdmin(admin_access_token);
             const response = await this.productRepository.find({
                 where: { name: (0, typeorm_2.ILike)(`%${name}%`) },
                 relations: ['category', 'brand'],
@@ -1209,9 +1214,9 @@ let AdminService = class AdminService {
             }, common_1.HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    async findMostPopularProduct(page = 1, limit = 10, access_token) {
+    async findMostPopularProduct(page = 1, limit = 10, admin_access_token) {
         try {
-            const account = await this.verifyAdmin(access_token);
+            const account = await this.verifyAdmin(admin_access_token);
             const [products, totalItems] = await this.productRepository.findAndCount({
                 relations: ['category', 'brand', 'orderProducts'],
             });
@@ -1242,9 +1247,9 @@ let AdminService = class AdminService {
             }, common_1.HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    async searchProduct(page = 1, limit = 10, sortBy = 'date', sortOrder = 'desc', filters, access_token) {
+    async searchProduct(page = 1, limit = 10, sortBy = 'date', sortOrder = 'desc', filters, admin_access_token) {
         try {
-            const account = await this.verifyAdmin(access_token);
+            const account = await this.verifyAdmin(admin_access_token);
             const queryBuilder = this.productRepository.createQueryBuilder('product');
             queryBuilder.leftJoinAndSelect('product.category', 'category');
             queryBuilder.leftJoinAndSelect('product.brand', 'brand');
@@ -1308,8 +1313,8 @@ let AdminService = class AdminService {
             }, common_1.HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    async updateProduct(id, product, access_token) {
-        const account = await this.verifyAdmin(access_token);
+    async updateProduct(id, product, admin_access_token) {
+        const account = await this.verifyAdmin(admin_access_token);
         const existingProduct = await this.productRepository.findOne({
             where: { id },
         });
@@ -1347,9 +1352,9 @@ let AdminService = class AdminService {
             data: new products_dto_1.ProductResponse(updatedProduct),
         };
     }
-    async deleteProduct(id, access_token) {
+    async deleteProduct(id, admin_access_token) {
         try {
-            const account = await this.verifyAdmin(access_token);
+            const account = await this.verifyAdmin(admin_access_token);
             const response = await this.productRepository.findOne({
                 where: { id },
                 relations: ['category', 'brand'],
@@ -1376,7 +1381,7 @@ let AdminService = class AdminService {
             }, common_1.HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    async createOrder(order, access_token) {
+    async createOrder(order, admin_access_token) {
         try {
             const orderItems = order.cart;
             const { id } = await this.orderRepository.save(order);
@@ -1407,8 +1412,8 @@ let AdminService = class AdminService {
                 const savedOrderItem = await this.orderProductRepository.save(orderItem);
                 orderResponse.order_Products.push(savedOrderItem);
             }
-            if (access_token !== null && access_token != 'null') {
-                const payLoad = await this.jwtService.verifyAsync(access_token);
+            if (admin_access_token !== null && admin_access_token != 'null') {
+                const payLoad = await this.jwtService.verifyAsync(admin_access_token);
                 const account = await this.usersRepository.findOne({
                     where: { id: payLoad.id },
                     relations: ['orders'],
@@ -1439,9 +1444,9 @@ let AdminService = class AdminService {
             throw new common_1.HttpException(error.message || 'Failed to create order', common_1.HttpStatus.BAD_REQUEST);
         }
     }
-    async findAllOrder(page = 1, limit = 10, access_token) {
+    async findAllOrder(page = 1, limit = 10, admin_access_token) {
         try {
-            const account = await this.verifyAdmin(access_token);
+            const account = await this.verifyAdmin(admin_access_token);
             const [response, totalItems] = await this.orderRepository.findAndCount({
                 skip: (page - 1) * limit,
                 take: limit,
@@ -1467,9 +1472,9 @@ let AdminService = class AdminService {
             }, common_1.HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    async findByIdOrder(id, access_token) {
+    async findByIdOrder(id, admin_access_token) {
         try {
-            const account = await this.verifyAdmin(access_token);
+            const account = await this.verifyAdmin(admin_access_token);
             const response = await this.orderRepository.findOne({
                 where: { id },
                 relations: ['order_Products'],
@@ -1495,9 +1500,9 @@ let AdminService = class AdminService {
             }, common_1.HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    async updateOrder(id, order, access_token) {
+    async updateOrder(id, order, admin_access_token) {
         try {
-            const account = await this.verifyAdmin(access_token);
+            const account = await this.verifyAdmin(admin_access_token);
             await this.orderRepository.update(id, order);
             const response = await this.orderRepository.findOne({
                 where: { id },
@@ -1524,9 +1529,9 @@ let AdminService = class AdminService {
             }, common_1.HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    async deleteOrder(id, access_token) {
+    async deleteOrder(id, admin_access_token) {
         try {
-            const account = await this.verifyAdmin(access_token);
+            const account = await this.verifyAdmin(admin_access_token);
             const response = await this.orderRepository.findOne({
                 where: { id },
                 relations: ['order_Products'],
@@ -1553,9 +1558,9 @@ let AdminService = class AdminService {
             }, common_1.HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    async createSpecialOffer(specialOffer, access_token) {
+    async createSpecialOffer(specialOffer, admin_access_token) {
         try {
-            const account = await this.verifyAdmin(access_token);
+            const account = await this.verifyAdmin(admin_access_token);
             if (specialOffer.img) {
                 if (!(specialOffer.img.startsWith('http') ||
                     specialOffer.img.startsWith('/images/'))) {
@@ -1575,9 +1580,9 @@ let AdminService = class AdminService {
             throw new common_1.HttpException(error.message || 'Failed to create SpecialOffer', common_1.HttpStatus.BAD_REQUEST);
         }
     }
-    async findAllSpecialOffer(page = 1, limit = 10, access_token) {
+    async findAllSpecialOffer(page = 1, limit = 10, admin_access_token) {
         try {
-            const account = await this.verifyAdmin(access_token);
+            const account = await this.verifyAdmin(admin_access_token);
             const [response, totalItems] = await this.specialOfferRepository.findAndCount({
                 skip: (page - 1) * limit,
                 take: limit,
@@ -1602,9 +1607,9 @@ let AdminService = class AdminService {
             }, common_1.HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    async findByIdSpecialOffer(id, access_token) {
+    async findByIdSpecialOffer(id, admin_access_token) {
         try {
-            const account = await this.verifyAdmin(access_token);
+            const account = await this.verifyAdmin(admin_access_token);
             const response = await this.specialOfferRepository.findOne({
                 where: { id },
             });
@@ -1629,9 +1634,9 @@ let AdminService = class AdminService {
             }, common_1.HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    async updateSpecialOffer(id, specialOffer, access_token) {
+    async updateSpecialOffer(id, specialOffer, admin_access_token) {
         try {
-            const account = await this.verifyAdmin(access_token);
+            const account = await this.verifyAdmin(admin_access_token);
             if (specialOffer.img) {
                 if (!(specialOffer.img.startsWith('http') ||
                     specialOffer.img.startsWith('/images/'))) {
@@ -1664,9 +1669,9 @@ let AdminService = class AdminService {
             }, common_1.HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    async deleteSpecialOffer(id, access_token) {
+    async deleteSpecialOffer(id, admin_access_token) {
         try {
-            const account = await this.verifyAdmin(access_token);
+            const account = await this.verifyAdmin(admin_access_token);
             const response = await this.specialOfferRepository.findOne({
                 where: { id },
             });
@@ -1692,9 +1697,9 @@ let AdminService = class AdminService {
             }, common_1.HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    async createCustomization(customization, access_token) {
+    async createCustomization(customization, admin_access_token) {
         try {
-            const account = await this.verifyAdmin(access_token);
+            const account = await this.verifyAdmin(admin_access_token);
             const count = await this.customizationRepository.count();
             if (count > 0) {
                 throw new common_1.HttpException('Customization already exists', common_1.HttpStatus.BAD_REQUEST);
@@ -1711,9 +1716,9 @@ let AdminService = class AdminService {
             throw new common_1.HttpException(error.message || 'Failed to create customization', common_1.HttpStatus.BAD_REQUEST);
         }
     }
-    async findCustomization(access_token) {
+    async findCustomization(admin_access_token) {
         try {
-            const account = await this.verifyAdmin(access_token);
+            const account = await this.verifyAdmin(admin_access_token);
             const response = await this.customizationRepository.find({
                 relations: [
                     'featuredProducts',
@@ -1745,9 +1750,9 @@ let AdminService = class AdminService {
             }, common_1.HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    async findByIdCustomization(id, access_token) {
+    async findByIdCustomization(id, admin_access_token) {
         try {
-            const account = await this.verifyAdmin(access_token);
+            const account = await this.verifyAdmin(admin_access_token);
             const response = await this.customizationRepository.findOne({
                 where: { id },
                 relations: [
@@ -1780,9 +1785,9 @@ let AdminService = class AdminService {
             }, common_1.HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    async updateCustomization(id, customization, access_token) {
+    async updateCustomization(id, customization, admin_access_token) {
         try {
-            const account = await this.verifyAdmin(access_token);
+            const account = await this.verifyAdmin(admin_access_token);
             if (customization.featuredProducts ||
                 customization.brands ||
                 customization.categories) {
@@ -1871,9 +1876,9 @@ let AdminService = class AdminService {
             }, common_1.HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    async deleteCustomization(id, access_token) {
+    async deleteCustomization(id, admin_access_token) {
         try {
-            const account = await this.verifyAdmin(access_token);
+            const account = await this.verifyAdmin(admin_access_token);
             const response = await this.customizationRepository.findOne({
                 where: { id },
                 relations: [

@@ -1,4 +1,10 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  OneToMany,
+  CreateDateColumn,
+} from 'typeorm';
 import { Order } from './orders.entity';
 
 @Entity()
@@ -29,6 +35,7 @@ export class Users {
 
   @OneToMany(() => Order, (order) => order.user, {
     cascade: true,
+    onDelete: 'CASCADE',
   })
   orders: Order[];
 
@@ -37,4 +44,7 @@ export class Users {
 
   @Column({ nullable: true })
   nonce: string;
+
+  @CreateDateColumn()
+  created_At: Date;
 }

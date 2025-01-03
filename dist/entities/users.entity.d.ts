@@ -11,4 +11,5 @@ export declare class Users {
     orders: Order[];
     role: string;
     nonce: string;
+    created_At: Date;
 }

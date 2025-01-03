@@ -122,6 +122,7 @@ class UsersResponse {
         this.orders = user.orders;
         this.role = user.role;
         this.nonce = user.nonce;
+        this.created_At = user.created_At;
     }
 }
 exports.UsersResponse = UsersResponse;

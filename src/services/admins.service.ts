@@ -123,9 +123,9 @@ export class AdminService {
     }
   }
 
-  private async verifyAdmin(access_token: string): Promise<Users> {
+  private async verifyAdmin(admin_access_token: string): Promise<Users> {
     try {
-      const payload = await this.jwtService.verifyAsync(access_token);
+      const payload = await this.jwtService.verifyAsync(admin_access_token);
       const account = await this.usersRepository.findOne({
         where: { id: payload.id },
       });
@@ -152,7 +152,7 @@ export class AdminService {
   async signin(
     email: string,
     password: string,
-  ): Promise<ApiResponse<{ access_token: string }>> {
+  ): Promise<ApiResponse<{ admin_access_token: string }>> {
     try {
       const response = await this.usersRepository.findOne({
         where: { email: email.toLowerCase() },
@@ -182,7 +182,7 @@ export class AdminService {
       return {
         statusCode: HttpStatus.OK,
         message: 'Sign-in successful',
-        data: { access_token: accessToken },
+        data: { admin_access_token: accessToken },
       };
     } catch (error) {
       console.error(error);
@@ -267,7 +267,7 @@ export class AdminService {
         };
       }
 
-      const access_token = await this.jwtService.signAsync(
+      const admin_access_token = await this.jwtService.signAsync(
         {
           id: response.id,
           email: email.toLowerCase(),
@@ -343,7 +343,7 @@ export class AdminService {
         <div class="content">
             <p>مرحباً،</p>
             <p>لقد تلقينا طلباً لاستعادة كلمة المرور الخاصة بك على موقع العربية. يمكنك إعادة تعيين كلمة المرور من خلال الرابط أدناه:</p>
-            <a href="${process.env.API_URL}/users/recoverhtml?access_token=${access_token}" target="_blank">إعادة تعيين كلمة المرور</a>
+            <a href="${process.env.API_URL}/users/recoverhtml?admin_access_token=${admin_access_token}" target="_blank">إعادة تعيين كلمة المرور</a>
             <p>إذا لم تطلب ذلك، يمكنك تجاهل هذا البريد الإلكتروني.</p>
         </div>
         <div class="footer">
@@ -387,9 +387,9 @@ export class AdminService {
     }
   }
 
-  async recoverPageHtml(access_token: string): Promise<string> {
+  async recoverPageHtml(admin_access_token: string): Promise<string> {
     try {
-      const payLoad = await this.jwtService.verifyAsync(access_token, {
+      const payLoad = await this.jwtService.verifyAsync(admin_access_token, {
         secret: jwtConstants.secret,
       });
 
@@ -523,7 +523,7 @@ export class AdminService {
         document.querySelector("#change").addEventListener("click", async () => {
           const password = document.querySelector("#password").value;
           const confirmPassword = document.querySelector("#confirmPassword").value;
-          const access_token = new URLSearchParams(window.location.search).get("access_token");
+          const admin_access_token = new URLSearchParams(window.location.search).get("admin_access_token");
 
           if (!password || !confirmPassword) {
             showToast("يرجى ملء جميع الحقول.", "error");
@@ -540,10 +540,10 @@ export class AdminService {
             return;
           }
 
-          if (access_token) {
+          if (admin_access_token) {
             try {
               const response = await fetch(
-                \`${process.env.API_URL}/users/changepassfromrecover/\${password}?access_token=\${access_token}\`,
+                \`${process.env.API_URL}/users/changepassfromrecover/\${password}?admin_access_token=\${admin_access_token}\`,
                 {
                   method: "POST",
                   headers: {
@@ -588,11 +588,11 @@ export class AdminService {
   }
 
   async changePasswordFromRecover(
-    access_token: string,
+    admin_access_token: string,
     newPassword: string,
   ): Promise<ApiResponse<UsersResponse>> {
     try {
-      const payLoad = await this.jwtService.verifyAsync(access_token, {
+      const payLoad = await this.jwtService.verifyAsync(admin_access_token, {
         secret: jwtConstants.secret,
       });
 
@@ -666,10 +666,10 @@ export class AdminService {
   /* USER ENDPOINTS */
 
   async findAllUser(
-    access_token: string,
+    admin_access_token: string,
   ): Promise<ApiResponse<UsersResponse[]>> {
     try {
-      const account = await this.verifyAdmin(access_token);
+      const account = await this.verifyAdmin(admin_access_token);
 
       const response = await this.usersRepository.find();
       const data = response.map((user) => new UsersResponse(user));
@@ -693,10 +693,10 @@ export class AdminService {
 
   async findByIdUser(
     id: string,
-    access_token: string,
+    admin_access_token: string,
   ): Promise<ApiResponse<UsersResponse>> {
     try {
-      const account = await this.verifyAdmin(access_token);
+      const account = await this.verifyAdmin(admin_access_token);
 
       const response = await this.usersRepository.findOne({ where: { id } });
 
@@ -729,13 +729,16 @@ export class AdminService {
   async updateUser(
     id: string,
     user: UsersUpdate,
-    access_token: string,
+    admin_access_token: string,
   ): Promise<ApiResponse<UsersResponse>> {
     try {
-      const account = await this.verifyAdmin(access_token);
+      const account = await this.verifyAdmin(admin_access_token);
 
       if (id === account.id) {
-        if (user.current_password !== decrypt(account.password)) {
+        if (
+          user.current_password &&
+          user.current_password !== decrypt(account.password)
+        ) {
           throw new Error('Invalid password');
         }
         delete user['current_password'];
@@ -765,22 +768,26 @@ export class AdminService {
       };
     } catch (error) {
       console.error(error);
+      var message: String = error.message || 'Signup Failed';
+      if (message.includes('duplicate key value violates unique constraint')) {
+        message = 'Email already exists';
+      }
       throw new HttpException(
         {
-          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-          message: error.message || 'Failed to update user',
+          statusCode: HttpStatus.BAD_REQUEST,
+          message,
         },
-        HttpStatus.INTERNAL_SERVER_ERROR,
+        HttpStatus.BAD_REQUEST,
       );
     }
   }
 
   async deleteUser(
     id: string,
-    access_token: string,
+    admin_access_token: string,
   ): Promise<ApiResponse<UsersResponse>> {
     try {
-      const account = await this.verifyAdmin(access_token);
+      const account = await this.verifyAdmin(admin_access_token);
 
       const response = await this.usersRepository.findOne({ where: { id } });
 
@@ -816,10 +823,10 @@ export class AdminService {
 
   async createCategory(
     category: CategoryCreate,
-    access_token: string,
+    admin_access_token: string,
   ): Promise<ApiResponse<CategoryResponse>> {
     try {
-      const account = await this.verifyAdmin(access_token);
+      const account = await this.verifyAdmin(admin_access_token);
 
       const savedCategory = await this.categoryRepository.save(category);
       return {
@@ -847,7 +854,7 @@ export class AdminService {
     page: number = 1,
     limit: number = 10,
     name: string = '',
-    access_token: string,
+    admin_access_token: string,
   ): Promise<
     ApiResponse<{
       data: CategoryResponse[];
@@ -857,7 +864,7 @@ export class AdminService {
     }>
   > {
     try {
-      const account = await this.verifyAdmin(access_token);
+      const account = await this.verifyAdmin(admin_access_token);
 
       const [response, totalItems] = await this.categoryRepository.findAndCount(
         {
@@ -901,10 +908,10 @@ export class AdminService {
 
   async findByIdCategory(
     id: string,
-    access_token: string,
+    admin_access_token: string,
   ): Promise<ApiResponse<CategoryResponse>> {
     try {
-      const account = await this.verifyAdmin(access_token);
+      const account = await this.verifyAdmin(admin_access_token);
 
       const response = await this.categoryRepository.findOne({
         where: { id },
@@ -940,10 +947,10 @@ export class AdminService {
 
   async findByNameCategory(
     name: string,
-    access_token: string,
+    admin_access_token: string,
   ): Promise<ApiResponse<CategoryResponse[]>> {
     try {
-      const account = await this.verifyAdmin(access_token);
+      const account = await this.verifyAdmin(admin_access_token);
 
       const response = await this.categoryRepository.find({
         where: { name: ILike(`%${name}%`) },
@@ -978,10 +985,10 @@ export class AdminService {
   async updateCategory(
     id: string,
     category: CategoryUpdate,
-    access_token: string,
+    admin_access_token: string,
   ): Promise<ApiResponse<CategoryResponse>> {
     try {
-      const account = await this.verifyAdmin(access_token);
+      const account = await this.verifyAdmin(admin_access_token);
 
       await this.categoryRepository.update({ id }, category);
 
@@ -1022,10 +1029,10 @@ export class AdminService {
 
   async deleteCategory(
     id: string,
-    access_token: string,
+    admin_access_token: string,
   ): Promise<ApiResponse<CategoryResponse>> {
     try {
-      const account = await this.verifyAdmin(access_token);
+      const account = await this.verifyAdmin(admin_access_token);
 
       const response = await this.categoryRepository.findOne({
         where: { id },
@@ -1064,10 +1071,10 @@ export class AdminService {
 
   async createBrand(
     brand: BrandCreate,
-    access_token: string,
+    admin_access_token: string,
   ): Promise<ApiResponse<BrandResponse>> {
     try {
-      const account = await this.verifyAdmin(access_token);
+      const account = await this.verifyAdmin(admin_access_token);
 
       if (brand.img) {
         if (
@@ -1104,7 +1111,7 @@ export class AdminService {
     page: number = 1,
     limit: number = 10,
     name: string = '',
-    access_token: string,
+    admin_access_token: string,
   ): Promise<
     ApiResponse<{
       data: BrandResponse[];
@@ -1114,7 +1121,7 @@ export class AdminService {
     }>
   > {
     try {
-      const payLoad = await this.jwtService.verifyAsync(access_token);
+      const payLoad = await this.jwtService.verifyAsync(admin_access_token);
       const account = await this.usersRepository.findOne({
         where: { id: payLoad.id },
       });
@@ -1190,10 +1197,10 @@ export class AdminService {
 
   async findByIdBrand(
     id: string,
-    access_token: string,
+    admin_access_token: string,
   ): Promise<ApiResponse<BrandResponse>> {
     try {
-      const account = await this.verifyAdmin(access_token);
+      const account = await this.verifyAdmin(admin_access_token);
 
       const response = await this.brandRepository.findOne({
         where: { id },
@@ -1229,10 +1236,10 @@ export class AdminService {
 
   async findByNameBrand(
     name: string,
-    access_token: string,
+    admin_access_token: string,
   ): Promise<ApiResponse<BrandResponse[]>> {
     try {
-      const account = await this.verifyAdmin(access_token);
+      const account = await this.verifyAdmin(admin_access_token);
 
       const response = await this.brandRepository.find({
         where: { name: ILike(`%${name}%`) },
@@ -1267,10 +1274,10 @@ export class AdminService {
   async updateBrand(
     id: string,
     brand: BrandUpdate,
-    access_token: string,
+    admin_access_token: string,
   ): Promise<ApiResponse<BrandResponse>> {
     try {
-      const account = await this.verifyAdmin(access_token);
+      const account = await this.verifyAdmin(admin_access_token);
 
       if (brand.img) {
         if (
@@ -1320,10 +1327,10 @@ export class AdminService {
 
   async deleteBrand(
     id: string,
-    access_token: string,
+    admin_access_token: string,
   ): Promise<ApiResponse<BrandResponse>> {
     try {
-      const account = await this.verifyAdmin(access_token);
+      const account = await this.verifyAdmin(admin_access_token);
 
       const response = await this.brandRepository.findOne({
         where: { id },
@@ -1362,10 +1369,10 @@ export class AdminService {
 
   async createProduct(
     product: ProductCreate,
-    access_token: string,
+    admin_access_token: string,
   ): Promise<ApiResponse<ProductResponse>> {
     try {
-      const account = await this.verifyAdmin(access_token);
+      const account = await this.verifyAdmin(admin_access_token);
 
       const testUnique = await this.productRepository.findOne({
         where: { name: product.name },
@@ -1418,10 +1425,10 @@ export class AdminService {
 
   async createByListProduct(
     product: any,
-    access_token: string,
+    admin_access_token: string,
   ): Promise<ApiResponse<ProductResponse[]>> {
     try {
-      const account = await this.verifyAdmin(access_token);
+      const account = await this.verifyAdmin(admin_access_token);
 
       const savedProduct = [];
       for (let i = 0; i < product.length; i++) {
@@ -1448,7 +1455,7 @@ export class AdminService {
     page: number = 1,
     limit: number = 10,
     name: string = '',
-    access_token: string,
+    admin_access_token: string,
   ): Promise<
     ApiResponse<{
       data: ProductResponse[];
@@ -1458,7 +1465,7 @@ export class AdminService {
     }>
   > {
     try {
-      const account = await this.verifyAdmin(access_token);
+      const account = await this.verifyAdmin(admin_access_token);
 
       const [response, totalItems] = await this.productRepository.findAndCount({
         skip: (page - 1) * limit,
@@ -1493,10 +1500,10 @@ export class AdminService {
 
   async findByIdProduct(
     id: string,
-    access_token: string,
+    admin_access_token: string,
   ): Promise<ApiResponse<ProductResponse>> {
     try {
-      const account = await this.verifyAdmin(access_token);
+      const account = await this.verifyAdmin(admin_access_token);
 
       const response = await this.productRepository.findOne({
         where: { id },
@@ -1532,10 +1539,10 @@ export class AdminService {
 
   async findByNameProduct(
     name: string,
-    access_token: string,
+    admin_access_token: string,
   ): Promise<ApiResponse<ProductResponse[]>> {
     try {
-      const account = await this.verifyAdmin(access_token);
+      const account = await this.verifyAdmin(admin_access_token);
 
       const response = await this.productRepository.find({
         where: { name: ILike(`%${name}%`) },
@@ -1565,7 +1572,7 @@ export class AdminService {
   async findMostPopularProduct(
     page: number = 1,
     limit: number = 10,
-    access_token: string,
+    admin_access_token: string,
   ): Promise<
     ApiResponse<{
       data: ProductResponse[];
@@ -1575,7 +1582,7 @@ export class AdminService {
     }>
   > {
     try {
-      const account = await this.verifyAdmin(access_token);
+      const account = await this.verifyAdmin(admin_access_token);
 
       const [products, totalItems] = await this.productRepository.findAndCount({
         relations: ['category', 'brand', 'orderProducts'],
@@ -1626,7 +1633,7 @@ export class AdminService {
       min_price?: number;
       max_price?: number;
     },
-    access_token: string,
+    admin_access_token: string,
   ): Promise<
     ApiResponse<{
       data: ProductResponse[];
@@ -1636,7 +1643,7 @@ export class AdminService {
     }>
   > {
     try {
-      const account = await this.verifyAdmin(access_token);
+      const account = await this.verifyAdmin(admin_access_token);
 
       const queryBuilder = this.productRepository.createQueryBuilder('product');
       queryBuilder.leftJoinAndSelect('product.category', 'category');
@@ -1715,9 +1722,9 @@ export class AdminService {
   async updateProduct(
     id: string,
     product: ProductUpdate,
-    access_token: string,
+    admin_access_token: string,
   ): Promise<ApiResponse<ProductResponse>> {
-    const account = await this.verifyAdmin(access_token);
+    const account = await this.verifyAdmin(admin_access_token);
 
     const existingProduct = await this.productRepository.findOne({
       where: { id },
@@ -1775,10 +1782,10 @@ export class AdminService {
 
   async deleteProduct(
     id: string,
-    access_token: string,
+    admin_access_token: string,
   ): Promise<ApiResponse<ProductResponse>> {
     try {
-      const account = await this.verifyAdmin(access_token);
+      const account = await this.verifyAdmin(admin_access_token);
 
       const response = await this.productRepository.findOne({
         where: { id },
@@ -1817,7 +1824,7 @@ export class AdminService {
 
   async createOrder(
     order: OrderCreate,
-    access_token: string,
+    admin_access_token: string,
   ): Promise<ApiResponse<OrderResponse>> {
     try {
       const orderItems: Record<string, number> = order.cart;
@@ -1857,8 +1864,8 @@ export class AdminService {
         orderResponse.order_Products.push(savedOrderItem);
       }
 
-      if (access_token !== null && access_token != 'null') {
-        const payLoad = await this.jwtService.verifyAsync(access_token);
+      if (admin_access_token !== null && admin_access_token != 'null') {
+        const payLoad = await this.jwtService.verifyAsync(admin_access_token);
 
         const account = await this.usersRepository.findOne({
           where: { id: payLoad.id },
@@ -1899,7 +1906,7 @@ export class AdminService {
   async findAllOrder(
     page: number = 1,
     limit: number = 10,
-    access_token: string,
+    admin_access_token: string,
   ): Promise<
     ApiResponse<{
       data: OrderResponse[];
@@ -1909,7 +1916,7 @@ export class AdminService {
     }>
   > {
     try {
-      const account = await this.verifyAdmin(access_token);
+      const account = await this.verifyAdmin(admin_access_token);
 
       const [response, totalItems] = await this.orderRepository.findAndCount({
         skip: (page - 1) * limit,
@@ -1943,10 +1950,10 @@ export class AdminService {
 
   async findByIdOrder(
     id: string,
-    access_token: string,
+    admin_access_token: string,
   ): Promise<ApiResponse<OrderResponse>> {
     try {
-      const account = await this.verifyAdmin(access_token);
+      const account = await this.verifyAdmin(admin_access_token);
 
       const response = await this.orderRepository.findOne({
         where: { id },
@@ -1983,10 +1990,10 @@ export class AdminService {
   async updateOrder(
     id: string,
     order: OrderUpdate,
-    access_token: string,
+    admin_access_token: string,
   ): Promise<ApiResponse<OrderResponse>> {
     try {
-      const account = await this.verifyAdmin(access_token);
+      const account = await this.verifyAdmin(admin_access_token);
 
       await this.orderRepository.update(id, order);
 
@@ -2024,10 +2031,10 @@ export class AdminService {
 
   async deleteOrder(
     id: string,
-    access_token: string,
+    admin_access_token: string,
   ): Promise<ApiResponse<OrderResponse>> {
     try {
-      const account = await this.verifyAdmin(access_token);
+      const account = await this.verifyAdmin(admin_access_token);
 
       const response = await this.orderRepository.findOne({
         where: { id },
@@ -2066,10 +2073,10 @@ export class AdminService {
 
   async createSpecialOffer(
     specialOffer: SpecialOfferCreate,
-    access_token: string,
+    admin_access_token: string,
   ): Promise<ApiResponse<SpecialOfferResponse>> {
     try {
-      const account = await this.verifyAdmin(access_token);
+      const account = await this.verifyAdmin(admin_access_token);
 
       if (specialOffer.img) {
         if (
@@ -2102,7 +2109,7 @@ export class AdminService {
   async findAllSpecialOffer(
     page: number = 1,
     limit: number = 10,
-    access_token: string,
+    admin_access_token: string,
   ): Promise<
     ApiResponse<{
       data: SpecialOfferResponse[];
@@ -2112,7 +2119,7 @@ export class AdminService {
     }>
   > {
     try {
-      const account = await this.verifyAdmin(access_token);
+      const account = await this.verifyAdmin(admin_access_token);
 
       const [response, totalItems] =
         await this.specialOfferRepository.findAndCount({
@@ -2146,10 +2153,10 @@ export class AdminService {
 
   async findByIdSpecialOffer(
     id: string,
-    access_token: string,
+    admin_access_token: string,
   ): Promise<ApiResponse<SpecialOfferResponse>> {
     try {
-      const account = await this.verifyAdmin(access_token);
+      const account = await this.verifyAdmin(admin_access_token);
 
       const response = await this.specialOfferRepository.findOne({
         where: { id },
@@ -2185,10 +2192,10 @@ export class AdminService {
   async updateSpecialOffer(
     id: string,
     specialOffer: SpecialOfferUpdate,
-    access_token: string,
+    admin_access_token: string,
   ): Promise<ApiResponse<SpecialOfferResponse>> {
     try {
-      const account = await this.verifyAdmin(access_token);
+      const account = await this.verifyAdmin(admin_access_token);
 
       if (specialOffer.img) {
         if (
@@ -2237,10 +2244,10 @@ export class AdminService {
 
   async deleteSpecialOffer(
     id: string,
-    access_token: string,
+    admin_access_token: string,
   ): Promise<ApiResponse<SpecialOfferResponse>> {
     try {
-      const account = await this.verifyAdmin(access_token);
+      const account = await this.verifyAdmin(admin_access_token);
 
       const response = await this.specialOfferRepository.findOne({
         where: { id },
@@ -2278,10 +2285,10 @@ export class AdminService {
 
   async createCustomization(
     customization: CustomizationCreate,
-    access_token: string,
+    admin_access_token: string,
   ): Promise<ApiResponse<CustomizationResponse>> {
     try {
-      const account = await this.verifyAdmin(access_token);
+      const account = await this.verifyAdmin(admin_access_token);
 
       const count = await this.customizationRepository.count();
       if (count > 0) {
@@ -2308,10 +2315,10 @@ export class AdminService {
   }
 
   async findCustomization(
-    access_token: string,
+    admin_access_token: string,
   ): Promise<ApiResponse<CustomizationResponse>> {
     try {
-      const account = await this.verifyAdmin(access_token);
+      const account = await this.verifyAdmin(admin_access_token);
 
       const response = await this.customizationRepository.find({
         relations: [
@@ -2353,10 +2360,10 @@ export class AdminService {
 
   async findByIdCustomization(
     id: string,
-    access_token: string,
+    admin_access_token: string,
   ): Promise<ApiResponse<CustomizationResponse>> {
     try {
-      const account = await this.verifyAdmin(access_token);
+      const account = await this.verifyAdmin(admin_access_token);
 
       const response = await this.customizationRepository.findOne({
         where: { id },
@@ -2400,10 +2407,10 @@ export class AdminService {
   async updateCustomization(
     id: string,
     customization: CustomizationUpdate,
-    access_token: string,
+    admin_access_token: string,
   ): Promise<ApiResponse<CustomizationResponse>> {
     try {
-      const account = await this.verifyAdmin(access_token);
+      const account = await this.verifyAdmin(admin_access_token);
 
       if (
         customization.featuredProducts ||
@@ -2505,10 +2512,10 @@ export class AdminService {
 
   async deleteCustomization(
     id: string,
-    access_token: string,
+    admin_access_token: string,
   ): Promise<ApiResponse<CustomizationResponse>> {
     try {
-      const account = await this.verifyAdmin(access_token);
+      const account = await this.verifyAdmin(admin_access_token);
 
       const response = await this.customizationRepository.findOne({
         where: { id },

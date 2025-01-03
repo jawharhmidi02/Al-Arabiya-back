@@ -67,7 +67,10 @@ __decorate([
     __metadata("design:type", Array)
 ], Order.prototype, "order_Products", void 0);
 __decorate([
-    (0, typeorm_1.ManyToOne)(() => users_entity_1.Users, (user) => user.orders, { nullable: true }),
+    (0, typeorm_1.ManyToOne)(() => users_entity_1.Users, (user) => user.orders, {
+        nullable: true,
+        onDelete: 'SET NULL',
+    }),
     __metadata("design:type", users_entity_1.Users)
 ], Order.prototype, "user", void 0);
 exports.Order = Order = __decorate([

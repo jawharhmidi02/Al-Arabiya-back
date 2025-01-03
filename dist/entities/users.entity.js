@@ -50,6 +50,7 @@ __decorate([
 __decorate([
     (0, typeorm_1.OneToMany)(() => orders_entity_1.Order, (order) => order.user, {
         cascade: true,
+        onDelete: 'CASCADE',
     }),
     __metadata("design:type", Array)
 ], Users.prototype, "orders", void 0);
@@ -61,6 +62,10 @@ __decorate([
     (0, typeorm_1.Column)({ nullable: true }),
     __metadata("design:type", String)
 ], Users.prototype, "nonce", void 0);
+__decorate([
+    (0, typeorm_1.CreateDateColumn)(),
+    __metadata("design:type", Date)
+], Users.prototype, "created_At", void 0);
 exports.Users = Users = __decorate([
     (0, typeorm_1.Entity)()
 ], Users);

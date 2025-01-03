@@ -29,143 +29,143 @@ let AdminController = class AdminController {
     async SignIn(email, password) {
         return await this.adminService.signin(email, password);
     }
-    async getAccount(access_token) {
-        return await this.adminService.getAccount(access_token);
+    async getAccount(admin_access_token) {
+        return await this.adminService.getAccount(admin_access_token);
     }
     async sendRecoverPass(email) {
         return await this.adminService.sendRecoverPassViaEmail(email.toLowerCase());
     }
-    async changePasswordFromRecover(access_token, password) {
-        return await this.adminService.changePasswordFromRecover(access_token, password);
+    async changePasswordFromRecover(admin_access_token, password) {
+        return await this.adminService.changePasswordFromRecover(admin_access_token, password);
     }
-    async getRecoverPassHtml(access_token) {
-        return await this.adminService.recoverPageHtml(access_token);
+    async getRecoverPassHtml(admin_access_token) {
+        return await this.adminService.recoverPageHtml(admin_access_token);
     }
-    async findAllUser(access_token) {
-        return await this.adminService.findAllUser(access_token);
+    async findAllUser(admin_access_token) {
+        return await this.adminService.findAllUser(admin_access_token);
     }
-    async findByIdUser(id, access_token) {
-        return await this.adminService.findByIdUser(id, access_token);
+    async findByIdUser(id, admin_access_token) {
+        return await this.adminService.findByIdUser(id, admin_access_token);
     }
-    async updateUser(id, access_token, user) {
-        return await this.adminService.updateUser(id, user, access_token);
+    async updateUser(id, admin_access_token, user) {
+        return await this.adminService.updateUser(id, user, admin_access_token);
     }
-    async deleteUser(id, access_token) {
-        return await this.adminService.deleteUser(id, access_token);
+    async deleteUser(id, admin_access_token) {
+        return await this.adminService.deleteUser(id, admin_access_token);
     }
-    async createCategory(categoryDto, access_token) {
-        return await this.adminService.createCategory(categoryDto, access_token);
+    async createCategory(categoryDto, admin_access_token) {
+        return await this.adminService.createCategory(categoryDto, admin_access_token);
     }
-    async findAllCategory(page, limit, name, access_token) {
-        return await this.adminService.findAllCategory(page, limit, name, access_token);
+    async findAllCategory(page, limit, name, admin_access_token) {
+        return await this.adminService.findAllCategory(page, limit, name, admin_access_token);
     }
-    async findByIdCategory(id, access_token) {
-        return await this.adminService.findByIdCategory(id, access_token);
+    async findByIdCategory(id, admin_access_token) {
+        return await this.adminService.findByIdCategory(id, admin_access_token);
     }
-    async findByNameCategory(name, access_token) {
-        return await this.adminService.findByNameCategory(name, access_token);
+    async findByNameCategory(name, admin_access_token) {
+        return await this.adminService.findByNameCategory(name, admin_access_token);
     }
-    async updateCategory(id, category, access_token) {
-        return await this.adminService.updateCategory(id, category, access_token);
+    async updateCategory(id, category, admin_access_token) {
+        return await this.adminService.updateCategory(id, category, admin_access_token);
     }
-    async deleteCategory(id, access_token) {
-        return await this.adminService.deleteCategory(id, access_token);
+    async deleteCategory(id, admin_access_token) {
+        return await this.adminService.deleteCategory(id, admin_access_token);
     }
-    async createBrand(brandDto, access_token) {
-        return await this.adminService.createBrand(brandDto, access_token);
+    async createBrand(brandDto, admin_access_token) {
+        return await this.adminService.createBrand(brandDto, admin_access_token);
     }
-    async findAllBrand(page, limit, name, access_token) {
-        return await this.adminService.findAllBrand(page, limit, name, access_token);
+    async findAllBrand(page, limit, name, admin_access_token) {
+        return await this.adminService.findAllBrand(page, limit, name, admin_access_token);
     }
-    async findByIdBrand(id, access_token) {
-        return await this.adminService.findByIdBrand(id, access_token);
+    async findByIdBrand(id, admin_access_token) {
+        return await this.adminService.findByIdBrand(id, admin_access_token);
     }
-    async findByNameBrand(name, access_token) {
-        return await this.adminService.findByNameBrand(name, access_token);
+    async findByNameBrand(name, admin_access_token) {
+        return await this.adminService.findByNameBrand(name, admin_access_token);
     }
-    async updateBrand(id, brand, access_token) {
-        return await this.adminService.updateBrand(id, brand, access_token);
+    async updateBrand(id, brand, admin_access_token) {
+        return await this.adminService.updateBrand(id, brand, admin_access_token);
     }
-    async deleteBrand(id, access_token) {
-        return await this.adminService.deleteBrand(id, access_token);
+    async deleteBrand(id, admin_access_token) {
+        return await this.adminService.deleteBrand(id, admin_access_token);
     }
-    async createProduct(productDto, access_token) {
-        return await this.adminService.createProduct(productDto, access_token);
+    async createProduct(productDto, admin_access_token) {
+        return await this.adminService.createProduct(productDto, admin_access_token);
     }
-    async createByListProduct(productDto, access_token) {
-        return await this.adminService.createByListProduct(productDto, access_token);
+    async createByListProduct(productDto, admin_access_token) {
+        return await this.adminService.createByListProduct(productDto, admin_access_token);
     }
-    async findAllProduct(page, limit, name, access_token) {
-        return await this.adminService.findAllProduct(page, limit, name, access_token);
+    async findAllProduct(page, limit, name, admin_access_token) {
+        return await this.adminService.findAllProduct(page, limit, name, admin_access_token);
     }
-    async findByIdProduct(id, access_token) {
-        return await this.adminService.findByIdProduct(id, access_token);
+    async findByIdProduct(id, admin_access_token) {
+        return await this.adminService.findByIdProduct(id, admin_access_token);
     }
-    async findByNameProduct(name, access_token) {
-        return await this.adminService.findByNameProduct(name, access_token);
+    async findByNameProduct(name, admin_access_token) {
+        return await this.adminService.findByNameProduct(name, admin_access_token);
     }
-    async findMostPopularProduct(page, limit, access_token) {
-        return await this.adminService.findMostPopularProduct(page, limit, access_token);
+    async findMostPopularProduct(page, limit, admin_access_token) {
+        return await this.adminService.findMostPopularProduct(page, limit, admin_access_token);
     }
-    async searchProduct(page = 1, limit = 10, sortBy = 'date', sortOrder = 'desc', access_token, name, categories, brand, min_price, max_price) {
+    async searchProduct(page = 1, limit = 10, sortBy = 'date', sortOrder = 'desc', admin_access_token, name, categories, brand, min_price, max_price) {
         return await this.adminService.searchProduct(page, limit, sortBy, sortOrder, {
             name,
             categories,
             brand,
             min_price,
             max_price,
-        }, access_token);
+        }, admin_access_token);
     }
-    async updateProduct(id, product, access_token) {
-        return await this.adminService.updateProduct(id, product, access_token);
+    async updateProduct(id, product, admin_access_token) {
+        return await this.adminService.updateProduct(id, product, admin_access_token);
     }
-    async deleteProduct(id, access_token) {
-        return await this.adminService.deleteProduct(id, access_token);
+    async deleteProduct(id, admin_access_token) {
+        return await this.adminService.deleteProduct(id, admin_access_token);
     }
-    async createOrder(orderDto, access_token) {
-        return await this.adminService.createOrder(orderDto, access_token);
+    async createOrder(orderDto, admin_access_token) {
+        return await this.adminService.createOrder(orderDto, admin_access_token);
     }
-    async findAllOrder(page, limit, access_token) {
-        return await this.adminService.findAllOrder(page, limit, access_token);
+    async findAllOrder(page, limit, admin_access_token) {
+        return await this.adminService.findAllOrder(page, limit, admin_access_token);
     }
-    async findByIdOrder(id, access_token) {
-        return await this.adminService.findByIdOrder(id, access_token);
+    async findByIdOrder(id, admin_access_token) {
+        return await this.adminService.findByIdOrder(id, admin_access_token);
     }
-    async updateOrder(id, order, access_token) {
-        return await this.adminService.updateOrder(id, order, access_token);
+    async updateOrder(id, order, admin_access_token) {
+        return await this.adminService.updateOrder(id, order, admin_access_token);
     }
-    async deleteOrder(id, access_token) {
-        return await this.adminService.deleteOrder(id, access_token);
+    async deleteOrder(id, admin_access_token) {
+        return await this.adminService.deleteOrder(id, admin_access_token);
     }
-    async createSpecialOffer(specialOfferDto, access_token) {
-        return await this.adminService.createSpecialOffer(specialOfferDto, access_token);
+    async createSpecialOffer(specialOfferDto, admin_access_token) {
+        return await this.adminService.createSpecialOffer(specialOfferDto, admin_access_token);
     }
-    async findAllSpecialOffer(page, limit, access_token) {
-        return await this.adminService.findAllSpecialOffer(page, limit, access_token);
+    async findAllSpecialOffer(page, limit, admin_access_token) {
+        return await this.adminService.findAllSpecialOffer(page, limit, admin_access_token);
     }
-    async findByIdSpecialOffer(id, access_token) {
-        return await this.adminService.findByIdSpecialOffer(id, access_token);
+    async findByIdSpecialOffer(id, admin_access_token) {
+        return await this.adminService.findByIdSpecialOffer(id, admin_access_token);
     }
-    async updateSpecialOffer(id, specialOffer, access_token) {
-        return await this.adminService.updateSpecialOffer(id, specialOffer, access_token);
+    async updateSpecialOffer(id, specialOffer, admin_access_token) {
+        return await this.adminService.updateSpecialOffer(id, specialOffer, admin_access_token);
     }
-    async deleteSpecialOffer(id, access_token) {
-        return await this.adminService.deleteSpecialOffer(id, access_token);
+    async deleteSpecialOffer(id, admin_access_token) {
+        return await this.adminService.deleteSpecialOffer(id, admin_access_token);
     }
-    async createCustomization(customizationDto, access_token) {
-        return await this.adminService.createCustomization(customizationDto, access_token);
+    async createCustomization(customizationDto, admin_access_token) {
+        return await this.adminService.createCustomization(customizationDto, admin_access_token);
     }
-    async findCustomization(access_token) {
-        return await this.adminService.findCustomization(access_token);
+    async findCustomization(admin_access_token) {
+        return await this.adminService.findCustomization(admin_access_token);
     }
-    async findByIdCustomization(id, access_token) {
-        return await this.adminService.findByIdCustomization(id, access_token);
+    async findByIdCustomization(id, admin_access_token) {
+        return await this.adminService.findByIdCustomization(id, admin_access_token);
     }
-    async updateCustomization(id, customization, access_token) {
-        return await this.adminService.updateCustomization(id, customization, access_token);
+    async updateCustomization(id, customization, admin_access_token) {
+        return await this.adminService.updateCustomization(id, customization, admin_access_token);
     }
-    async deleteCustomization(id, access_token) {
-        return await this.adminService.deleteCustomization(id, access_token);
+    async deleteCustomization(id, admin_access_token) {
+        return await this.adminService.deleteCustomization(id, admin_access_token);
     }
 };
 exports.AdminController = AdminController;
@@ -179,7 +179,7 @@ __decorate([
 ], AdminController.prototype, "SignIn", null);
 __decorate([
     (0, common_1.Get)('/account'),
-    __param(0, (0, common_1.Headers)('access_token')),
+    __param(0, (0, common_1.Headers)('admin_access_token')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)
@@ -193,7 +193,7 @@ __decorate([
 ], AdminController.prototype, "sendRecoverPass", null);
 __decorate([
     (0, common_1.Post)('/changepassfromrecover/:password'),
-    __param(0, (0, common_1.Query)('access_token')),
+    __param(0, (0, common_1.Query)('admin_access_token')),
     __param(1, (0, common_1.Param)('password')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, String]),
@@ -201,14 +201,14 @@ __decorate([
 ], AdminController.prototype, "changePasswordFromRecover", null);
 __decorate([
     (0, common_1.Get)('/recoverhtml'),
-    __param(0, (0, common_1.Query)('access_token')),
+    __param(0, (0, common_1.Query)('admin_access_token')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)
 ], AdminController.prototype, "getRecoverPassHtml", null);
 __decorate([
     (0, common_1.Get)('/user'),
-    __param(0, (0, common_1.Headers)('access_token')),
+    __param(0, (0, common_1.Headers)('admin_access_token')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)
@@ -216,7 +216,7 @@ __decorate([
 __decorate([
     (0, common_1.Get)('/user/byid/:id'),
     __param(0, (0, common_1.Param)('id')),
-    __param(1, (0, common_1.Headers)('access_token')),
+    __param(1, (0, common_1.Headers)('admin_access_token')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, String]),
     __metadata("design:returntype", Promise)
@@ -224,7 +224,7 @@ __decorate([
 __decorate([
     (0, common_1.Put)('/user/:id'),
     __param(0, (0, common_1.Param)('id')),
-    __param(1, (0, common_1.Headers)('access_token')),
+    __param(1, (0, common_1.Headers)('admin_access_token')),
     __param(2, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, String, users_dto_1.UsersUpdate]),
@@ -233,7 +233,7 @@ __decorate([
 __decorate([
     (0, common_1.Delete)('/user/:id'),
     __param(0, (0, common_1.Param)('id')),
-    __param(1, (0, common_1.Headers)('access_token')),
+    __param(1, (0, common_1.Headers)('admin_access_token')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, String]),
     __metadata("design:returntype", Promise)
@@ -241,7 +241,7 @@ __decorate([
 __decorate([
     (0, common_1.Post)('/category'),
     __param(0, (0, common_1.Body)()),
-    __param(1, (0, common_1.Headers)('access_token')),
+    __param(1, (0, common_1.Headers)('admin_access_token')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [categories_dto_1.CategoryCreate, String]),
     __metadata("design:returntype", Promise)
@@ -251,7 +251,7 @@ __decorate([
     __param(0, (0, common_1.Query)('page')),
     __param(1, (0, common_1.Query)('limit')),
     __param(2, (0, common_1.Query)('name')),
-    __param(3, (0, common_1.Headers)('access_token')),
+    __param(3, (0, common_1.Headers)('admin_access_token')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Number, Number, String, String]),
     __metadata("design:returntype", Promise)
@@ -259,7 +259,7 @@ __decorate([
 __decorate([
     (0, common_1.Get)('/category/byid/:id'),
     __param(0, (0, common_1.Param)('id')),
-    __param(1, (0, common_1.Headers)('access_token')),
+    __param(1, (0, common_1.Headers)('admin_access_token')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, String]),
     __metadata("design:returntype", Promise)
@@ -267,7 +267,7 @@ __decorate([
 __decorate([
     (0, common_1.Get)('/category/byname/:name'),
     __param(0, (0, common_1.Param)('name')),
-    __param(1, (0, common_1.Headers)('access_token')),
+    __param(1, (0, common_1.Headers)('admin_access_token')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, String]),
     __metadata("design:returntype", Promise)
@@ -276,7 +276,7 @@ __decorate([
     (0, common_1.Put)('/category/:id'),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
-    __param(2, (0, common_1.Headers)('access_token')),
+    __param(2, (0, common_1.Headers)('admin_access_token')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, categories_dto_1.CategoryUpdate, String]),
     __metadata("design:returntype", Promise)
@@ -284,7 +284,7 @@ __decorate([
 __decorate([
     (0, common_1.Delete)('/category/:id'),
     __param(0, (0, common_1.Param)('id')),
-    __param(1, (0, common_1.Headers)('access_token')),
+    __param(1, (0, common_1.Headers)('admin_access_token')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, String]),
     __metadata("design:returntype", Promise)
@@ -292,7 +292,7 @@ __decorate([
 __decorate([
     (0, common_1.Post)('/brand'),
     __param(0, (0, common_1.Body)()),
-    __param(1, (0, common_1.Headers)('access_token')),
+    __param(1, (0, common_1.Headers)('admin_access_token')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [brands_dto_1.BrandCreate, String]),
     __metadata("design:returntype", Promise)
@@ -302,7 +302,7 @@ __decorate([
     __param(0, (0, common_1.Query)('page')),
     __param(1, (0, common_1.Query)('limit')),
     __param(2, (0, common_1.Query)('name')),
-    __param(3, (0, common_1.Headers)('access_token')),
+    __param(3, (0, common_1.Headers)('admin_access_token')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Number, Number, String, String]),
     __metadata("design:returntype", Promise)
@@ -310,7 +310,7 @@ __decorate([
 __decorate([
     (0, common_1.Get)('/brand/byid/:id'),
     __param(0, (0, common_1.Param)('id')),
-    __param(1, (0, common_1.Headers)('access_token')),
+    __param(1, (0, common_1.Headers)('admin_access_token')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, String]),
     __metadata("design:returntype", Promise)
@@ -318,7 +318,7 @@ __decorate([
 __decorate([
     (0, common_1.Get)('/brand/byname/:name'),
     __param(0, (0, common_1.Param)('name')),
-    __param(1, (0, common_1.Headers)('access_token')),
+    __param(1, (0, common_1.Headers)('admin_access_token')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, String]),
     __metadata("design:returntype", Promise)
@@ -327,7 +327,7 @@ __decorate([
     (0, common_1.Put)('/brand/:id'),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
-    __param(2, (0, common_1.Headers)('access_token')),
+    __param(2, (0, common_1.Headers)('admin_access_token')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, brands_dto_1.BrandUpdate, String]),
     __metadata("design:returntype", Promise)
@@ -335,7 +335,7 @@ __decorate([
 __decorate([
     (0, common_1.Delete)('/brand/:id'),
     __param(0, (0, common_1.Param)('id')),
-    __param(1, (0, common_1.Headers)('access_token')),
+    __param(1, (0, common_1.Headers)('admin_access_token')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, String]),
     __metadata("design:returntype", Promise)
@@ -343,7 +343,7 @@ __decorate([
 __decorate([
     (0, common_1.Post)('/product'),
     __param(0, (0, common_1.Body)()),
-    __param(1, (0, common_1.Headers)('access_token')),
+    __param(1, (0, common_1.Headers)('admin_access_token')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [products_dto_1.ProductCreate, String]),
     __metadata("design:returntype", Promise)
@@ -351,7 +351,7 @@ __decorate([
 __decorate([
     (0, common_1.Post)('/product/list'),
     __param(0, (0, common_1.Body)()),
-    __param(1, (0, common_1.Headers)('access_token')),
+    __param(1, (0, common_1.Headers)('admin_access_token')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object, String]),
     __metadata("design:returntype", Promise)
@@ -361,7 +361,7 @@ __decorate([
     __param(0, (0, common_1.Query)('page')),
     __param(1, (0, common_1.Query)('limit')),
     __param(2, (0, common_1.Query)('name')),
-    __param(3, (0, common_1.Headers)('access_token')),
+    __param(3, (0, common_1.Headers)('admin_access_token')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Number, Number, String, String]),
     __metadata("design:returntype", Promise)
@@ -369,7 +369,7 @@ __decorate([
 __decorate([
     (0, common_1.Get)('/product/byid/:id'),
     __param(0, (0, common_1.Param)('id')),
-    __param(1, (0, common_1.Headers)('access_token')),
+    __param(1, (0, common_1.Headers)('admin_access_token')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, String]),
     __metadata("design:returntype", Promise)
@@ -377,7 +377,7 @@ __decorate([
 __decorate([
     (0, common_1.Get)('/product/byname/:name'),
     __param(0, (0, common_1.Param)('name')),
-    __param(1, (0, common_1.Headers)('access_token')),
+    __param(1, (0, common_1.Headers)('admin_access_token')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, String]),
     __metadata("design:returntype", Promise)
@@ -386,7 +386,7 @@ __decorate([
     (0, common_1.Get)('/product/mostpopular'),
     __param(0, (0, common_1.Query)('page')),
     __param(1, (0, common_1.Query)('limit')),
-    __param(2, (0, common_1.Headers)('access_token')),
+    __param(2, (0, common_1.Headers)('admin_access_token')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Number, Number, String]),
     __metadata("design:returntype", Promise)
@@ -397,7 +397,7 @@ __decorate([
     __param(1, (0, common_1.Query)('limit')),
     __param(2, (0, common_1.Query)('sortBy')),
     __param(3, (0, common_1.Query)('sortOrder')),
-    __param(4, (0, common_1.Headers)('access_token')),
+    __param(4, (0, common_1.Headers)('admin_access_token')),
     __param(5, (0, common_1.Query)('name')),
     __param(6, (0, common_1.Query)('categories')),
     __param(7, (0, common_1.Query)('brand')),
@@ -411,7 +411,7 @@ __decorate([
     (0, common_1.Put)('/product/:id'),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
-    __param(2, (0, common_1.Headers)('access_token')),
+    __param(2, (0, common_1.Headers)('admin_access_token')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, products_dto_1.ProductUpdate, String]),
     __metadata("design:returntype", Promise)
@@ -419,7 +419,7 @@ __decorate([
 __decorate([
     (0, common_1.Delete)('/product/:id'),
     __param(0, (0, common_1.Param)('id')),
-    __param(1, (0, common_1.Headers)('access_token')),
+    __param(1, (0, common_1.Headers)('admin_access_token')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, String]),
     __metadata("design:returntype", Promise)
@@ -427,7 +427,7 @@ __decorate([
 __decorate([
     (0, common_1.Post)('/order'),
     __param(0, (0, common_1.Body)()),
-    __param(1, (0, common_1.Headers)('access_token')),
+    __param(1, (0, common_1.Headers)('admin_access_token')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [orders_dto_1.OrderCreate, String]),
     __metadata("design:returntype", Promise)
@@ -436,7 +436,7 @@ __decorate([
     (0, common_1.Get)('/order'),
     __param(0, (0, common_1.Query)('page')),
     __param(1, (0, common_1.Query)('limit')),
-    __param(2, (0, common_1.Headers)('access_token')),
+    __param(2, (0, common_1.Headers)('admin_access_token')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Number, Number, String]),
     __metadata("design:returntype", Promise)
@@ -444,7 +444,7 @@ __decorate([
 __decorate([
     (0, common_1.Get)('/order/byid/:id'),
     __param(0, (0, common_1.Param)('id')),
-    __param(1, (0, common_1.Headers)('access_token')),
+    __param(1, (0, common_1.Headers)('admin_access_token')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, String]),
     __metadata("design:returntype", Promise)
@@ -453,7 +453,7 @@ __decorate([
     (0, common_1.Put)('/order/:id'),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
-    __param(2, (0, common_1.Headers)('access_token')),
+    __param(2, (0, common_1.Headers)('admin_access_token')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, orders_dto_1.OrderUpdate, String]),
     __metadata("design:returntype", Promise)
@@ -461,7 +461,7 @@ __decorate([
 __decorate([
     (0, common_1.Delete)('/order/:id'),
     __param(0, (0, common_1.Param)('id')),
-    __param(1, (0, common_1.Headers)('access_token')),
+    __param(1, (0, common_1.Headers)('admin_access_token')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, String]),
     __metadata("design:returntype", Promise)
@@ -469,7 +469,7 @@ __decorate([
 __decorate([
     (0, common_1.Post)('/specialOffer'),
     __param(0, (0, common_1.Body)()),
-    __param(1, (0, common_1.Headers)('access_token')),
+    __param(1, (0, common_1.Headers)('admin_access_token')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [specialOffers_dto_1.SpecialOfferCreate, String]),
     __metadata("design:returntype", Promise)
@@ -478,7 +478,7 @@ __decorate([
     (0, common_1.Get)('/specialOffer'),
     __param(0, (0, common_1.Query)('page')),
     __param(1, (0, common_1.Query)('limit')),
-    __param(2, (0, common_1.Headers)('access_token')),
+    __param(2, (0, common_1.Headers)('admin_access_token')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Number, Number, String]),
     __metadata("design:returntype", Promise)
@@ -486,7 +486,7 @@ __decorate([
 __decorate([
     (0, common_1.Get)('/specialOffer/byid/:id'),
     __param(0, (0, common_1.Param)('id')),
-    __param(1, (0, common_1.Headers)('access_token')),
+    __param(1, (0, common_1.Headers)('admin_access_token')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, String]),
     __metadata("design:returntype", Promise)
@@ -495,7 +495,7 @@ __decorate([
     (0, common_1.Put)('/specialOffer/:id'),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
-    __param(2, (0, common_1.Headers)('access_token')),
+    __param(2, (0, common_1.Headers)('admin_access_token')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, specialOffers_dto_1.SpecialOfferUpdate, String]),
     __metadata("design:returntype", Promise)
@@ -503,7 +503,7 @@ __decorate([
 __decorate([
     (0, common_1.Delete)('/specialOffer/:id'),
     __param(0, (0, common_1.Param)('id')),
-    __param(1, (0, common_1.Headers)('access_token')),
+    __param(1, (0, common_1.Headers)('admin_access_token')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, String]),
     __metadata("design:returntype", Promise)
@@ -511,14 +511,14 @@ __decorate([
 __decorate([
     (0, common_1.Post)('/customization'),
     __param(0, (0, common_1.Body)()),
-    __param(1, (0, common_1.Headers)('access_token')),
+    __param(1, (0, common_1.Headers)('admin_access_token')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [customizations_dto_1.CustomizationCreate, String]),
     __metadata("design:returntype", Promise)
 ], AdminController.prototype, "createCustomization", null);
 __decorate([
     (0, common_1.Get)('/customization'),
-    __param(0, (0, common_1.Headers)('access_token')),
+    __param(0, (0, common_1.Headers)('admin_access_token')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)
@@ -526,7 +526,7 @@ __decorate([
 __decorate([
     (0, common_1.Get)('/customization/byid/:id'),
     __param(0, (0, common_1.Param)('id')),
-    __param(1, (0, common_1.Headers)('access_token')),
+    __param(1, (0, common_1.Headers)('admin_access_token')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, String]),
     __metadata("design:returntype", Promise)
@@ -535,7 +535,7 @@ __decorate([
     (0, common_1.Put)('/customization/:id'),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
-    __param(2, (0, common_1.Headers)('access_token')),
+    __param(2, (0, common_1.Headers)('admin_access_token')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, customizations_dto_1.CustomizationUpdate, String]),
     __metadata("design:returntype", Promise)
@@ -543,7 +543,7 @@ __decorate([
 __decorate([
     (0, common_1.Delete)('/customization/:id'),
     __param(0, (0, common_1.Param)('id')),
-    __param(1, (0, common_1.Headers)('access_token')),
+    __param(1, (0, common_1.Headers)('admin_access_token')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, String]),
     __metadata("design:returntype", Promise)

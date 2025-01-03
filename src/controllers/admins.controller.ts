@@ -45,15 +45,15 @@ export class AdminController {
   async SignIn(
     @Body('email') email: string,
     @Body('password') password: string,
-  ): Promise<ApiResponse<{ access_token: string }>> {
+  ): Promise<ApiResponse<{ admin_access_token: string }>> {
     return await this.adminService.signin(email, password);
   }
 
   @Get('/account')
   async getAccount(
-    @Headers('access_token') access_token: string,
+    @Headers('admin_access_token') admin_access_token: string,
   ): Promise<ApiResponse<UsersResponse>> {
-    return await this.adminService.getAccount(access_token);
+    return await this.adminService.getAccount(admin_access_token);
   }
 
   @Post('/recoverpass/:email')
@@ -65,54 +65,54 @@ export class AdminController {
 
   @Post('/changepassfromrecover/:password')
   async changePasswordFromRecover(
-    @Query('access_token') access_token: string,
+    @Query('admin_access_token') admin_access_token: string,
     @Param('password') password: string,
   ): Promise<ApiResponse<UsersResponse>> {
     return await this.adminService.changePasswordFromRecover(
-      access_token,
+      admin_access_token,
       password,
     );
   }
 
   @Get('/recoverhtml')
   async getRecoverPassHtml(
-    @Query('access_token') access_token: string,
+    @Query('admin_access_token') admin_access_token: string,
   ): Promise<string> {
-    return await this.adminService.recoverPageHtml(access_token);
+    return await this.adminService.recoverPageHtml(admin_access_token);
   }
 
   /* USER ENDPOINTS */
 
   @Get('/user')
   async findAllUser(
-    @Headers('access_token') access_token: string,
+    @Headers('admin_access_token') admin_access_token: string,
   ): Promise<ApiResponse<UsersResponse[]>> {
-    return await this.adminService.findAllUser(access_token);
+    return await this.adminService.findAllUser(admin_access_token);
   }
 
   @Get('/user/byid/:id')
   async findByIdUser(
     @Param('id') id: string,
-    @Headers('access_token') access_token: string,
+    @Headers('admin_access_token') admin_access_token: string,
   ): Promise<ApiResponse<UsersResponse>> {
-    return await this.adminService.findByIdUser(id, access_token);
+    return await this.adminService.findByIdUser(id, admin_access_token);
   }
 
   @Put('/user/:id')
   async updateUser(
     @Param('id') id: string,
-    @Headers('access_token') access_token: string,
+    @Headers('admin_access_token') admin_access_token: string,
     @Body() user: UsersUpdate,
   ): Promise<ApiResponse<UsersResponse>> {
-    return await this.adminService.updateUser(id, user, access_token);
+    return await this.adminService.updateUser(id, user, admin_access_token);
   }
 
   @Delete('/user/:id')
   async deleteUser(
     @Param('id') id: string,
-    @Headers('access_token') access_token: string,
+    @Headers('admin_access_token') admin_access_token: string,
   ): Promise<ApiResponse<UsersResponse>> {
-    return await this.adminService.deleteUser(id, access_token);
+    return await this.adminService.deleteUser(id, admin_access_token);
   }
 
   /* CATEGORY ENDPOINTS */
@@ -120,9 +120,12 @@ export class AdminController {
   @Post('/category')
   async createCategory(
     @Body() categoryDto: CategoryCreate,
-    @Headers('access_token') access_token: string,
+    @Headers('admin_access_token') admin_access_token: string,
   ): Promise<ApiResponse<CategoryResponse>> {
-    return await this.adminService.createCategory(categoryDto, access_token);
+    return await this.adminService.createCategory(
+      categoryDto,
+      admin_access_token,
+    );
   }
 
   @Get('/category')
@@ -130,7 +133,7 @@ export class AdminController {
     @Query('page') page: number,
     @Query('limit') limit: number,
     @Query('name') name: string,
-    @Headers('access_token') access_token: string,
+    @Headers('admin_access_token') admin_access_token: string,
   ): Promise<
     ApiResponse<{
       data: CategoryResponse[];
@@ -143,41 +146,45 @@ export class AdminController {
       page,
       limit,
       name,
-      access_token,
+      admin_access_token,
     );
   }
 
   @Get('/category/byid/:id')
   async findByIdCategory(
     @Param('id') id: string,
-    @Headers('access_token') access_token: string,
+    @Headers('admin_access_token') admin_access_token: string,
   ): Promise<ApiResponse<CategoryResponse>> {
-    return await this.adminService.findByIdCategory(id, access_token);
+    return await this.adminService.findByIdCategory(id, admin_access_token);
   }
 
   @Get('/category/byname/:name')
   async findByNameCategory(
     @Param('name') name: string,
-    @Headers('access_token') access_token: string,
+    @Headers('admin_access_token') admin_access_token: string,
   ): Promise<ApiResponse<CategoryResponse[]>> {
-    return await this.adminService.findByNameCategory(name, access_token);
+    return await this.adminService.findByNameCategory(name, admin_access_token);
   }
 
   @Put('/category/:id')
   async updateCategory(
     @Param('id') id: string,
     @Body() category: CategoryUpdate,
-    @Headers('access_token') access_token: string,
+    @Headers('admin_access_token') admin_access_token: string,
   ): Promise<ApiResponse<CategoryResponse>> {
-    return await this.adminService.updateCategory(id, category, access_token);
+    return await this.adminService.updateCategory(
+      id,
+      category,
+      admin_access_token,
+    );
   }
 
   @Delete('/category/:id')
   async deleteCategory(
     @Param('id') id: string,
-    @Headers('access_token') access_token: string,
+    @Headers('admin_access_token') admin_access_token: string,
   ): Promise<ApiResponse<CategoryResponse>> {
-    return await this.adminService.deleteCategory(id, access_token);
+    return await this.adminService.deleteCategory(id, admin_access_token);
   }
 
   /* BRAND ENDPOINTS */
@@ -185,9 +192,9 @@ export class AdminController {
   @Post('/brand')
   async createBrand(
     @Body() brandDto: BrandCreate,
-    @Headers('access_token') access_token?: string,
+    @Headers('admin_access_token') admin_access_token?: string,
   ): Promise<ApiResponse<BrandResponse>> {
-    return await this.adminService.createBrand(brandDto, access_token);
+    return await this.adminService.createBrand(brandDto, admin_access_token);
   }
 
   @Get('/brand')
@@ -195,7 +202,7 @@ export class AdminController {
     @Query('page') page: number,
     @Query('limit') limit: number,
     @Query('name') name: string,
-    @Headers('access_token') access_token: string,
+    @Headers('admin_access_token') admin_access_token: string,
   ): Promise<
     ApiResponse<{
       data: BrandResponse[];
@@ -208,41 +215,41 @@ export class AdminController {
       page,
       limit,
       name,
-      access_token,
+      admin_access_token,
     );
   }
 
   @Get('/brand/byid/:id')
   async findByIdBrand(
     @Param('id') id: string,
-    @Headers('access_token') access_token: string,
+    @Headers('admin_access_token') admin_access_token: string,
   ): Promise<ApiResponse<BrandResponse>> {
-    return await this.adminService.findByIdBrand(id, access_token);
+    return await this.adminService.findByIdBrand(id, admin_access_token);
   }
 
   @Get('/brand/byname/:name')
   async findByNameBrand(
     @Param('name') name: string,
-    @Headers('access_token') access_token: string,
+    @Headers('admin_access_token') admin_access_token: string,
   ): Promise<ApiResponse<BrandResponse[]>> {
-    return await this.adminService.findByNameBrand(name, access_token);
+    return await this.adminService.findByNameBrand(name, admin_access_token);
   }
 
   @Put('/brand/:id')
   async updateBrand(
     @Param('id') id: string,
     @Body() brand: BrandUpdate,
-    @Headers('access_token') access_token: string,
+    @Headers('admin_access_token') admin_access_token: string,
   ): Promise<ApiResponse<BrandResponse>> {
-    return await this.adminService.updateBrand(id, brand, access_token);
+    return await this.adminService.updateBrand(id, brand, admin_access_token);
   }
 
   @Delete('/brand/:id')
   async deleteBrand(
     @Param('id') id: string,
-    @Headers('access_token') access_token: string,
+    @Headers('admin_access_token') admin_access_token: string,
   ): Promise<ApiResponse<BrandResponse>> {
-    return await this.adminService.deleteBrand(id, access_token);
+    return await this.adminService.deleteBrand(id, admin_access_token);
   }
 
   /* PRODUCT ENDPOINTS  */
@@ -250,19 +257,22 @@ export class AdminController {
   @Post('/product')
   async createProduct(
     @Body() productDto: ProductCreate,
-    @Headers('access_token') access_token: string,
+    @Headers('admin_access_token') admin_access_token: string,
   ): Promise<ApiResponse<ProductResponse>> {
-    return await this.adminService.createProduct(productDto, access_token);
+    return await this.adminService.createProduct(
+      productDto,
+      admin_access_token,
+    );
   }
 
   @Post('/product/list')
   async createByListProduct(
     @Body() productDto: any,
-    @Headers('access_token') access_token?: string,
+    @Headers('admin_access_token') admin_access_token?: string,
   ): Promise<ApiResponse<ProductResponse[]>> {
     return await this.adminService.createByListProduct(
       productDto,
-      access_token,
+      admin_access_token,
     );
   }
 
@@ -271,7 +281,7 @@ export class AdminController {
     @Query('page') page: number,
     @Query('limit') limit: number,
     @Query('name') name: string,
-    @Headers('access_token') access_token: string,
+    @Headers('admin_access_token') admin_access_token: string,
   ): Promise<
     ApiResponse<{
       data: ProductResponse[];
@@ -284,31 +294,31 @@ export class AdminController {
       page,
       limit,
       name,
-      access_token,
+      admin_access_token,
     );
   }
 
   @Get('/product/byid/:id')
   async findByIdProduct(
     @Param('id') id: string,
-    @Headers('access_token') access_token: string,
+    @Headers('admin_access_token') admin_access_token: string,
   ): Promise<ApiResponse<ProductResponse>> {
-    return await this.adminService.findByIdProduct(id, access_token);
+    return await this.adminService.findByIdProduct(id, admin_access_token);
   }
 
   @Get('/product/byname/:name')
   async findByNameProduct(
     @Param('name') name: string,
-    @Headers('access_token') access_token: string,
+    @Headers('admin_access_token') admin_access_token: string,
   ): Promise<ApiResponse<ProductResponse[]>> {
-    return await this.adminService.findByNameProduct(name, access_token);
+    return await this.adminService.findByNameProduct(name, admin_access_token);
   }
 
   @Get('/product/mostpopular')
   async findMostPopularProduct(
     @Query('page') page: number,
     @Query('limit') limit: number,
-    @Headers('access_token') access_token: string,
+    @Headers('admin_access_token') admin_access_token: string,
   ): Promise<
     ApiResponse<{
       data: ProductResponse[];
@@ -320,7 +330,7 @@ export class AdminController {
     return await this.adminService.findMostPopularProduct(
       page,
       limit,
-      access_token,
+      admin_access_token,
     );
   }
 
@@ -330,7 +340,7 @@ export class AdminController {
     @Query('limit') limit: number = 10,
     @Query('sortBy') sortBy: 'date' | 'alpha' | 'price' = 'date',
     @Query('sortOrder') sortOrder: 'asc' | 'desc' = 'desc',
-    @Headers('access_token') access_token: string,
+    @Headers('admin_access_token') admin_access_token: string,
     @Query('name') name?: string,
     @Query('categories') categories?: string,
     @Query('brand') brand?: string,
@@ -356,7 +366,7 @@ export class AdminController {
         min_price,
         max_price,
       },
-      access_token,
+      admin_access_token,
     );
   }
 
@@ -364,17 +374,21 @@ export class AdminController {
   async updateProduct(
     @Param('id') id: string,
     @Body() product: ProductUpdate,
-    @Headers('access_token') access_token: string,
+    @Headers('admin_access_token') admin_access_token: string,
   ): Promise<ApiResponse<ProductResponse>> {
-    return await this.adminService.updateProduct(id, product, access_token);
+    return await this.adminService.updateProduct(
+      id,
+      product,
+      admin_access_token,
+    );
   }
 
   @Delete('/product/:id')
   async deleteProduct(
     @Param('id') id: string,
-    @Headers('access_token') access_token: string,
+    @Headers('admin_access_token') admin_access_token: string,
   ): Promise<ApiResponse<ProductResponse>> {
-    return await this.adminService.deleteProduct(id, access_token);
+    return await this.adminService.deleteProduct(id, admin_access_token);
   }
 
   /* ORDER ENDPOINTS */
@@ -382,16 +396,16 @@ export class AdminController {
   @Post('/order')
   async createOrder(
     @Body() orderDto: OrderCreate,
-    @Headers('access_token') access_token: string,
+    @Headers('admin_access_token') admin_access_token: string,
   ): Promise<ApiResponse<OrderResponse>> {
-    return await this.adminService.createOrder(orderDto, access_token);
+    return await this.adminService.createOrder(orderDto, admin_access_token);
   }
 
   @Get('/order')
   async findAllOrder(
     @Query('page') page: number,
     @Query('limit') limit: number,
-    @Headers('access_token') access_token: string,
+    @Headers('admin_access_token') admin_access_token: string,
   ): Promise<
     ApiResponse<{
       data: OrderResponse[];
@@ -400,32 +414,36 @@ export class AdminController {
       totalItems: number;
     }>
   > {
-    return await this.adminService.findAllOrder(page, limit, access_token);
+    return await this.adminService.findAllOrder(
+      page,
+      limit,
+      admin_access_token,
+    );
   }
 
   @Get('/order/byid/:id')
   async findByIdOrder(
     @Param('id') id: string,
-    @Headers('access_token') access_token: string,
+    @Headers('admin_access_token') admin_access_token: string,
   ): Promise<ApiResponse<OrderResponse>> {
-    return await this.adminService.findByIdOrder(id, access_token);
+    return await this.adminService.findByIdOrder(id, admin_access_token);
   }
 
   @Put('/order/:id')
   async updateOrder(
     @Param('id') id: string,
     @Body() order: OrderUpdate,
-    @Headers('access_token') access_token: string,
+    @Headers('admin_access_token') admin_access_token: string,
   ): Promise<ApiResponse<OrderResponse>> {
-    return await this.adminService.updateOrder(id, order, access_token);
+    return await this.adminService.updateOrder(id, order, admin_access_token);
   }
 
   @Delete('/order/:id')
   async deleteOrder(
     @Param('id') id: string,
-    @Headers('access_token') access_token: string,
+    @Headers('admin_access_token') admin_access_token: string,
   ): Promise<ApiResponse<OrderResponse>> {
-    return await this.adminService.deleteOrder(id, access_token);
+    return await this.adminService.deleteOrder(id, admin_access_token);
   }
 
   /* SPECIALOFFER ENDPOINTS */
@@ -433,11 +451,11 @@ export class AdminController {
   @Post('/specialOffer')
   async createSpecialOffer(
     @Body() specialOfferDto: SpecialOfferCreate,
-    @Headers('access_token') access_token: string,
+    @Headers('admin_access_token') admin_access_token: string,
   ): Promise<ApiResponse<SpecialOfferResponse>> {
     return await this.adminService.createSpecialOffer(
       specialOfferDto,
-      access_token,
+      admin_access_token,
     );
   }
 
@@ -445,7 +463,7 @@ export class AdminController {
   async findAllSpecialOffer(
     @Query('page') page: number,
     @Query('limit') limit: number,
-    @Headers('access_token') access_token: string,
+    @Headers('admin_access_token') admin_access_token: string,
   ): Promise<
     ApiResponse<{
       data: SpecialOfferResponse[];
@@ -457,37 +475,37 @@ export class AdminController {
     return await this.adminService.findAllSpecialOffer(
       page,
       limit,
-      access_token,
+      admin_access_token,
     );
   }
 
   @Get('/specialOffer/byid/:id')
   async findByIdSpecialOffer(
     @Param('id') id: string,
-    @Headers('access_token') access_token: string,
+    @Headers('admin_access_token') admin_access_token: string,
   ): Promise<ApiResponse<SpecialOfferResponse>> {
-    return await this.adminService.findByIdSpecialOffer(id, access_token);
+    return await this.adminService.findByIdSpecialOffer(id, admin_access_token);
   }
 
   @Put('/specialOffer/:id')
   async updateSpecialOffer(
     @Param('id') id: string,
     @Body() specialOffer: SpecialOfferUpdate,
-    @Headers('access_token') access_token: string,
+    @Headers('admin_access_token') admin_access_token: string,
   ): Promise<ApiResponse<SpecialOfferResponse>> {
     return await this.adminService.updateSpecialOffer(
       id,
       specialOffer,
-      access_token,
+      admin_access_token,
     );
   }
 
   @Delete('/specialOffer/:id')
   async deleteSpecialOffer(
     @Param('id') id: string,
-    @Headers('access_token') access_token: string,
+    @Headers('admin_access_token') admin_access_token: string,
   ): Promise<ApiResponse<SpecialOfferResponse>> {
-    return await this.adminService.deleteSpecialOffer(id, access_token);
+    return await this.adminService.deleteSpecialOffer(id, admin_access_token);
   }
 
   /* CUSTOMIZATION ENDPOINTS */
@@ -495,47 +513,50 @@ export class AdminController {
   @Post('/customization')
   async createCustomization(
     @Body() customizationDto: CustomizationCreate,
-    @Headers('access_token') access_token: string,
+    @Headers('admin_access_token') admin_access_token: string,
   ): Promise<ApiResponse<CustomizationResponse>> {
     return await this.adminService.createCustomization(
       customizationDto,
-      access_token,
+      admin_access_token,
     );
   }
 
   @Get('/customization')
   async findCustomization(
-    @Headers('access_token') access_token: string,
+    @Headers('admin_access_token') admin_access_token: string,
   ): Promise<ApiResponse<CustomizationResponse>> {
-    return await this.adminService.findCustomization(access_token);
+    return await this.adminService.findCustomization(admin_access_token);
   }
 
   @Get('/customization/byid/:id')
   async findByIdCustomization(
     @Param('id') id: string,
-    @Headers('access_token') access_token: string,
+    @Headers('admin_access_token') admin_access_token: string,
   ): Promise<ApiResponse<CustomizationResponse>> {
-    return await this.adminService.findByIdCustomization(id, access_token);
+    return await this.adminService.findByIdCustomization(
+      id,
+      admin_access_token,
+    );
   }
 
   @Put('/customization/:id')
   async updateCustomization(
     @Param('id') id: string,
     @Body() customization: CustomizationUpdate,
-    @Headers('access_token') access_token: string,
+    @Headers('admin_access_token') admin_access_token: string,
   ): Promise<ApiResponse<CustomizationResponse>> {
     return await this.adminService.updateCustomization(
       id,
       customization,
-      access_token,
+      admin_access_token,
     );
   }
 
   @Delete('/customization/:id')
   async deleteCustomization(
     @Param('id') id: string,
-    @Headers('access_token') access_token: string,
+    @Headers('admin_access_token') admin_access_token: string,
   ): Promise<ApiResponse<CustomizationResponse>> {
-    return await this.adminService.deleteCustomization(id, access_token);
+    return await this.adminService.deleteCustomization(id, admin_access_token);
   }
 }
