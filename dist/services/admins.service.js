@@ -582,19 +582,7 @@ let AdminService = class AdminService {
     }
     async findAllUser(access_token) {
         try {
-            const payLoad = await this.jwtService.verifyAsync(access_token);
-            const account = await this.usersRepository.findOne({
-                where: { id: payLoad.id },
-            });
-            if (!account ||
-                account.nonce !== payLoad.nonce ||
-                account.role !== 'admin') {
-                return {
-                    statusCode: common_1.HttpStatus.FORBIDDEN,
-                    message: 'Unauthorized access',
-                    data: null,
-                };
-            }
+            const account = await this.verifyAdmin(access_token);
             const response = await this.usersRepository.find();
             const data = response.map((user) => new users_dto_1.UsersResponse(user));
             return {
@@ -638,19 +626,7 @@ let AdminService = class AdminService {
     }
     async updateUser(id, user, access_token) {
         try {
-            const payLoad = await this.jwtService.verifyAsync(access_token);
-            const account = await this.usersRepository.findOne({
-                where: { id: payLoad.id },
-            });
-            if (!account ||
-                account.nonce !== payLoad.nonce ||
-                account.role !== 'admin') {
-                return {
-                    statusCode: common_1.HttpStatus.FORBIDDEN,
-                    message: 'Unauthorized access',
-                    data: null,
-                };
-            }
+            const account = await this.verifyAdmin(access_token);
             if (id === account.id) {
                 if (user.current_password !== decrypt(account.password)) {
                     throw new Error('Invalid password');
@@ -685,19 +661,7 @@ let AdminService = class AdminService {
     }
     async deleteUser(id, access_token) {
         try {
-            const payLoad = await this.jwtService.verifyAsync(access_token);
-            const account = await this.usersRepository.findOne({
-                where: { id: payLoad.id },
-            });
-            if (!account ||
-                account.nonce !== payLoad.nonce ||
-                account.role !== 'admin') {
-                return {
-                    statusCode: common_1.HttpStatus.FORBIDDEN,
-                    message: 'Unauthorized access',
-                    data: null,
-                };
-            }
+            const account = await this.verifyAdmin(access_token);
             const response = await this.usersRepository.findOne({ where: { id } });
             if (!response)
                 return {
@@ -745,19 +709,7 @@ let AdminService = class AdminService {
     }
     async findAllCategory(page = 1, limit = 10, name = '', access_token) {
         try {
-            const payLoad = await this.jwtService.verifyAsync(access_token);
-            const account = await this.usersRepository.findOne({
-                where: { id: payLoad.id },
-            });
-            if (!account ||
-                account.nonce !== payLoad.nonce ||
-                account.role !== 'admin') {
-                return {
-                    statusCode: common_1.HttpStatus.FORBIDDEN,
-                    message: 'Unauthorized access',
-                    data: null,
-                };
-            }
+            const account = await this.verifyAdmin(access_token);
             const [response, totalItems] = await this.categoryRepository.findAndCount({
                 where: [
                     { name: (0, typeorm_2.ILike)(`%${name}%`) },
@@ -793,19 +745,7 @@ let AdminService = class AdminService {
     }
     async findByIdCategory(id, access_token) {
         try {
-            const payLoad = await this.jwtService.verifyAsync(access_token);
-            const account = await this.usersRepository.findOne({
-                where: { id: payLoad.id },
-            });
-            if (!account ||
-                account.nonce !== payLoad.nonce ||
-                account.role !== 'admin') {
-                return {
-                    statusCode: common_1.HttpStatus.FORBIDDEN,
-                    message: 'Unauthorized access',
-                    data: null,
-                };
-            }
+            const account = await this.verifyAdmin(access_token);
             const response = await this.categoryRepository.findOne({
                 where: { id },
                 relations: ['products', 'products.brand'],
@@ -833,19 +773,7 @@ let AdminService = class AdminService {
     }
     async findByNameCategory(name, access_token) {
         try {
-            const payLoad = await this.jwtService.verifyAsync(access_token);
-            const account = await this.usersRepository.findOne({
-                where: { id: payLoad.id },
-            });
-            if (!account ||
-                account.nonce !== payLoad.nonce ||
-                account.role !== 'admin') {
-                return {
-                    statusCode: common_1.HttpStatus.FORBIDDEN,
-                    message: 'Unauthorized access',
-                    data: null,
-                };
-            }
+            const account = await this.verifyAdmin(access_token);
             const response = await this.categoryRepository.find({
                 where: { name: (0, typeorm_2.ILike)(`%${name}%`) },
                 relations: ['products', 'products.brand'],
@@ -871,19 +799,7 @@ let AdminService = class AdminService {
     }
     async updateCategory(id, category, access_token) {
         try {
-            const payLoad = await this.jwtService.verifyAsync(access_token);
-            const account = await this.usersRepository.findOne({
-                where: { id: payLoad.id },
-            });
-            if (!account ||
-                account.nonce !== payLoad.nonce ||
-                account.role !== 'admin') {
-                return {
-                    statusCode: common_1.HttpStatus.FORBIDDEN,
-                    message: 'Unauthorized access',
-                    data: null,
-                };
-            }
+            const account = await this.verifyAdmin(access_token);
             await this.categoryRepository.update({ id }, category);
             const response = await this.categoryRepository.findOne({
                 where: { id },
@@ -916,19 +832,7 @@ let AdminService = class AdminService {
     }
     async deleteCategory(id, access_token) {
         try {
-            const payLoad = await this.jwtService.verifyAsync(access_token);
-            const account = await this.usersRepository.findOne({
-                where: { id: payLoad.id },
-            });
-            if (!account ||
-                account.nonce !== payLoad.nonce ||
-                account.role !== 'admin') {
-                return {
-                    statusCode: common_1.HttpStatus.FORBIDDEN,
-                    message: 'Unauthorized access',
-                    data: null,
-                };
-            }
+            const account = await this.verifyAdmin(access_token);
             const response = await this.categoryRepository.findOne({
                 where: { id },
                 relations: ['products', 'products.brand'],
@@ -957,25 +861,13 @@ let AdminService = class AdminService {
     }
     async createBrand(brand, access_token) {
         try {
-            console.log(brand);
             const account = await this.verifyAdmin(access_token);
-            cloudinary_1.v2.config({
-                cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-                api_key: process.env.CLOUDINARY_API_KEY,
-                api_secret: process.env.CLOUDINARY_API_SECRET,
-            });
-            const base64Data = brand.img.replace(/^data:image\/\w+;base64,/, '');
-            const uploadResult = await new Promise((resolve, reject) => {
-                cloudinary_1.v2.uploader.upload(`data:image/png;base64,${base64Data}`, {
-                    folder: 'Al-Arabiya',
-                    resource_type: 'auto',
-                }, (error, result) => {
-                    if (error)
-                        reject(error);
-                    resolve(result);
-                });
-            });
-            brand.img = uploadResult.secure_url;
+            if (brand.img) {
+                if (!(brand.img.startsWith('http') || brand.img.startsWith('/images/'))) {
+                    const uploadResult = await this.uploadToCloudinary(brand.img);
+                    brand.img = uploadResult;
+                }
+            }
             const savedBrand = await this.brandRepository.save(brand);
             return {
                 statusCode: common_1.HttpStatus.CREATED,
@@ -1111,37 +1003,12 @@ let AdminService = class AdminService {
     }
     async updateBrand(id, brand, access_token) {
         try {
-            const payLoad = await this.jwtService.verifyAsync(access_token);
-            const account = await this.usersRepository.findOne({
-                where: { id: payLoad.id },
-            });
-            if (!account ||
-                account.nonce !== payLoad.nonce ||
-                account.role !== 'admin') {
-                return {
-                    statusCode: common_1.HttpStatus.FORBIDDEN,
-                    message: 'Unauthorized access',
-                    data: null,
-                };
-            }
+            const account = await this.verifyAdmin(access_token);
             if (brand.img) {
-                cloudinary_1.v2.config({
-                    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-                    api_key: process.env.CLOUDINARY_API_KEY,
-                    api_secret: process.env.CLOUDINARY_API_SECRET,
-                });
-                const base64Data = brand.img.replace(/^data:image\/\w+;base64,/, '');
-                const uploadResult = await new Promise((resolve, reject) => {
-                    cloudinary_1.v2.uploader.upload(`data:image/png;base64,${base64Data}`, {
-                        folder: 'Al-Arabiya',
-                        resource_type: 'auto',
-                    }, (error, result) => {
-                        if (error)
-                            reject(error);
-                        resolve(result);
-                    });
-                });
-                brand.img = uploadResult.secure_url;
+                if (!(brand.img.startsWith('http') || brand.img.startsWith('/images/'))) {
+                    const uploadResult = await this.uploadToCloudinary(brand.img);
+                    brand.img = uploadResult;
+                }
             }
             await this.brandRepository.update({ id }, brand);
             const response = await this.brandRepository.findOne({
@@ -1175,19 +1042,7 @@ let AdminService = class AdminService {
     }
     async deleteBrand(id, access_token) {
         try {
-            const payLoad = await this.jwtService.verifyAsync(access_token);
-            const account = await this.usersRepository.findOne({
-                where: { id: payLoad.id },
-            });
-            if (!account ||
-                account.nonce !== payLoad.nonce ||
-                account.role !== 'admin') {
-                return {
-                    statusCode: common_1.HttpStatus.FORBIDDEN,
-                    message: 'Unauthorized access',
-                    data: null,
-                };
-            }
+            const account = await this.verifyAdmin(access_token);
             const response = await this.brandRepository.findOne({
                 where: { id },
                 relations: ['products', 'products.category'],
@@ -1227,36 +1082,15 @@ let AdminService = class AdminService {
                     data: null,
                 };
             }
-            cloudinary_1.v2.config({
-                cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-                api_key: process.env.CLOUDINARY_API_KEY,
-                api_secret: process.env.CLOUDINARY_API_SECRET,
-            });
-            const uploadedImageUrls = [];
-            for (let i = 0; i < product.img.length; i++) {
-                const base64Data = product.img[i].replace(/^data:image\/\w+;base64,/, '');
-                try {
-                    const uploadResult = await new Promise((resolve, reject) => {
-                        cloudinary_1.v2.uploader.upload(`data:image/png;base64,${base64Data}`, {
-                            folder: 'Al-Arabiya',
-                            resource_type: 'auto',
-                        }, (error, result) => {
-                            if (error)
-                                reject(error);
-                            resolve(result);
-                        });
-                    });
-                    uploadedImageUrls.push(uploadResult.secure_url);
-                }
-                catch (uploadError) {
-                    console.error(`Error uploading image ${i}:`, uploadError);
-                    throw new common_1.HttpException({
-                        statusCode: common_1.HttpStatus.BAD_REQUEST,
-                        message: `Failed to upload image ${i + 1}`,
-                    }, common_1.HttpStatus.BAD_REQUEST);
-                }
+            if (product.img?.length > 0) {
+                const updatedImages = await Promise.all(product.img.map(async (image) => {
+                    if (image.startsWith('http') || image.startsWith('/images/')) {
+                        return image;
+                    }
+                    return await this.uploadToCloudinary(image);
+                }));
+                product.img = updatedImages;
             }
-            product.img = uploadedImageUrls;
             const savedProduct = await this.productRepository.save(product);
             return {
                 statusCode: common_1.HttpStatus.CREATED,
@@ -1515,19 +1349,7 @@ let AdminService = class AdminService {
     }
     async deleteProduct(id, access_token) {
         try {
-            const payLoad = await this.jwtService.verifyAsync(access_token);
-            const account = await this.usersRepository.findOne({
-                where: { id: payLoad.id },
-            });
-            if (!account ||
-                account.nonce !== payLoad.nonce ||
-                account.role !== 'admin') {
-                return {
-                    statusCode: common_1.HttpStatus.FORBIDDEN,
-                    message: 'Unauthorized access',
-                    data: null,
-                };
-            }
+            const account = await this.verifyAdmin(access_token);
             const response = await this.productRepository.findOne({
                 where: { id },
                 relations: ['category', 'brand'],
@@ -1675,19 +1497,7 @@ let AdminService = class AdminService {
     }
     async updateOrder(id, order, access_token) {
         try {
-            const payLoad = await this.jwtService.verifyAsync(access_token);
-            const account = await this.usersRepository.findOne({
-                where: { id: payLoad.id },
-            });
-            if (!account ||
-                account.nonce !== payLoad.nonce ||
-                account.role !== 'admin') {
-                return {
-                    statusCode: common_1.HttpStatus.FORBIDDEN,
-                    message: 'Unauthorized access',
-                    data: null,
-                };
-            }
+            const account = await this.verifyAdmin(access_token);
             await this.orderRepository.update(id, order);
             const response = await this.orderRepository.findOne({
                 where: { id },
@@ -1716,19 +1526,7 @@ let AdminService = class AdminService {
     }
     async deleteOrder(id, access_token) {
         try {
-            const payLoad = await this.jwtService.verifyAsync(access_token);
-            const account = await this.usersRepository.findOne({
-                where: { id: payLoad.id },
-            });
-            if (!account ||
-                account.nonce !== payLoad.nonce ||
-                account.role !== 'admin') {
-                return {
-                    statusCode: common_1.HttpStatus.FORBIDDEN,
-                    message: 'Unauthorized access',
-                    data: null,
-                };
-            }
+            const account = await this.verifyAdmin(access_token);
             const response = await this.orderRepository.findOne({
                 where: { id },
                 relations: ['order_Products'],
@@ -1758,23 +1556,13 @@ let AdminService = class AdminService {
     async createSpecialOffer(specialOffer, access_token) {
         try {
             const account = await this.verifyAdmin(access_token);
-            cloudinary_1.v2.config({
-                cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-                api_key: process.env.CLOUDINARY_API_KEY,
-                api_secret: process.env.CLOUDINARY_API_SECRET,
-            });
-            const base64Data = specialOffer.img.replace(/^data:image\/\w+;base64,/, '');
-            const uploadResult = await new Promise((resolve, reject) => {
-                cloudinary_1.v2.uploader.upload(`data:image/png;base64,${base64Data}`, {
-                    folder: 'Al-Arabiya',
-                    resource_type: 'auto',
-                }, (error, result) => {
-                    if (error)
-                        reject(error);
-                    resolve(result);
-                });
-            });
-            specialOffer.img = uploadResult.secure_url;
+            if (specialOffer.img) {
+                if (!(specialOffer.img.startsWith('http') ||
+                    specialOffer.img.startsWith('/images/'))) {
+                    const uploadResult = await this.uploadToCloudinary(specialOffer.img);
+                    specialOffer.img = uploadResult;
+                }
+            }
             const savedSpecialOffer = await this.specialOfferRepository.save(specialOffer);
             return {
                 statusCode: common_1.HttpStatus.CREATED,
@@ -1843,18 +1631,13 @@ let AdminService = class AdminService {
     }
     async updateSpecialOffer(id, specialOffer, access_token) {
         try {
-            const payLoad = await this.jwtService.verifyAsync(access_token);
-            const account = await this.usersRepository.findOne({
-                where: { id: payLoad.id },
-            });
-            if (!account ||
-                account.nonce !== payLoad.nonce ||
-                account.role !== 'admin') {
-                return {
-                    statusCode: common_1.HttpStatus.FORBIDDEN,
-                    message: 'Unauthorized access',
-                    data: null,
-                };
+            const account = await this.verifyAdmin(access_token);
+            if (specialOffer.img) {
+                if (!(specialOffer.img.startsWith('http') ||
+                    specialOffer.img.startsWith('/images/'))) {
+                    const uploadResult = await this.uploadToCloudinary(specialOffer.img);
+                    specialOffer.img = uploadResult;
+                }
             }
             await this.specialOfferRepository.update({ id }, specialOffer);
             const response = await this.specialOfferRepository.findOne({
@@ -1883,19 +1666,7 @@ let AdminService = class AdminService {
     }
     async deleteSpecialOffer(id, access_token) {
         try {
-            const payLoad = await this.jwtService.verifyAsync(access_token);
-            const account = await this.usersRepository.findOne({
-                where: { id: payLoad.id },
-            });
-            if (!account ||
-                account.nonce !== payLoad.nonce ||
-                account.role !== 'admin') {
-                return {
-                    statusCode: common_1.HttpStatus.FORBIDDEN,
-                    message: 'Unauthorized access',
-                    data: null,
-                };
-            }
+            const account = await this.verifyAdmin(access_token);
             const response = await this.specialOfferRepository.findOne({
                 where: { id },
             });
@@ -2011,19 +1782,7 @@ let AdminService = class AdminService {
     }
     async updateCustomization(id, customization, access_token) {
         try {
-            const payLoad = await this.jwtService.verifyAsync(access_token);
-            const account = await this.usersRepository.findOne({
-                where: { id: payLoad.id },
-            });
-            if (!account ||
-                account.nonce !== payLoad.nonce ||
-                account.role !== 'admin') {
-                return {
-                    statusCode: common_1.HttpStatus.FORBIDDEN,
-                    message: 'Unauthorized access',
-                    data: null,
-                };
-            }
+            const account = await this.verifyAdmin(access_token);
             if (customization.featuredProducts ||
                 customization.brands ||
                 customization.categories) {
@@ -2114,19 +1873,7 @@ let AdminService = class AdminService {
     }
     async deleteCustomization(id, access_token) {
         try {
-            const payLoad = await this.jwtService.verifyAsync(access_token);
-            const account = await this.usersRepository.findOne({
-                where: { id: payLoad.id },
-            });
-            if (!account ||
-                account.nonce !== payLoad.nonce ||
-                account.role !== 'admin') {
-                return {
-                    statusCode: common_1.HttpStatus.FORBIDDEN,
-                    message: 'Unauthorized access',
-                    data: null,
-                };
-            }
+            const account = await this.verifyAdmin(access_token);
             const response = await this.customizationRepository.findOne({
                 where: { id },
                 relations: [
