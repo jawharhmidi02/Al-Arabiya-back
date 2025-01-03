@@ -101,20 +101,23 @@ export class AdminService {
   private async uploadToCloudinary(base64Image: string): Promise<string> {
     try {
       const base64Data = base64Image.replace(/^data:image\/\w+;base64,/, '');
+      const uploadResult = await new Promise<UploadApiResponse>(
+        (resolve, reject) => {
+          cloudinary.uploader.upload(
+            `data:image/png;base64,${base64Data}`,
+            {
+              folder: 'Al-Arabiya',
+              resource_type: 'auto',
+            },
+            (error, result) => {
+              if (error) reject(error);
+              resolve(result);
+            },
+          );
+        },
+      );
 
-      return new Promise((resolve, reject) => {
-        cloudinary.uploader.upload(
-          `data:image/png;base64,${base64Data}`,
-          {
-            folder: 'Al-Arabiya',
-            resource_type: 'auto',
-          },
-          (error, result) => {
-            if (error) reject(error);
-            resolve(result.secure_url);
-          },
-        );
-      });
+      return uploadResult.secure_url;
     } catch (error) {
       throw new HttpException('Failed to upload image', HttpStatus.BAD_REQUEST);
     }
