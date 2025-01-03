@@ -29,7 +29,11 @@ async function bootstrap() {
             return new common_1.BadRequestException(result);
         },
     }));
-    app.enableCors();
+    app.enableCors({
+        origin: ['https://al-arabiya.vercel.app', 'http://localhost:3000'],
+        methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+        credentials: true,
+    });
     app.useGlobalFilters(new http_exception_filter_1.HttpExceptionFilter());
     await app.listen(port);
     console.log(`Server is running on port ${port}`);
