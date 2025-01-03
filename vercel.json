@@ -6,24 +6,23 @@
       "use": "@vercel/node"
     }
   ],
-  "routes": [
+  "rewrites": [
     {
-      "src": "/(.*)",
-      "dest": "/dist/main.js"
+      "source": "/(.*)",
+      "destination": "/dist/main.js"
     }
   ],
   "headers": [
     {
-      "source": "/api/(.*)",
+      "source": "/(.*)",
       "headers": [
-        { "key": "Access-Control-Allow-Credentials", "value": "true" },
         {
-          "key": "Access-Control-Allow-Origin",
-          "value": "https://al-arabiya.vercel.app"
+          "key": "Access-Control-Allow-Credentials",
+          "value": "true"
         },
         {
           "key": "Access-Control-Allow-Origin",
-          "value": "http://localhost:3000"
+          "value": "https://al-arabiya.vercel.app, http://localhost:3000"
         },
         {
           "key": "Access-Control-Allow-Methods",
