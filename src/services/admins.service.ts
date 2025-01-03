@@ -2000,6 +2000,7 @@ export class AdminService {
       const queryBuilder = this.productRepository.createQueryBuilder('product');
       queryBuilder.leftJoinAndSelect('product.category', 'category');
       queryBuilder.leftJoinAndSelect('product.brand', 'brand');
+      queryBuilder.leftJoinAndSelect('product.orderProducts', 'orderProducts');
       queryBuilder.skip((page - 1) * limit).take(limit);
 
       if (filters.name) {
