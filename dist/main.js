@@ -11,18 +11,21 @@ async function bootstrap() {
     app.use((0, express_1.json)({ limit: '50mb' }));
     app.use((0, express_1.urlencoded)({ limit: '50mb', extended: true }));
     app.enableCors({
-        origin: ['https://al-arabiya.vercel.app', 'http://localhost:3000'],
-        methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
-        allowedHeaders: [
-            'Content-Type',
-            'Accept',
-            'Authorization',
-            'access_token',
-            'admin_access_token',
-        ],
+        origin: (origin, callback) => {
+            const allowedOrigins = [
+                'https://al-arabiya.vercel.app',
+                'http://localhost:3000',
+            ];
+            if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+                callback(null, true);
+            }
+            else {
+                callback(new Error('Not allowed by CORS'));
+            }
+        },
+        methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
         credentials: true,
-        preflightContinue: false,
-        optionsSuccessStatus: 204,
+        allowedHeaders: 'Content-Type, Accept, Authorization, access_token, admin_access_token',
     });
     app.useGlobalPipes(new common_1.ValidationPipe({
         whitelist: true,

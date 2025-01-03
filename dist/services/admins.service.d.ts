@@ -28,6 +28,8 @@ export declare class AdminService {
     private jwtService;
     private transporter;
     constructor(usersRepository: Repository<Users>, categoryRepository: Repository<Category>, brandRepository: Repository<Brand>, orderRepository: Repository<Order>, orderProductRepository: Repository<OrderProduct>, productRepository: Repository<Product>, specialOfferRepository: Repository<SpecialOffer>, customizationRepository: Repository<Customization>, jwtService: JwtService);
+    private uploadToCloudinary;
+    private verifyAdmin;
     signin(email: string, password: string): Promise<ApiResponse<{
         access_token: string;
     }>>;
