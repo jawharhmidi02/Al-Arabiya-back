@@ -85,9 +85,28 @@ export class AdminController {
 
   @Get('/user')
   async findAllUser(
+    @Query('page') page: number,
+    @Query('limit') limit: number,
+    @Query('sort') sort: string = 'created_At',
+    @Query('order') order: string = 'ASC',
+    @Query('search') search: string = '',
     @Headers('admin_access_token') admin_access_token: string,
-  ): Promise<ApiResponse<UsersResponse[]>> {
-    return await this.adminService.findAllUser(admin_access_token);
+  ): Promise<
+    ApiResponse<{
+      data: UsersResponse[];
+      totalPages: number;
+      currentPage: number;
+      totalItems: number;
+    }>
+  > {
+    return await this.adminService.findAllUser(
+      page,
+      limit,
+      sort,
+      order,
+      search,
+      admin_access_token,
+    );
   }
 
   @Get('/user/byid/:id')
@@ -405,6 +424,10 @@ export class AdminController {
   async findAllOrder(
     @Query('page') page: number,
     @Query('limit') limit: number,
+    @Query('sort') sort: string = 'created_At',
+    @Query('order') order: string = 'ASC',
+    @Query('search') search: string = '',
+    @Query('state') state: string = '',
     @Headers('admin_access_token') admin_access_token: string,
   ): Promise<
     ApiResponse<{
@@ -417,6 +440,10 @@ export class AdminController {
     return await this.adminService.findAllOrder(
       page,
       limit,
+      sort,
+      order,
+      search,
+      state,
       admin_access_token,
     );
   }

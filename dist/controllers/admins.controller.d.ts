@@ -17,7 +17,12 @@ export declare class AdminController {
     sendRecoverPass(email: string): Promise<ApiResponse<any>>;
     changePasswordFromRecover(admin_access_token: string, password: string): Promise<ApiResponse<UsersResponse>>;
     getRecoverPassHtml(admin_access_token: string): Promise<string>;
-    findAllUser(admin_access_token: string): Promise<ApiResponse<UsersResponse[]>>;
+    findAllUser(page: number, limit: number, sort: string, order: string, search: string, admin_access_token: string): Promise<ApiResponse<{
+        data: UsersResponse[];
+        totalPages: number;
+        currentPage: number;
+        totalItems: number;
+    }>>;
     findByIdUser(id: string, admin_access_token: string): Promise<ApiResponse<UsersResponse>>;
     updateUser(id: string, admin_access_token: string, user: UsersUpdate): Promise<ApiResponse<UsersResponse>>;
     deleteUser(id: string, admin_access_token: string): Promise<ApiResponse<UsersResponse>>;
@@ -68,7 +73,7 @@ export declare class AdminController {
     updateProduct(id: string, product: ProductUpdate, admin_access_token: string): Promise<ApiResponse<ProductResponse>>;
     deleteProduct(id: string, admin_access_token: string): Promise<ApiResponse<ProductResponse>>;
     createOrder(orderDto: OrderCreate, admin_access_token: string): Promise<ApiResponse<OrderResponse>>;
-    findAllOrder(page: number, limit: number, admin_access_token: string): Promise<ApiResponse<{
+    findAllOrder(page: number, limit: number, sort: string, order: string, search: string, state: string, admin_access_token: string): Promise<ApiResponse<{
         data: OrderResponse[];
         totalPages: number;
         currentPage: number;

@@ -1,4 +1,9 @@
-import { Injectable, HttpStatus, HttpException } from '@nestjs/common';
+import {
+  Injectable,
+  HttpStatus,
+  HttpException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Brackets, ILike, Or, Repository } from 'typeorm';
 import { Users } from '../entities/users.entity';
@@ -666,21 +671,98 @@ export class AdminService {
   /* USER ENDPOINTS */
 
   async findAllUser(
+    page: number = 1,
+    limit: number = 10,
+    sort: string = 'full_name',
+    order: string = 'ASC',
+    search: string = '',
     admin_access_token: string,
-  ): Promise<ApiResponse<UsersResponse[]>> {
+  ): Promise<
+    ApiResponse<{
+      data: UsersResponse[];
+      totalPages: number;
+      currentPage: number;
+      totalItems: number;
+    }>
+  > {
     try {
       const account = await this.verifyAdmin(admin_access_token);
 
-      const response = await this.usersRepository.find();
-      const data = response.map((user) => new UsersResponse(user));
+      const skip = (page - 1) * limit;
+
+      const queryBuilder = this.usersRepository.createQueryBuilder('user');
+
+      queryBuilder.where('user.id != :currentAccountId', {
+        currentAccountId: account.id,
+      });
+
+      if (search) {
+        const searchLower = search.toLowerCase().trim();
+
+        const isValidUUID =
+          /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+            searchLower,
+          );
+
+        if (isValidUUID) {
+          queryBuilder.where('user.id = :id', { id: searchLower });
+        } else {
+          queryBuilder.where(
+            '(LOWER(user.full_name) LIKE :search OR LOWER(user.email) LIKE :search OR LOWER(user.phone) LIKE :search OR LOWER(user.city) LIKE :search)',
+            { search: `%${searchLower}%` },
+          );
+        }
+      }
+
+      const allowedSortFields = ['full_name', 'email', 'created_At', 'id'];
+      const sortField = allowedSortFields.includes(sort) ? sort : 'full_name';
+
+      queryBuilder.orderBy(
+        `user.${sortField}`,
+        order.toUpperCase() as 'ASC' | 'DESC',
+      );
+
+      queryBuilder.skip(skip).take(limit);
+
+      const [users, totalItems] = await queryBuilder.getManyAndCount();
+
+      const totalPages = Math.ceil(totalItems / limit);
+
+      const data = users.map((user) => new UsersResponse(user));
 
       return {
         statusCode: HttpStatus.OK,
         message: 'Users retrieved successfully',
-        data,
+        data: {
+          data,
+          totalPages,
+          currentPage: page,
+          totalItems,
+        },
       };
     } catch (error) {
-      console.error(error.response);
+      console.error(error);
+
+      if (error instanceof UnauthorizedException) {
+        throw new HttpException(
+          {
+            statusCode: HttpStatus.UNAUTHORIZED,
+            message: 'Unauthorized access',
+          },
+          HttpStatus.UNAUTHORIZED,
+        );
+      }
+
+      if (error.code === '22P02') {
+        throw new HttpException(
+          {
+            statusCode: HttpStatus.BAD_REQUEST,
+            message: 'Invalid ID format',
+          },
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+
       throw new HttpException(
         {
           statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
@@ -1906,6 +1988,10 @@ export class AdminService {
   async findAllOrder(
     page: number = 1,
     limit: number = 10,
+    sort: string = 'created_At',
+    order: string = 'ASC',
+    search: string = '',
+    state: string = '',
     admin_access_token: string,
   ): Promise<
     ApiResponse<{
@@ -1917,20 +2003,105 @@ export class AdminService {
   > {
     try {
       const account = await this.verifyAdmin(admin_access_token);
+      const skip = (page - 1) * limit;
 
-      const [response, totalItems] = await this.orderRepository.findAndCount({
-        skip: (page - 1) * limit,
-        take: limit,
-        relations: ['order_Products'],
-      });
+      const queryBuilder = this.orderRepository
+        .createQueryBuilder('order')
+        .leftJoinAndSelect('order.order_Products', 'order_Products')
+        .leftJoinAndSelect('order_Products.product', 'product');
 
-      const data = response.map((item) => new OrderResponse(item));
+      if (search) {
+        const searchLower = search.toLowerCase().trim();
+
+        const isValidUUID =
+          /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+            searchLower,
+          );
+
+        if (isValidUUID) {
+          queryBuilder.where('order.id = :id', { id: searchLower });
+        } else {
+          queryBuilder.where(
+            '(LOWER(order.first_name) LIKE :search OR LOWER(order.last_name) LIKE :search OR LOWER(order.email) LIKE :search OR LOWER(order.phone) LIKE :search OR LOWER(order.city) LIKE :search)',
+            { search: `%${searchLower}%` },
+          );
+        }
+      }
+
+      if (state) {
+        if (search) {
+          queryBuilder.andWhere('order.state = :state', { state });
+        } else {
+          queryBuilder.where('order.state = :state', { state });
+        }
+      }
+
+      const allowedSortFields = [
+        'created_At',
+        'first_name',
+        'last_name',
+        'email',
+        'state',
+        'city',
+        'type',
+        'deliveryPrice',
+        'order_Products',
+        'total_Price',
+      ];
+
+      const sortField = allowedSortFields.includes(sort) ? sort : 'created_At';
+
+      if (sortField === 'order_Products') {
+        queryBuilder.loadRelationCountAndMap(
+          'order.products_count',
+          'order.order_Products',
+        );
+
+        queryBuilder.addSelect((subQuery) => {
+          return subQuery
+            .select('COUNT(op.id)', 'products_count')
+            .from(OrderProduct, 'op')
+            .where('op.orderId = order.id');
+        }, 'products_count');
+        queryBuilder.orderBy(
+          'products_count',
+          order.toUpperCase() as 'ASC' | 'DESC',
+        );
+      } else if (sortField === 'total_Price') {
+        queryBuilder.addSelect((subQuery) => {
+          return subQuery
+            .select(
+              'COALESCE(SUM(op.price * op.quantity), 0) + o.deliveryPrice',
+              'total_price',
+            )
+            .from(OrderProduct, 'op')
+            .leftJoin(Order, 'o', 'o.id = op.orderId')
+            .where('op.orderId = order.id')
+            .groupBy('o.id');
+        }, 'total_price');
+
+        queryBuilder.orderBy(
+          'total_price',
+          order.toUpperCase() as 'ASC' | 'DESC',
+        );
+      } else {
+        queryBuilder.orderBy(
+          `order.${sortField}`,
+          order.toUpperCase() as 'ASC' | 'DESC',
+        );
+      }
+
+      queryBuilder.skip(skip).take(limit);
+
+      const [orders, totalItems] = await queryBuilder.getManyAndCount();
+
+      const data = orders.map((order) => new OrderResponse(order));
 
       return {
         statusCode: HttpStatus.OK,
         message: 'Orders retrieved successfully',
         data: {
-          data: data,
+          data,
           totalPages: Math.ceil(totalItems / limit),
           currentPage: page,
           totalItems,
@@ -1938,6 +2109,27 @@ export class AdminService {
       };
     } catch (error) {
       console.error(error);
+
+      if (error instanceof UnauthorizedException) {
+        throw new HttpException(
+          {
+            statusCode: HttpStatus.UNAUTHORIZED,
+            message: 'Unauthorized access',
+          },
+          HttpStatus.UNAUTHORIZED,
+        );
+      }
+
+      if (error.code === '22P02') {
+        throw new HttpException(
+          {
+            statusCode: HttpStatus.BAD_REQUEST,
+            message: 'Invalid ID format',
+          },
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+
       throw new HttpException(
         {
           statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
@@ -1957,7 +2149,7 @@ export class AdminService {
 
       const response = await this.orderRepository.findOne({
         where: { id },
-        relations: ['order_Products'],
+        relations: ['order_Products',"order_Products.product"],
       });
 
       if (!response)

@@ -41,8 +41,8 @@ let AdminController = class AdminController {
     async getRecoverPassHtml(admin_access_token) {
         return await this.adminService.recoverPageHtml(admin_access_token);
     }
-    async findAllUser(admin_access_token) {
-        return await this.adminService.findAllUser(admin_access_token);
+    async findAllUser(page, limit, sort = 'created_At', order = 'ASC', search = '', admin_access_token) {
+        return await this.adminService.findAllUser(page, limit, sort, order, search, admin_access_token);
     }
     async findByIdUser(id, admin_access_token) {
         return await this.adminService.findByIdUser(id, admin_access_token);
@@ -125,8 +125,8 @@ let AdminController = class AdminController {
     async createOrder(orderDto, admin_access_token) {
         return await this.adminService.createOrder(orderDto, admin_access_token);
     }
-    async findAllOrder(page, limit, admin_access_token) {
-        return await this.adminService.findAllOrder(page, limit, admin_access_token);
+    async findAllOrder(page, limit, sort = 'created_At', order = 'ASC', search = '', state = '', admin_access_token) {
+        return await this.adminService.findAllOrder(page, limit, sort, order, search, state, admin_access_token);
     }
     async findByIdOrder(id, admin_access_token) {
         return await this.adminService.findByIdOrder(id, admin_access_token);
@@ -208,9 +208,14 @@ __decorate([
 ], AdminController.prototype, "getRecoverPassHtml", null);
 __decorate([
     (0, common_1.Get)('/user'),
-    __param(0, (0, common_1.Headers)('admin_access_token')),
+    __param(0, (0, common_1.Query)('page')),
+    __param(1, (0, common_1.Query)('limit')),
+    __param(2, (0, common_1.Query)('sort')),
+    __param(3, (0, common_1.Query)('order')),
+    __param(4, (0, common_1.Query)('search')),
+    __param(5, (0, common_1.Headers)('admin_access_token')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [Number, Number, String, String, String, String]),
     __metadata("design:returntype", Promise)
 ], AdminController.prototype, "findAllUser", null);
 __decorate([
@@ -436,9 +441,13 @@ __decorate([
     (0, common_1.Get)('/order'),
     __param(0, (0, common_1.Query)('page')),
     __param(1, (0, common_1.Query)('limit')),
-    __param(2, (0, common_1.Headers)('admin_access_token')),
+    __param(2, (0, common_1.Query)('sort')),
+    __param(3, (0, common_1.Query)('order')),
+    __param(4, (0, common_1.Query)('search')),
+    __param(5, (0, common_1.Query)('state')),
+    __param(6, (0, common_1.Headers)('admin_access_token')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number, Number, String]),
+    __metadata("design:paramtypes", [Number, Number, String, String, String, String, String]),
     __metadata("design:returntype", Promise)
 ], AdminController.prototype, "findAllOrder", null);
 __decorate([

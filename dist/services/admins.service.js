@@ -580,19 +580,56 @@ let AdminService = class AdminService {
             };
         }
     }
-    async findAllUser(admin_access_token) {
+    async findAllUser(page = 1, limit = 10, sort = 'full_name', order = 'ASC', search = '', admin_access_token) {
         try {
             const account = await this.verifyAdmin(admin_access_token);
-            const response = await this.usersRepository.find();
-            const data = response.map((user) => new users_dto_1.UsersResponse(user));
+            const skip = (page - 1) * limit;
+            const queryBuilder = this.usersRepository.createQueryBuilder('user');
+            queryBuilder.where('user.id != :currentAccountId', {
+                currentAccountId: account.id,
+            });
+            if (search) {
+                const searchLower = search.toLowerCase().trim();
+                const isValidUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(searchLower);
+                if (isValidUUID) {
+                    queryBuilder.where('user.id = :id', { id: searchLower });
+                }
+                else {
+                    queryBuilder.where('(LOWER(user.full_name) LIKE :search OR LOWER(user.email) LIKE :search OR LOWER(user.phone) LIKE :search OR LOWER(user.city) LIKE :search)', { search: `%${searchLower}%` });
+                }
+            }
+            const allowedSortFields = ['full_name', 'email', 'created_At', 'id'];
+            const sortField = allowedSortFields.includes(sort) ? sort : 'full_name';
+            queryBuilder.orderBy(`user.${sortField}`, order.toUpperCase());
+            queryBuilder.skip(skip).take(limit);
+            const [users, totalItems] = await queryBuilder.getManyAndCount();
+            const totalPages = Math.ceil(totalItems / limit);
+            const data = users.map((user) => new users_dto_1.UsersResponse(user));
             return {
                 statusCode: common_1.HttpStatus.OK,
                 message: 'Users retrieved successfully',
-                data,
+                data: {
+                    data,
+                    totalPages,
+                    currentPage: page,
+                    totalItems,
+                },
             };
         }
         catch (error) {
-            console.error(error.response);
+            console.error(error);
+            if (error instanceof common_1.UnauthorizedException) {
+                throw new common_1.HttpException({
+                    statusCode: common_1.HttpStatus.UNAUTHORIZED,
+                    message: 'Unauthorized access',
+                }, common_1.HttpStatus.UNAUTHORIZED);
+            }
+            if (error.code === '22P02') {
+                throw new common_1.HttpException({
+                    statusCode: common_1.HttpStatus.BAD_REQUEST,
+                    message: 'Invalid ID format',
+                }, common_1.HttpStatus.BAD_REQUEST);
+            }
             throw new common_1.HttpException({
                 statusCode: common_1.HttpStatus.INTERNAL_SERVER_ERROR,
                 message: error.message || 'Failed to retrieve users',
@@ -1444,20 +1481,77 @@ let AdminService = class AdminService {
             throw new common_1.HttpException(error.message || 'Failed to create order', common_1.HttpStatus.BAD_REQUEST);
         }
     }
-    async findAllOrder(page = 1, limit = 10, admin_access_token) {
+    async findAllOrder(page = 1, limit = 10, sort = 'created_At', order = 'ASC', search = '', state = '', admin_access_token) {
         try {
             const account = await this.verifyAdmin(admin_access_token);
-            const [response, totalItems] = await this.orderRepository.findAndCount({
-                skip: (page - 1) * limit,
-                take: limit,
-                relations: ['order_Products'],
-            });
-            const data = response.map((item) => new orders_dto_1.OrderResponse(item));
+            const skip = (page - 1) * limit;
+            const queryBuilder = this.orderRepository
+                .createQueryBuilder('order')
+                .leftJoinAndSelect('order.order_Products', 'order_Products')
+                .leftJoinAndSelect('order_Products.product', 'product');
+            if (search) {
+                const searchLower = search.toLowerCase().trim();
+                const isValidUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(searchLower);
+                if (isValidUUID) {
+                    queryBuilder.where('order.id = :id', { id: searchLower });
+                }
+                else {
+                    queryBuilder.where('(LOWER(order.first_name) LIKE :search OR LOWER(order.last_name) LIKE :search OR LOWER(order.email) LIKE :search OR LOWER(order.phone) LIKE :search OR LOWER(order.city) LIKE :search)', { search: `%${searchLower}%` });
+                }
+            }
+            if (state) {
+                if (search) {
+                    queryBuilder.andWhere('order.state = :state', { state });
+                }
+                else {
+                    queryBuilder.where('order.state = :state', { state });
+                }
+            }
+            const allowedSortFields = [
+                'created_At',
+                'first_name',
+                'last_name',
+                'email',
+                'state',
+                'city',
+                'type',
+                'deliveryPrice',
+                'order_Products',
+                'total_Price',
+            ];
+            const sortField = allowedSortFields.includes(sort) ? sort : 'created_At';
+            if (sortField === 'order_Products') {
+                queryBuilder.loadRelationCountAndMap('order.products_count', 'order.order_Products');
+                queryBuilder.addSelect((subQuery) => {
+                    return subQuery
+                        .select('COUNT(op.id)', 'products_count')
+                        .from(orderProduct_entity_1.OrderProduct, 'op')
+                        .where('op.orderId = order.id');
+                }, 'products_count');
+                queryBuilder.orderBy('products_count', order.toUpperCase());
+            }
+            else if (sortField === 'total_Price') {
+                queryBuilder.addSelect((subQuery) => {
+                    return subQuery
+                        .select('COALESCE(SUM(op.price * op.quantity), 0) + o.deliveryPrice', 'total_price')
+                        .from(orderProduct_entity_1.OrderProduct, 'op')
+                        .leftJoin(orders_entity_1.Order, 'o', 'o.id = op.orderId')
+                        .where('op.orderId = order.id')
+                        .groupBy('o.id');
+                }, 'total_price');
+                queryBuilder.orderBy('total_price', order.toUpperCase());
+            }
+            else {
+                queryBuilder.orderBy(`order.${sortField}`, order.toUpperCase());
+            }
+            queryBuilder.skip(skip).take(limit);
+            const [orders, totalItems] = await queryBuilder.getManyAndCount();
+            const data = orders.map((order) => new orders_dto_1.OrderResponse(order));
             return {
                 statusCode: common_1.HttpStatus.OK,
                 message: 'Orders retrieved successfully',
                 data: {
-                    data: data,
+                    data,
                     totalPages: Math.ceil(totalItems / limit),
                     currentPage: page,
                     totalItems,
@@ -1466,6 +1560,18 @@ let AdminService = class AdminService {
         }
         catch (error) {
             console.error(error);
+            if (error instanceof common_1.UnauthorizedException) {
+                throw new common_1.HttpException({
+                    statusCode: common_1.HttpStatus.UNAUTHORIZED,
+                    message: 'Unauthorized access',
+                }, common_1.HttpStatus.UNAUTHORIZED);
+            }
+            if (error.code === '22P02') {
+                throw new common_1.HttpException({
+                    statusCode: common_1.HttpStatus.BAD_REQUEST,
+                    message: 'Invalid ID format',
+                }, common_1.HttpStatus.BAD_REQUEST);
+            }
             throw new common_1.HttpException({
                 statusCode: common_1.HttpStatus.INTERNAL_SERVER_ERROR,
                 message: error.message || 'Failed to retrieve Orders',
@@ -1477,7 +1583,7 @@ let AdminService = class AdminService {
             const account = await this.verifyAdmin(admin_access_token);
             const response = await this.orderRepository.findOne({
                 where: { id },
-                relations: ['order_Products'],
+                relations: ['order_Products', "order_Products.product"],
             });
             if (!response)
                 return {

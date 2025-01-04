@@ -51,7 +51,7 @@ export class Order {
 
   @ManyToOne(() => Users, (user) => user.orders, {
     nullable: true,
-    onDelete: 'SET NULL',
+    onDelete: 'CASCADE',
   })
   user: Users;
 }

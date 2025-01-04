@@ -69,7 +69,7 @@ __decorate([
 __decorate([
     (0, typeorm_1.ManyToOne)(() => users_entity_1.Users, (user) => user.orders, {
         nullable: true,
-        onDelete: 'SET NULL',
+        onDelete: 'CASCADE',
     }),
     __metadata("design:type", users_entity_1.Users)
 ], Order.prototype, "user", void 0);
